@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -67,15 +67,15 @@
             gap: 1.5rem;
         }
 
-        /* 玻璃基底 + 浮动入场 (速度800ms) */
+        /* 玻璃基底 + 浮动入场 */
         .glass {
             background: var(--card-bg);
             backdrop-filter: blur(var(--blur-amount));
             -webkit-backdrop-filter: blur(var(--blur-amount));
             border: 1px solid var(--card-border);
             box-shadow: var(--shadow-sm), 0 0 0 1px rgba(255, 255, 255, 0.02) inset;
-            transition: transform 0.6s ease, box-shadow 1.0s ease;
-            animation: floatGlowIn 1.6s cubic-bezier(0.2, 0.9, 0.3, 1.2) forwards;
+            transition: transform 0.25s ease, box-shadow 0.3s ease;
+            animation: floatGlowIn 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.2) forwards;
         }
         .glass:hover {
             box-shadow: 0 20px 40px -16px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
@@ -93,18 +93,25 @@
             }
         }
 
-        /* 顶部长条：包裹头像 */
+        /* 顶部长条：包裹头像 + 博客链接 */
         .profile-bar {
             max-width: 600px;
             width: 100%;
             display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 0;
             border-radius: 60px;
             padding: 0;
             transition: all 0.2s ease;
             height: 120px;
             overflow: hidden;
+        }
+        .profile-left {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            flex: 1;
         }
         .profile-bar:hover {
             background: rgba(28, 32, 42, 0.6);
@@ -115,8 +122,11 @@
             flex-shrink: 0;
             width: 96px;
             height: 96px;
+            background: linear-gradient(135deg, #d9e6ff, #a3c0f0);
             border-radius: 50%;
-            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             box-shadow: 0 8px 16px -6px rgba(0, 0, 0, 0.3), 0 0 0 2px rgba(255, 255, 255, 0.1);
             transition: transform 0.2s ease;
             margin-left: 12px;
@@ -125,7 +135,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            display: block;
+            border-radius: 50%;
         }
         .avatar:hover {
             transform: scale(1.02);
@@ -173,6 +183,28 @@
             100% { opacity: 1; transform: scale(1.2);}
         }
 
+        /* 博客链接按钮 */
+        .blog-link {
+            margin-right: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(4px);
+            padding: 0.5rem 1rem;
+            border-radius: 40px;
+            border: 0.5px solid rgba(255,255,255,0.1);
+            text-decoration: none;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .blog-link:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-1px);
+            color: var(--accent);
+            border-color: rgba(255,255,255,0.2);
+        }
+
         /* 内容卡片 */
         .content-card {
             max-width: 600px;
@@ -198,7 +230,6 @@
             margin-bottom: 1.8rem;
         }
 
-        /* 正方形卡片，SVG图标居中，悬停展开文字(仅名称) */
         .interest-card {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(4px);
@@ -251,7 +282,6 @@
             display: none;
             margin-top: 0.4rem;
         }
-        /* 去掉描述区域 */
         .interest-desc {
             display: none;
         }
@@ -271,7 +301,6 @@
             width: 56px;
         }
 
-        /* 联系方式图标 (圆形背景) */
         .contact-links {
             display: flex;
             gap: 1.5rem;
@@ -348,6 +377,11 @@
             .info-group {
                 padding: 0 1rem;
             }
+            .blog-link {
+                margin-right: 1rem;
+                padding: 0.3rem 0.8rem;
+                font-size: 0.75rem;
+            }
             .content-card {
                 padding: 1.5rem;
             }
@@ -374,18 +408,21 @@
 </head>
 <body>
 <div class="container">
-    <!-- 顶部条：头像 + 姓名 + 状态 -->
+    <!-- 顶部条：头像 + 信息 + 博客链接 -->
     <div class="profile-bar glass">
-        <div class="avatar">
-            <img src="https://picui.ogmua.cn/s1/2026/04/04/69d0b65d5a9d6.webp" alt="teCJoy">
-        </div>
-        <div class="info-group">
-            <div class="name">teCJoy</div>
-            <div class="status-dot">
-                <span class="dot"></span>
-                <span>Unstoppable!</span>
+        <div class="profile-left">
+            <div class="avatar">
+                <img src="https://picui.ogmua.cn/s1/2026/04/04/69d0b65d5a9d6.webp" alt="teCJoy">
+            </div>
+            <div class="info-group">
+                <div class="name">teCJoy</div>
+                <div class="status-dot">
+                    <span class="dot"></span>
+                    <span>Unstoppable!</span>
+                </div>
             </div>
         </div>
+        <a href="https://space-6oo.pages.dev/blogs/" class="blog-link" target="_blank" rel="noopener noreferrer">Blog</a>
     </div>
 
     <!-- 内容卡片 -->
@@ -494,7 +531,7 @@
         </div>
 
         <div class="footer-note">
-            ✦ All For Ultimate ✦ <span id="currentYear"></span>
+            - All For Ultimate - <span id="currentYear"></span>
         </div>
     </div>
 </div>
