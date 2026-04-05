@@ -157,6 +157,8 @@
         /* post detail */
         .post-content {
             margin-top: 1rem;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
         .post-content h1 {
             font-size: 1.8rem;
@@ -177,6 +179,13 @@
         .post-content p {
             margin: 0.8rem 0;
             line-height: 1.6;
+        }
+        .post-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            display: block;
+            margin: 1rem 0;
         }
         .post-content code {
             background: rgba(0,0,0,0.3);
@@ -241,18 +250,21 @@
     const postParam = getQueryParam('post');
     const contentDiv = document.getElementById('content');
 
+    // 全局存储文章元数据
+    let postsMetadata = [];
+
     async function loadPostList() {
         try {
             const res = await fetch('./posts.json');
             if (!res.ok) throw new Error('Failed to load posts');
-            const posts = await res.json();
-            posts.sort((a, b) => new Date(b.date) - new Date(a.date));
-            if (posts.length === 0) {
+            postsMetadata = await res.json();
+            postsMetadata.sort((a, b) => new Date(b.date) - new Date(a.date));
+            if (postsMetadata.length === 0) {
                 contentDiv.innerHTML = '<div class="error">No posts yet. Stay tuned!</div>';
                 return;
             }
             let html = '<ul class="post-list">';
-            for (const post of posts) {
+            for (const post of postsMetadata) {
                 html += `
                     <li class="post-item">
                         <a href="?post=${encodeURIComponent(post.filename)}" class="post-title">${escapeHtml(post.title)}</a>
@@ -269,15 +281,18 @@
 
     async function loadPost(filename) {
         try {
+            // 从元数据中找到对应的标题
+            const meta = postsMetadata.find(p => p.filename === filename);
+            const postTitle = meta ? meta.title : filename.replace(/\.md$/, '').replace(/-/g, ' ');
+            
             const res = await fetch(`./posts/${filename}`);
             if (!res.ok) throw new Error('Post not found');
             const markdown = await res.text();
             const htmlContent = marked.parse(markdown);
-            let title = filename.replace(/\.md$/, '').replace(/-/g, ' ');
             contentDiv.innerHTML = `
                 <div class="post-content">
-                    <h1>${escapeHtml(title)}</h1>
-                    <div class="post-meta">[Date] ${new Date().toISOString().slice(0,10)}</div>
+                    <h1>${escapeHtml(postTitle)}</h1>
+                    <div class="post-meta">[Date] ${meta ? meta.date : new Date().toISOString().slice(0,10)}</div>
                     ${htmlContent}
                     <a href="?back=true" class="back-link" id="backToList">← Back to list</a>
                 </div>
@@ -301,11 +316,23 @@
         });
     }
 
-    if (postParam) {
-        loadPost(postParam);
-    } else {
-        loadPostList();
+    // 先加载元数据，再决定显示列表还是文章
+    async function init() {
+        try {
+            const res = await fetch('./posts.json');
+            if (!res.ok) throw new Error('Failed to load posts metadata');
+            postsMetadata = await res.json();
+            if (postParam) {
+                loadPost(postParam);
+            } else {
+                loadPostList();
+            }
+        } catch (err) {
+            contentDiv.innerHTML = `<div class="error">Failed to initialize: ${err.message}</div>`;
+        }
     }
+
+    init();
 
     window.addEventListener('popstate', () => {
         const newPost = getQueryParam('post');
