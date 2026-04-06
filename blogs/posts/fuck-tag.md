@@ -1,6 +1,11 @@
-# 神人Tag！！！
-
+# 论一个Tag的作用
+当你把一个Tag挂在包上
+然后有一天你的同桌告诉你Tag没了
+你才领悟到
+Tag的作用是它掉了的时候你可以找到它
+但事情往往事与愿违
+![](https://picui.ogmua.cn/s1/2026/04/05/69d24fdaab491.webp)
+你回家，惊奇地发现它三天前离线了👀
 ![](https://picui.ogmua.cn/s1/2026/04/05/69d24fd750a1d.webp
 )
-
-![](https://picui.ogmua.cn/s1/2026/04/05/69d24fdaab491.webp)
+在你绝望的周末同桌告诉你在他包里...
