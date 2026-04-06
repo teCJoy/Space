@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>teCJoy · Blog</title>
+    <!-- KaTeX CSS for math rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <!-- Mermaid for diagrams (pie, etc.) -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
+    <!-- Marked for markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- KaTeX JS for math -->
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}] });"></script>
     <style>
         * {
             margin: 0;
@@ -64,7 +73,7 @@
         }
 
         .glass-card {
-            max-width: 800px;
+            max-width: 900px;
             width: 100%;
             background: var(--card-bg);
             backdrop-filter: blur(var(--blur-amount));
@@ -154,11 +163,10 @@
             color: var(--accent);
         }
 
-        /* post detail */
+        /* post detail - enhanced for images, tables, mermaid, math, video */
         .post-content {
             margin-top: 1rem;
             word-wrap: break-word;
-            overflow-wrap: break-word;
         }
         .post-content h1 {
             font-size: 1.8rem;
@@ -185,7 +193,28 @@
             height: auto;
             border-radius: 12px;
             display: block;
+            margin: 1rem auto;
+        }
+        .post-content iframe {
+            max-width: 100%;
+            border-radius: 12px;
             margin: 1rem 0;
+        }
+        .post-content table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1rem 0;
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .post-content th, .post-content td {
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 0.5rem;
+            text-align: left;
+        }
+        .post-content th {
+            background: rgba(192,224,255,0.1);
         }
         .post-content code {
             background: rgba(0,0,0,0.3);
@@ -205,6 +234,13 @@
             padding-left: 1rem;
             color: var(--text-secondary);
             margin: 1rem 0;
+        }
+        .post-content .mermaid {
+            background: rgba(0,0,0,0.2);
+            padding: 1rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+            text-align: center;
         }
         .back-link {
             display: inline-block;
@@ -226,7 +262,34 @@
             padding: 2rem;
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Content Security Policy to allow Bilibili and other iframe embeds -->
+    <meta http-equiv="Content-Security-Policy" content="frame-src https://player.bilibili.com https://www.youtube.com https://www.youtube-nocookie.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;">
+    <script>
+        // Initialize mermaid after marked renders
+        function renderMermaid() {
+            if (typeof mermaid !== 'undefined') {
+                mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+                document.querySelectorAll('.post-content pre code.language-mermaid, .post-content pre code').forEach((block) => {
+                    if (block.parentElement && block.innerText.trim().startsWith('pie')) {
+                        const pre = block.parentElement;
+                        const container = document.createElement('div');
+                        container.className = 'mermaid';
+                        container.innerText = block.innerText;
+                        pre.parentNode.replaceChild(container, pre);
+                    }
+                });
+                mermaid.run({ querySelector: '.mermaid' });
+            }
+        }
+
+        // Custom marked renderer to handle raw HTML (like iframe) safely
+        function processMarkdown(markdown) {
+            // Use marked to parse markdown, but preserve raw HTML (iframe, video, etc.)
+            const rawHtml = marked.parse(markdown, { mangle: false, headerIds: false });
+            // Return as is, marked already passes HTML through
+            return rawHtml;
+        }
+    </script>
 </head>
 <body>
 <div class="container">
@@ -250,21 +313,18 @@
     const postParam = getQueryParam('post');
     const contentDiv = document.getElementById('content');
 
-    // 全局存储文章元数据
-    let postsMetadata = [];
-
     async function loadPostList() {
         try {
             const res = await fetch('./posts.json');
             if (!res.ok) throw new Error('Failed to load posts');
-            postsMetadata = await res.json();
-            postsMetadata.sort((a, b) => new Date(b.date) - new Date(a.date));
-            if (postsMetadata.length === 0) {
+            const posts = await res.json();
+            posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+            if (posts.length === 0) {
                 contentDiv.innerHTML = '<div class="error">No posts yet. Stay tuned!</div>';
                 return;
             }
             let html = '<ul class="post-list">';
-            for (const post of postsMetadata) {
+            for (const post of posts) {
                 html += `
                     <li class="post-item">
                         <a href="?post=${encodeURIComponent(post.filename)}" class="post-title">${escapeHtml(post.title)}</a>
@@ -281,22 +341,34 @@
 
     async function loadPost(filename) {
         try {
-            // 从元数据中找到对应的标题
-            const meta = postsMetadata.find(p => p.filename === filename);
-            const postTitle = meta ? meta.title : filename.replace(/\.md$/, '').replace(/-/g, ' ');
-            
             const res = await fetch(`./posts/${filename}`);
             if (!res.ok) throw new Error('Post not found');
             const markdown = await res.text();
-            const htmlContent = marked.parse(markdown);
+            // Use custom processing to keep raw HTML (for iframes)
+            let htmlContent = processMarkdown(markdown);
+            // Extract title from first heading if possible, otherwise from filename
+            let titleMatch = markdown.match(/^#\s+(.+)$/m);
+            let title = titleMatch ? titleMatch[1] : filename.replace(/\.md$/, '').replace(/-/g, ' ');
             contentDiv.innerHTML = `
                 <div class="post-content">
-                    <h1>${escapeHtml(postTitle)}</h1>
-                    <div class="post-meta">[Date] ${meta ? meta.date : new Date().toISOString().slice(0,10)}</div>
+                    <h1>${escapeHtml(title)}</h1>
+                    <div class="post-meta">[Date] ${new Date().toISOString().slice(0,10)}</div>
                     ${htmlContent}
                     <a href="?back=true" class="back-link" id="backToList">← Back to list</a>
                 </div>
             `;
+            // Render math formulas
+            if (typeof renderMathInElement !== 'undefined') {
+                renderMathInElement(document.querySelector('.post-content'), {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false}
+                    ]
+                });
+            }
+            // Render mermaid diagrams
+            renderMermaid();
+            // Add event listener for back button
             document.getElementById('backToList')?.addEventListener('click', (e) => {
                 e.preventDefault();
                 window.history.pushState({}, '', window.location.pathname);
@@ -316,23 +388,11 @@
         });
     }
 
-    // 先加载元数据，再决定显示列表还是文章
-    async function init() {
-        try {
-            const res = await fetch('./posts.json');
-            if (!res.ok) throw new Error('Failed to load posts metadata');
-            postsMetadata = await res.json();
-            if (postParam) {
-                loadPost(postParam);
-            } else {
-                loadPostList();
-            }
-        } catch (err) {
-            contentDiv.innerHTML = `<div class="error">Failed to initialize: ${err.message}</div>`;
-        }
+    if (postParam) {
+        loadPost(postParam);
+    } else {
+        loadPostList();
     }
-
-    init();
 
     window.addEventListener('popstate', () => {
         const newPost = getQueryParam('post');
