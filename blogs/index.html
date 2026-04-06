@@ -112,7 +112,6 @@
             color: var(--accent);
         }
 
-        /* post list */
         .post-list {
             list-style: none;
             margin-top: 1rem;
@@ -157,7 +156,6 @@
             color: var(--accent);
         }
 
-        /* post content */
         .post-content {
             margin-top: 1rem;
         }
@@ -200,10 +198,20 @@
             color: var(--text-secondary);
             margin: 1rem 0;
         }
-        .post-content iframe {
+        /* 修复图片和视频溢出 */
+        .post-content img {
             max-width: 100%;
-            margin: 1rem 0;
+            height: auto;
             border-radius: 12px;
+            display: block;
+            margin: 1rem auto;
+        }
+        .post-content iframe,
+        .post-content video {
+            max-width: 100%;
+            border-radius: 12px;
+            display: block;
+            margin: 1rem 0;
         }
         .back-link {
             display: inline-block;
@@ -222,14 +230,12 @@
         .error {
             color: #ffaaaa;
         }
-
-        /* KaTeX math display */
         .katex-display {
             overflow-x: auto;
             overflow-y: hidden;
         }
     </style>
-    <!-- marked.js (latest) -->
+    <!-- marked.js v4.3.0 稳定版本 -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <!-- KaTeX auto-render -->
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
@@ -248,29 +254,33 @@
 </div>
 
 <script>
-    // Configure marked: allow HTML, disable sanitization (trusted content)
-    marked.setOptions({
-        breaks: true,
-        gfm: true,
-        mangle: false,
-        headerIds: false
-    });
+    // 配置 marked
+    if (typeof marked !== 'undefined') {
+        marked.setOptions({
+            breaks: true,
+            gfm: true,
+            headerIds: false,
+            mangle: false
+        });
+    }
 
-    // Initialize mermaid
-    mermaid.initialize({
-        startOnLoad: false,
-        theme: 'dark',
-        securityLevel: 'loose',
-        themeVariables: {
-            background: 'transparent',
-            primaryColor: '#c0e0ff',
-            primaryBorderColor: '#a1a5b0',
-            primaryTextColor: '#edeff2',
-            lineColor: '#a1a5b0',
-            secondaryColor: '#2d2d3a',
-            tertiaryColor: '#2d2d3a'
-        }
-    });
+    // 初始化 Mermaid
+    if (typeof mermaid !== 'undefined') {
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'dark',
+            securityLevel: 'loose',
+            themeVariables: {
+                background: 'transparent',
+                primaryColor: '#c0e0ff',
+                primaryBorderColor: '#a1a5b0',
+                primaryTextColor: '#edeff2',
+                lineColor: '#a1a5b0',
+                secondaryColor: '#2d2d3a',
+                tertiaryColor: '#2d2d3a'
+            }
+        });
+    }
 
     function getQueryParam(param) {
         const urlParams = new URLSearchParams(window.location.search);
@@ -280,7 +290,6 @@
     const postParam = getQueryParam('post');
     const contentDiv = document.getElementById('content');
 
-    // render math after content inserted
     function renderMath() {
         if (typeof renderMathInElement === 'function') {
             renderMathInElement(document.body, {
@@ -295,19 +304,22 @@
         }
     }
 
-    // render mermaid diagrams in the newly added content
     function renderMermaid() {
-        const mermaidElements = document.querySelectorAll('.post-content pre code.language-mermaid, .post-content pre code.mermaid');
-        mermaidElements.forEach(async (el) => {
-            const code = el.textContent;
-            const pre = el.parentElement;
-            const container = document.createElement('div');
-            container.className = 'mermaid';
-            container.textContent = code;
-            pre.parentNode.replaceChild(container, pre);
+        if (typeof mermaid === 'undefined') return;
+        const codeBlocks = document.querySelectorAll('.post-content pre code.language-mermaid, .post-content pre code.mermaid');
+        codeBlocks.forEach((codeEl) => {
+            const code = codeEl.textContent;
+            const pre = codeEl.parentElement;
+            if (pre && pre.tagName === 'PRE') {
+                const container = document.createElement('div');
+                container.className = 'mermaid';
+                container.textContent = code;
+                pre.parentNode.replaceChild(container, pre);
+            }
         });
-        if (document.querySelectorAll('.mermaid').length) {
-            mermaid.run({ nodes: document.querySelectorAll('.mermaid') });
+        const mermaidDivs = document.querySelectorAll('.mermaid');
+        if (mermaidDivs.length) {
+            mermaid.run({ nodes: mermaidDivs }).catch(e => console.warn('Mermaid error:', e));
         }
     }
 
@@ -342,14 +354,11 @@
             const res = await fetch(`./posts/${filename}`);
             if (!res.ok) throw new Error('Post not found');
             let markdown = await res.text();
-            // 提取可能存在的 frontmatter 中的标题（可选），这里简单使用文件名作为后备
             let title = filename.replace(/\.md$/, '').replace(/-/g, ' ');
-            // 尝试从markdown中提取第一个 # 标题
             const titleMatch = markdown.match(/^#\s+(.+)$/m);
             if (titleMatch) {
                 title = titleMatch[1];
             }
-            // 使用marked渲染
             let htmlContent = marked.parse(markdown);
             contentDiv.innerHTML = `
                 <div class="post-content">
@@ -359,16 +368,16 @@
                     <a href="?back=true" class="back-link" id="backToList">← Back to list</a>
                 </div>
             `;
-            // 渲染数学公式
             renderMath();
-            // 渲染Mermaid图表
             renderMermaid();
-            // 绑定返回事件
-            document.getElementById('backToList')?.addEventListener('click', (e) => {
-                e.preventDefault();
-                window.history.pushState({}, '', window.location.pathname);
-                loadPostList();
-            });
+            const backBtn = document.getElementById('backToList');
+            if (backBtn) {
+                backBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    window.history.pushState({}, '', window.location.pathname);
+                    loadPostList();
+                });
+            }
         } catch (err) {
             contentDiv.innerHTML = `<div class="error">Failed to load post: ${err.message}</div>`;
         }
