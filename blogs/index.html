@@ -4,15 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>teCJoy · Blog</title>
-    <!-- KaTeX CSS for math rendering -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-    <!-- Mermaid for diagrams (pie, etc.) -->
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
-    <!-- Marked for markdown parsing -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <!-- KaTeX JS for math -->
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}] });"></script>
+    <!-- KaTeX CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+    <!-- Mermaid -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -91,7 +86,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* header */
         .blog-header {
             display: flex;
             justify-content: space-between;
@@ -163,10 +157,9 @@
             color: var(--accent);
         }
 
-        /* post detail - enhanced for images, tables, mermaid, math, video */
+        /* post content */
         .post-content {
             margin-top: 1rem;
-            word-wrap: break-word;
         }
         .post-content h1 {
             font-size: 1.8rem;
@@ -188,34 +181,6 @@
             margin: 0.8rem 0;
             line-height: 1.6;
         }
-        .post-content img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 12px;
-            display: block;
-            margin: 1rem auto;
-        }
-        .post-content iframe {
-            max-width: 100%;
-            border-radius: 12px;
-            margin: 1rem 0;
-        }
-        .post-content table {
-            border-collapse: collapse;
-            width: 100%;
-            margin: 1rem 0;
-            background: rgba(0,0,0,0.2);
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        .post-content th, .post-content td {
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 0.5rem;
-            text-align: left;
-        }
-        .post-content th {
-            background: rgba(192,224,255,0.1);
-        }
         .post-content code {
             background: rgba(0,0,0,0.3);
             padding: 0.2rem 0.4rem;
@@ -235,12 +200,10 @@
             color: var(--text-secondary);
             margin: 1rem 0;
         }
-        .post-content .mermaid {
-            background: rgba(0,0,0,0.2);
-            padding: 1rem;
-            border-radius: 12px;
+        .post-content iframe {
+            max-width: 100%;
             margin: 1rem 0;
-            text-align: center;
+            border-radius: 12px;
         }
         .back-link {
             display: inline-block;
@@ -251,45 +214,25 @@
         .back-link:hover {
             text-decoration: underline;
         }
-        .loading {
+        .loading, .error {
             text-align: center;
             padding: 3rem;
             color: var(--text-secondary);
         }
         .error {
             color: #ffaaaa;
-            text-align: center;
-            padding: 2rem;
-        }
-    </style>
-    <!-- Content Security Policy to allow Bilibili and other iframe embeds -->
-    <meta http-equiv="Content-Security-Policy" content="frame-src https://player.bilibili.com https://www.youtube.com https://www.youtube-nocookie.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;">
-    <script>
-        // Initialize mermaid after marked renders
-        function renderMermaid() {
-            if (typeof mermaid !== 'undefined') {
-                mermaid.initialize({ startOnLoad: false, theme: 'dark' });
-                document.querySelectorAll('.post-content pre code.language-mermaid, .post-content pre code').forEach((block) => {
-                    if (block.parentElement && block.innerText.trim().startsWith('pie')) {
-                        const pre = block.parentElement;
-                        const container = document.createElement('div');
-                        container.className = 'mermaid';
-                        container.innerText = block.innerText;
-                        pre.parentNode.replaceChild(container, pre);
-                    }
-                });
-                mermaid.run({ querySelector: '.mermaid' });
-            }
         }
 
-        // Custom marked renderer to handle raw HTML (like iframe) safely
-        function processMarkdown(markdown) {
-            // Use marked to parse markdown, but preserve raw HTML (iframe, video, etc.)
-            const rawHtml = marked.parse(markdown, { mangle: false, headerIds: false });
-            // Return as is, marked already passes HTML through
-            return rawHtml;
+        /* KaTeX math display */
+        .katex-display {
+            overflow-x: auto;
+            overflow-y: hidden;
         }
-    </script>
+    </style>
+    <!-- marked.js (latest) -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- KaTeX auto-render -->
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
 </head>
 <body>
 <div class="container">
@@ -305,6 +248,30 @@
 </div>
 
 <script>
+    // Configure marked: allow HTML, disable sanitization (trusted content)
+    marked.setOptions({
+        breaks: true,
+        gfm: true,
+        mangle: false,
+        headerIds: false
+    });
+
+    // Initialize mermaid
+    mermaid.initialize({
+        startOnLoad: false,
+        theme: 'dark',
+        securityLevel: 'loose',
+        themeVariables: {
+            background: 'transparent',
+            primaryColor: '#c0e0ff',
+            primaryBorderColor: '#a1a5b0',
+            primaryTextColor: '#edeff2',
+            lineColor: '#a1a5b0',
+            secondaryColor: '#2d2d3a',
+            tertiaryColor: '#2d2d3a'
+        }
+    });
+
     function getQueryParam(param) {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get(param);
@@ -312,6 +279,37 @@
 
     const postParam = getQueryParam('post');
     const contentDiv = document.getElementById('content');
+
+    // render math after content inserted
+    function renderMath() {
+        if (typeof renderMathInElement === 'function') {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false},
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true}
+                ],
+                throwOnError: false
+            });
+        }
+    }
+
+    // render mermaid diagrams in the newly added content
+    function renderMermaid() {
+        const mermaidElements = document.querySelectorAll('.post-content pre code.language-mermaid, .post-content pre code.mermaid');
+        mermaidElements.forEach(async (el) => {
+            const code = el.textContent;
+            const pre = el.parentElement;
+            const container = document.createElement('div');
+            container.className = 'mermaid';
+            container.textContent = code;
+            pre.parentNode.replaceChild(container, pre);
+        });
+        if (document.querySelectorAll('.mermaid').length) {
+            mermaid.run({ nodes: document.querySelectorAll('.mermaid') });
+        }
+    }
 
     async function loadPostList() {
         try {
@@ -343,12 +341,16 @@
         try {
             const res = await fetch(`./posts/${filename}`);
             if (!res.ok) throw new Error('Post not found');
-            const markdown = await res.text();
-            // Use custom processing to keep raw HTML (for iframes)
-            let htmlContent = processMarkdown(markdown);
-            // Extract title from first heading if possible, otherwise from filename
-            let titleMatch = markdown.match(/^#\s+(.+)$/m);
-            let title = titleMatch ? titleMatch[1] : filename.replace(/\.md$/, '').replace(/-/g, ' ');
+            let markdown = await res.text();
+            // 提取可能存在的 frontmatter 中的标题（可选），这里简单使用文件名作为后备
+            let title = filename.replace(/\.md$/, '').replace(/-/g, ' ');
+            // 尝试从markdown中提取第一个 # 标题
+            const titleMatch = markdown.match(/^#\s+(.+)$/m);
+            if (titleMatch) {
+                title = titleMatch[1];
+            }
+            // 使用marked渲染
+            let htmlContent = marked.parse(markdown);
             contentDiv.innerHTML = `
                 <div class="post-content">
                     <h1>${escapeHtml(title)}</h1>
@@ -357,18 +359,11 @@
                     <a href="?back=true" class="back-link" id="backToList">← Back to list</a>
                 </div>
             `;
-            // Render math formulas
-            if (typeof renderMathInElement !== 'undefined') {
-                renderMathInElement(document.querySelector('.post-content'), {
-                    delimiters: [
-                        {left: '$$', right: '$$', display: true},
-                        {left: '$', right: '$', display: false}
-                    ]
-                });
-            }
-            // Render mermaid diagrams
+            // 渲染数学公式
+            renderMath();
+            // 渲染Mermaid图表
             renderMermaid();
-            // Add event listener for back button
+            // 绑定返回事件
             document.getElementById('backToList')?.addEventListener('click', (e) => {
                 e.preventDefault();
                 window.history.pushState({}, '', window.location.pathname);
