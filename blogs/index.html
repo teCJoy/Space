@@ -6,12 +6,10 @@
     <title>teCJoy · Blog</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
     <script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+    <!-- 固定 marked 版本 4.3.0 避免 ParseError -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin:0; padding:0; box-sizing:border-box; }
         body {
             --bg-dark: #0b0d10;
             --card-bg: rgba(22,24,30,0.68);
@@ -22,11 +20,10 @@
             --accent-hover: #d9f0ff;
             --shadow-sm: 0 12px 32px -12px rgba(0,0,0,0.4);
             --blur-amount: 12px;
-            font-family: system-ui, -apple-system, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+            font-family: system-ui, -apple-system, 'Segoe UI', 'Roboto', sans-serif;
             background: var(--bg-dark);
             color: var(--text-primary);
             line-height: 1.5;
-            -webkit-font-smoothing: antialiased;
             min-height: 100vh;
         }
         body::before {
@@ -52,130 +49,46 @@
             pointer-events: none;
             z-index: -1;
         }
-        .container {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem 1.5rem;
-        }
+        .container { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem 1.5rem; }
         .glass-card {
-            max-width: 900px;
-            width: 100%;
+            max-width: 900px; width: 100%;
             background: var(--card-bg);
             backdrop-filter: blur(var(--blur-amount));
-            -webkit-backdrop-filter: blur(var(--blur-amount));
             border: 1px solid var(--card-border);
             box-shadow: var(--shadow-sm);
             border-radius: 2rem;
             padding: 2rem;
-            transition: transform 0.25s ease, box-shadow 0.3s ease;
+            transition: transform 0.25s ease;
             animation: fadeIn 0.45s ease-out;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .blog-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-        .blog-title {
-            font-size: 1.8rem;
-            font-weight: 600;
-            background: linear-gradient(135deg, #ffffff, #cdddfc);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-        }
-        .back-home {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.9rem;
-        }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+        .blog-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2rem; flex-wrap: wrap; gap:1rem; }
+        .blog-title { font-size:1.8rem; font-weight:600; background: linear-gradient(135deg,#fff,#cdddfc); background-clip:text; -webkit-background-clip:text; color:transparent; }
+        .back-home { color: var(--text-secondary); text-decoration: none; font-size:0.9rem; }
         .back-home:hover { color: var(--accent); }
-        .post-list { list-style: none; margin-top: 1rem; }
-        .post-item {
-            background: rgba(255,255,255,0.02);
-            border-radius: 1rem;
-            padding: 1rem 1.2rem;
-            margin-bottom: 1rem;
-            border: 0.5px solid rgba(255,255,255,0.05);
-            transition: background 0.2s;
-        }
-        .post-item:hover { background: rgba(255,255,255,0.05); transform: translateX(4px); }
-        .post-title {
-            font-size: 1.2rem;
-            font-weight: 500;
-            color: var(--text-primary);
-            text-decoration: none;
-            display: block;
-            margin-bottom: 0.3rem;
-        }
+        .post-list { list-style: none; margin-top:1rem; }
+        .post-item { background: rgba(255,255,255,0.02); border-radius:1rem; padding:1rem 1.2rem; margin-bottom:1rem; border:0.5px solid rgba(255,255,255,0.05); transition: background 0.2s; }
+        .post-item:hover { background: rgba(255,255,255,0.05); transform:translateX(4px); }
+        .post-title { font-size:1.2rem; font-weight:500; color: var(--text-primary); text-decoration:none; display:block; margin-bottom:0.3rem; }
         .post-title:hover { color: var(--accent); }
-        .post-date { font-size: 0.75rem; color: var(--text-secondary); }
-        .post-tags { display: inline-flex; gap: 0.5rem; margin-left: 1rem; }
-        .tag {
-            background: rgba(192,224,255,0.1);
-            padding: 0.1rem 0.5rem;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            color: var(--accent);
-        }
-        .post-content { margin-top: 1rem; }
-        .post-content h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
-        .post-content .post-meta {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-bottom: 1.5rem;
-            border-bottom: 0.5px solid rgba(255,255,255,0.1);
-            padding-bottom: 0.8rem;
-        }
-        .post-content h2 { font-size: 1.3rem; margin: 1.2rem 0 0.6rem; color: var(--accent); }
-        .post-content p { margin: 0.8rem 0; line-height: 1.6; }
-        .post-content code {
-            background: rgba(0,0,0,0.3);
-            padding: 0.2rem 0.4rem;
-            border-radius: 6px;
-            font-family: monospace;
-            font-size: 0.9em;
-        }
-        .post-content pre {
-            background: rgba(0,0,0,0.4);
-            padding: 1rem;
-            border-radius: 12px;
-            overflow-x: auto;
-        }
-        .post-content blockquote {
-            border-left: 3px solid var(--accent);
-            padding-left: 1rem;
-            color: var(--text-secondary);
-            margin: 1rem 0;
-        }
-        .post-content img, .post-content iframe, .post-content video {
-            max-width: 100%;
-            height: auto;
-            border-radius: 12px;
-            display: block;
-            margin: 1rem auto;
-        }
-        .back-link {
-            display: inline-block;
-            margin-top: 2rem;
-            color: var(--accent);
-            text-decoration: none;
-        }
-        .back-link:hover { text-decoration: underline; }
-        .loading, .error { text-align: center; padding: 3rem; color: var(--text-secondary); }
-        .error { color: #ffaaaa; }
-        .katex-display { overflow-x: auto; overflow-y: hidden; }
+        .post-date { font-size:0.75rem; color: var(--text-secondary); }
+        .post-tags { display:inline-flex; gap:0.5rem; margin-left:1rem; }
+        .tag { background: rgba(192,224,255,0.1); padding:0.1rem 0.5rem; border-radius:20px; font-size:0.7rem; color: var(--accent); }
+        .post-content { margin-top:1rem; }
+        .post-content h1 { font-size:1.8rem; margin-bottom:0.5rem; }
+        .post-content .post-meta { font-size:0.8rem; color: var(--text-secondary); margin-bottom:1.5rem; border-bottom:0.5px solid rgba(255,255,255,0.1); padding-bottom:0.8rem; }
+        .post-content h2 { font-size:1.3rem; margin:1.2rem 0 0.6rem; color: var(--accent); }
+        .post-content p { margin:0.8rem 0; line-height:1.6; }
+        .post-content code { background: rgba(0,0,0,0.3); padding:0.2rem 0.4rem; border-radius:6px; font-family: monospace; }
+        .post-content pre { background: rgba(0,0,0,0.4); padding:1rem; border-radius:12px; overflow-x:auto; }
+        .post-content blockquote { border-left:3px solid var(--accent); padding-left:1rem; color: var(--text-secondary); margin:1rem 0; }
+        .post-content img, .post-content iframe, .post-content video { max-width:100%; height:auto; border-radius:12px; display:block; margin:1rem auto; }
+        .back-link { display:inline-block; margin-top:2rem; color: var(--accent); text-decoration:none; }
+        .back-link:hover { text-decoration:underline; }
+        .loading, .error { text-align:center; padding:3rem; color: var(--text-secondary); }
+        .error { color:#ffaaaa; }
+        .katex-display { overflow-x:auto; overflow-y:hidden; }
     </style>
-    <!-- 使用 marked 的稳定版本 4.3.0 (不带高级配置以避免 ParseError) -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
 </head>
 <body>
@@ -239,7 +152,7 @@
             }
         });
         const merm = document.querySelectorAll('.mermaid');
-        if (merm.length) mermaid.run({ nodes: merm }).catch(e => console.warn(e));
+        if (merm.length) mermaid.run({ nodes: merm }).catch(e => console.warn('Mermaid error:', e));
     }
 
     async function loadPostList() {
@@ -269,7 +182,7 @@
             let title = filename.replace(/\.md$/,'').replace(/-/g,' ');
             const titleMatch = md.match(/^#\s+(.+)$/m);
             if (titleMatch) title = titleMatch[1];
-            // 使用 marked 解析，不调用任何 setOptions，避免 ParseError
+            // 使用 marked 解析，marked 已全局可用
             let htmlContent = marked.parse(md);
             contentDiv.innerHTML = `
                 <div class="post-content">
@@ -286,7 +199,10 @@
                 window.history.pushState({}, '', window.location.pathname);
                 loadPostList();
             });
-        } catch(e) { contentDiv.innerHTML = `<div class="error">Failed to load post: ${e.message}</div>`; }
+        } catch(e) {
+            console.error(e);
+            contentDiv.innerHTML = `<div class="error">Failed to load post: ${e.message}</div>`;
+        }
     }
 
     function escapeHtml(str) {
