@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>teCJoy · Blog</title>
-    <!-- KaTeX CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-    <!-- Mermaid -->
     <script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
     <style>
         * {
@@ -14,18 +12,16 @@
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             --bg-dark: #0b0d10;
-            --card-bg: rgba(22, 24, 30, 0.68);
-            --card-border: rgba(255, 255, 255, 0.05);
+            --card-bg: rgba(22,24,30,0.68);
+            --card-border: rgba(255,255,255,0.05);
             --text-primary: #edeff2;
             --text-secondary: #a1a5b0;
             --accent: #c0e0ff;
             --accent-hover: #d9f0ff;
-            --shadow-sm: 0 12px 32px -12px rgba(0, 0, 0, 0.4);
+            --shadow-sm: 0 12px 32px -12px rgba(0,0,0,0.4);
             --blur-amount: 12px;
-
             font-family: system-ui, -apple-system, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
             background: var(--bg-dark);
             color: var(--text-primary);
@@ -33,7 +29,6 @@
             -webkit-font-smoothing: antialiased;
             min-height: 100vh;
         }
-
         body::before {
             content: "";
             position: fixed;
@@ -41,12 +36,11 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle at 30% 20%, rgba(60, 80, 120, 0.25) 0%, rgba(10, 12, 18, 0.9) 80%),
+            background: radial-gradient(circle at 30% 20%, rgba(60,80,120,0.25) 0%, rgba(10,12,18,0.9) 80%),
                         repeating-linear-gradient(45deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 1px, transparent 1px, transparent 16px);
             pointer-events: none;
             z-index: -2;
         }
-
         body::after {
             content: "";
             position: fixed;
@@ -54,11 +48,10 @@
             height: 100%;
             top: 0;
             left: 0;
-            background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(140, 170, 220, 0.08) 0%, transparent 60%);
+            background: radial-gradient(circle at var(--x,50%) var(--y,50%), rgba(140,170,220,0.08) 0%, transparent 60%);
             pointer-events: none;
             z-index: -1;
         }
-
         .container {
             min-height: 100vh;
             display: flex;
@@ -66,7 +59,6 @@
             justify-content: center;
             padding: 2rem 1.5rem;
         }
-
         .glass-card {
             max-width: 900px;
             width: 100%;
@@ -80,12 +72,10 @@
             transition: transform 0.25s ease, box-shadow 0.3s ease;
             animation: fadeIn 0.45s ease-out;
         }
-
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(12px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
         .blog-header {
             display: flex;
             justify-content: space-between;
@@ -106,28 +96,18 @@
             color: var(--text-secondary);
             text-decoration: none;
             font-size: 0.9rem;
-            transition: color 0.2s;
         }
-        .back-home:hover {
-            color: var(--accent);
-        }
-
-        .post-list {
-            list-style: none;
-            margin-top: 1rem;
-        }
+        .back-home:hover { color: var(--accent); }
+        .post-list { list-style: none; margin-top: 1rem; }
         .post-item {
             background: rgba(255,255,255,0.02);
             border-radius: 1rem;
             padding: 1rem 1.2rem;
             margin-bottom: 1rem;
-            transition: background 0.2s, transform 0.1s;
             border: 0.5px solid rgba(255,255,255,0.05);
+            transition: background 0.2s;
         }
-        .post-item:hover {
-            background: rgba(255,255,255,0.05);
-            transform: translateX(4px);
-        }
+        .post-item:hover { background: rgba(255,255,255,0.05); transform: translateX(4px); }
         .post-title {
             font-size: 1.2rem;
             font-weight: 500;
@@ -136,18 +116,9 @@
             display: block;
             margin-bottom: 0.3rem;
         }
-        .post-title:hover {
-            color: var(--accent);
-        }
-        .post-date {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-        }
-        .post-tags {
-            display: inline-flex;
-            gap: 0.5rem;
-            margin-left: 1rem;
-        }
+        .post-title:hover { color: var(--accent); }
+        .post-date { font-size: 0.75rem; color: var(--text-secondary); }
+        .post-tags { display: inline-flex; gap: 0.5rem; margin-left: 1rem; }
         .tag {
             background: rgba(192,224,255,0.1);
             padding: 0.1rem 0.5rem;
@@ -155,14 +126,8 @@
             font-size: 0.7rem;
             color: var(--accent);
         }
-
-        .post-content {
-            margin-top: 1rem;
-        }
-        .post-content h1 {
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-        }
+        .post-content { margin-top: 1rem; }
+        .post-content h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
         .post-content .post-meta {
             font-size: 0.8rem;
             color: var(--text-secondary);
@@ -170,15 +135,8 @@
             border-bottom: 0.5px solid rgba(255,255,255,0.1);
             padding-bottom: 0.8rem;
         }
-        .post-content h2 {
-            font-size: 1.3rem;
-            margin: 1.2rem 0 0.6rem;
-            color: var(--accent);
-        }
-        .post-content p {
-            margin: 0.8rem 0;
-            line-height: 1.6;
-        }
+        .post-content h2 { font-size: 1.3rem; margin: 1.2rem 0 0.6rem; color: var(--accent); }
+        .post-content p { margin: 0.8rem 0; line-height: 1.6; }
         .post-content code {
             background: rgba(0,0,0,0.3);
             padding: 0.2rem 0.4rem;
@@ -198,20 +156,12 @@
             color: var(--text-secondary);
             margin: 1rem 0;
         }
-        /* 修复图片和视频溢出 */
-        .post-content img {
+        .post-content img, .post-content iframe, .post-content video {
             max-width: 100%;
             height: auto;
             border-radius: 12px;
             display: block;
             margin: 1rem auto;
-        }
-        .post-content iframe,
-        .post-content video {
-            max-width: 100%;
-            border-radius: 12px;
-            display: block;
-            margin: 1rem 0;
         }
         .back-link {
             display: inline-block;
@@ -219,25 +169,13 @@
             color: var(--accent);
             text-decoration: none;
         }
-        .back-link:hover {
-            text-decoration: underline;
-        }
-        .loading, .error {
-            text-align: center;
-            padding: 3rem;
-            color: var(--text-secondary);
-        }
-        .error {
-            color: #ffaaaa;
-        }
-        .katex-display {
-            overflow-x: auto;
-            overflow-y: hidden;
-        }
+        .back-link:hover { text-decoration: underline; }
+        .loading, .error { text-align: center; padding: 3rem; color: var(--text-secondary); }
+        .error { color: #ffaaaa; }
+        .katex-display { overflow-x: auto; overflow-y: hidden; }
     </style>
-    <!-- marked.js v4.3.0 稳定版本 -->
+    <!-- 使用 marked 的稳定版本 4.3.0 (不带高级配置以避免 ParseError) -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <!-- KaTeX auto-render -->
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
 </head>
 <body>
@@ -247,23 +185,10 @@
             <div class="blog-title">Logbook</div>
             <a href="https://space-6oo.pages.dev/bio" class="back-home">← Home</a>
         </div>
-        <div id="content">
-            <div class="loading">Loading...</div>
-        </div>
+        <div id="content"><div class="loading">Loading...</div></div>
     </div>
 </div>
-
 <script>
-    // 配置 marked
-    if (typeof marked !== 'undefined') {
-        marked.setOptions({
-            breaks: true,
-            gfm: true,
-            headerIds: false,
-            mangle: false
-        });
-    }
-
     // 初始化 Mermaid
     if (typeof mermaid !== 'undefined') {
         mermaid.initialize({
@@ -282,11 +207,7 @@
         });
     }
 
-    function getQueryParam(param) {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get(param);
-    }
-
+    function getQueryParam(p) { return new URLSearchParams(location.search).get(p); }
     const postParam = getQueryParam('post');
     const contentDiv = document.getElementById('content');
 
@@ -306,60 +227,50 @@
 
     function renderMermaid() {
         if (typeof mermaid === 'undefined') return;
-        const codeBlocks = document.querySelectorAll('.post-content pre code.language-mermaid, .post-content pre code.mermaid');
-        codeBlocks.forEach((codeEl) => {
-            const code = codeEl.textContent;
-            const pre = codeEl.parentElement;
+        const blocks = document.querySelectorAll('.post-content pre code.language-mermaid, .post-content pre code.mermaid');
+        blocks.forEach(block => {
+            const code = block.textContent;
+            const pre = block.parentElement;
             if (pre && pre.tagName === 'PRE') {
-                const container = document.createElement('div');
-                container.className = 'mermaid';
-                container.textContent = code;
-                pre.parentNode.replaceChild(container, pre);
+                const div = document.createElement('div');
+                div.className = 'mermaid';
+                div.textContent = code;
+                pre.parentNode.replaceChild(div, pre);
             }
         });
-        const mermaidDivs = document.querySelectorAll('.mermaid');
-        if (mermaidDivs.length) {
-            mermaid.run({ nodes: mermaidDivs }).catch(e => console.warn('Mermaid error:', e));
-        }
+        const merm = document.querySelectorAll('.mermaid');
+        if (merm.length) mermaid.run({ nodes: merm }).catch(e => console.warn(e));
     }
 
     async function loadPostList() {
         try {
             const res = await fetch('./posts.json');
             if (!res.ok) throw new Error('Failed to load posts');
-            const posts = await res.json();
-            posts.sort((a, b) => new Date(b.date) - new Date(a.date));
-            if (posts.length === 0) {
-                contentDiv.innerHTML = '<div class="error">No posts yet. Stay tuned!</div>';
-                return;
-            }
+            let posts = await res.json();
+            posts.sort((a,b)=>new Date(b.date)-new Date(a.date));
+            if (!posts.length) { contentDiv.innerHTML = '<div class="error">No posts yet.</div>'; return; }
             let html = '<ul class="post-list">';
-            for (const post of posts) {
-                html += `
-                    <li class="post-item">
-                        <a href="?post=${encodeURIComponent(post.filename)}" class="post-title">${escapeHtml(post.title)}</a>
-                        <div class="post-date">${post.date} ${post.tags ? `<span class="post-tags">${post.tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}</span>` : ''}</div>
-                    </li>
-                `;
+            for (let p of posts) {
+                html += `<li class="post-item">
+                    <a href="?post=${encodeURIComponent(p.filename)}" class="post-title">${escapeHtml(p.title)}</a>
+                    <div class="post-date">${p.date} ${p.tags ? `<span class="post-tags">${p.tags.map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join('')}</span>` : ''}</div>
+                </li>`;
             }
             html += '</ul>';
             contentDiv.innerHTML = html;
-        } catch (err) {
-            contentDiv.innerHTML = `<div class="error">Error: ${err.message}</div>`;
-        }
+        } catch(e) { contentDiv.innerHTML = `<div class="error">Error: ${e.message}</div>`; }
     }
 
     async function loadPost(filename) {
         try {
             const res = await fetch(`./posts/${filename}`);
             if (!res.ok) throw new Error('Post not found');
-            let markdown = await res.text();
-            let title = filename.replace(/\.md$/, '').replace(/-/g, ' ');
-            const titleMatch = markdown.match(/^#\s+(.+)$/m);
-            if (titleMatch) {
-                title = titleMatch[1];
-            }
-            let htmlContent = marked.parse(markdown);
+            let md = await res.text();
+            let title = filename.replace(/\.md$/,'').replace(/-/g,' ');
+            const titleMatch = md.match(/^#\s+(.+)$/m);
+            if (titleMatch) title = titleMatch[1];
+            // 使用 marked 解析，不调用任何 setOptions，避免 ParseError
+            let htmlContent = marked.parse(md);
             contentDiv.innerHTML = `
                 <div class="post-content">
                     <h1>${escapeHtml(title)}</h1>
@@ -370,41 +281,25 @@
             `;
             renderMath();
             renderMermaid();
-            const backBtn = document.getElementById('backToList');
-            if (backBtn) {
-                backBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    window.history.pushState({}, '', window.location.pathname);
-                    loadPostList();
-                });
-            }
-        } catch (err) {
-            contentDiv.innerHTML = `<div class="error">Failed to load post: ${err.message}</div>`;
-        }
+            document.getElementById('backToList')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.history.pushState({}, '', window.location.pathname);
+                loadPostList();
+            });
+        } catch(e) { contentDiv.innerHTML = `<div class="error">Failed to load post: ${e.message}</div>`; }
     }
 
     function escapeHtml(str) {
-        return str.replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
+        return str.replace(/[&<>]/g, m => m==='&'?'&amp;':m==='<'?'&lt;':'&gt;');
     }
 
-    if (postParam) {
-        loadPost(postParam);
-    } else {
-        loadPostList();
-    }
+    if (postParam) loadPost(postParam);
+    else loadPostList();
 
     window.addEventListener('popstate', () => {
-        const newPost = getQueryParam('post');
-        if (newPost) {
-            loadPost(newPost);
-        } else {
-            loadPostList();
-        }
+        const p = getQueryParam('post');
+        if (p) loadPost(p);
+        else loadPostList();
     });
 </script>
 </body>
