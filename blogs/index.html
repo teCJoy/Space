@@ -1,347 +1,321 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>teCJoy · Blog</title>
+    <title>teCJoy · 公式笔记 · 视频·饼图</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{
+            --bg-dark:#0b0d10;--card-bg:rgba(22,24,30,0.68);--card-border:rgba(255,255,255,0.05);
+            --text-primary:#edeff2;--text-secondary:#a1a5b0;--accent:#c0e0ff;--accent-hover:#d9f0ff;
+            --shadow-sm:0 12px 32px -12px rgba(0,0,0,0.4);--blur-amount:12px;
+            font-family:system-ui,-apple-system,'Segoe UI','Roboto',sans-serif;
+            background:var(--bg-dark);color:var(--text-primary);line-height:1.5;
+            -webkit-font-smoothing:antialiased;min-height:100vh;
         }
-
-        body {
-            --bg-dark: #0b0d10;
-            --card-bg: rgba(22, 24, 30, 0.68);
-            --card-border: rgba(255, 255, 255, 0.05);
-            --text-primary: #edeff2;
-            --text-secondary: #a1a5b0;
-            --accent: #c0e0ff;
-            --accent-hover: #d9f0ff;
-            --shadow-sm: 0 12px 32px -12px rgba(0, 0, 0, 0.4);
-            --blur-amount: 12px;
-
-            font-family: system-ui, -apple-system, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
-            background: var(--bg-dark);
-            color: var(--text-primary);
-            line-height: 1.5;
-            -webkit-font-smoothing: antialiased;
-            min-height: 100vh;
+        body::before{
+            content:"";position:fixed;top:0;left:0;width:100%;height:100%;
+            background:radial-gradient(circle at 30% 20%,rgba(60,80,120,0.25) 0%,rgba(10,12,18,0.9) 80%),
+                      repeating-linear-gradient(45deg,rgba(255,255,255,0.01) 0px,rgba(255,255,255,0.01) 1px,transparent 1px,transparent 16px);
+            pointer-events:none;z-index:-2;
         }
-
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at 30% 20%, rgba(60, 80, 120, 0.25) 0%, rgba(10, 12, 18, 0.9) 80%),
-                        repeating-linear-gradient(45deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 1px, transparent 1px, transparent 16px);
-            pointer-events: none;
-            z-index: -2;
+        body::after{
+            content:"";position:fixed;width:100%;height:100%;top:0;left:0;
+            background:radial-gradient(circle at var(--x,50%) var(--y,50%),rgba(140,170,220,0.08) 0%,transparent 60%);
+            pointer-events:none;z-index:-1;
         }
-
-        body::after {
-            content: "";
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(140, 170, 220, 0.08) 0%, transparent 60%);
-            pointer-events: none;
-            z-index: -1;
+        .container{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem 1.5rem}
+        .glass-card{
+            max-width:1000px;width:100%;background:var(--card-bg);backdrop-filter:blur(var(--blur-amount));
+            -webkit-backdrop-filter:blur(var(--blur-amount));border:1px solid var(--card-border);
+            box-shadow:var(--shadow-sm);border-radius:2rem;padding:2rem;animation:fadeIn 0.45s ease-out;
         }
-
-        .container {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem 1.5rem;
-        }
-
-        .glass-card {
-            max-width: 800px;
-            width: 100%;
-            background: var(--card-bg);
-            backdrop-filter: blur(var(--blur-amount));
-            -webkit-backdrop-filter: blur(var(--blur-amount));
-            border: 1px solid var(--card-border);
-            box-shadow: var(--shadow-sm);
-            border-radius: 2rem;
-            padding: 2rem;
-            transition: transform 0.25s ease, box-shadow 0.3s ease;
-            animation: fadeIn 0.45s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* header */
-        .blog-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-        .blog-title {
-            font-size: 1.8rem;
-            font-weight: 600;
-            background: linear-gradient(135deg, #ffffff, #cdddfc);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-        }
-        .back-home {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: color 0.2s;
-        }
-        .back-home:hover {
-            color: var(--accent);
-        }
-
-        /* post list */
-        .post-list {
-            list-style: none;
-            margin-top: 1rem;
-        }
-        .post-item {
-            background: rgba(255,255,255,0.02);
-            border-radius: 1rem;
-            padding: 1rem 1.2rem;
-            margin-bottom: 1rem;
-            transition: background 0.2s, transform 0.1s;
-            border: 0.5px solid rgba(255,255,255,0.05);
-        }
-        .post-item:hover {
-            background: rgba(255,255,255,0.05);
-            transform: translateX(4px);
-        }
-        .post-title {
-            font-size: 1.2rem;
-            font-weight: 500;
-            color: var(--text-primary);
-            text-decoration: none;
-            display: block;
-            margin-bottom: 0.3rem;
-        }
-        .post-title:hover {
-            color: var(--accent);
-        }
-        .post-date {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-        }
-        .post-tags {
-            display: inline-flex;
-            gap: 0.5rem;
-            margin-left: 1rem;
-        }
-        .tag {
-            background: rgba(192,224,255,0.1);
-            padding: 0.1rem 0.5rem;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            color: var(--accent);
-        }
-
-        /* post detail */
-        .post-content {
-            margin-top: 1rem;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-        }
-        .post-content h1 {
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-        }
-        .post-content .post-meta {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-bottom: 1.5rem;
-            border-bottom: 0.5px solid rgba(255,255,255,0.1);
-            padding-bottom: 0.8rem;
-        }
-        .post-content h2 {
-            font-size: 1.3rem;
-            margin: 1.2rem 0 0.6rem;
-            color: var(--accent);
-        }
-        .post-content p {
-            margin: 0.8rem 0;
-            line-height: 1.6;
-        }
-        .post-content img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 12px;
-            display: block;
-            margin: 1rem 0;
-        }
-        .post-content code {
-            background: rgba(0,0,0,0.3);
-            padding: 0.2rem 0.4rem;
-            border-radius: 6px;
-            font-family: monospace;
-            font-size: 0.9em;
-        }
-        .post-content pre {
-            background: rgba(0,0,0,0.4);
-            padding: 1rem;
-            border-radius: 12px;
-            overflow-x: auto;
-        }
-        .post-content blockquote {
-            border-left: 3px solid var(--accent);
-            padding-left: 1rem;
-            color: var(--text-secondary);
-            margin: 1rem 0;
-        }
-        .back-link {
-            display: inline-block;
-            margin-top: 2rem;
-            color: var(--accent);
-            text-decoration: none;
-        }
-        .back-link:hover {
-            text-decoration: underline;
-        }
-        .loading {
-            text-align: center;
-            padding: 3rem;
-            color: var(--text-secondary);
-        }
-        .error {
-            color: #ffaaaa;
-            text-align: center;
-            padding: 2rem;
-        }
+        @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+        .blog-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2rem;flex-wrap:wrap;gap:1rem}
+        .blog-title{font-size:1.8rem;font-weight:600;background:linear-gradient(135deg,#fff,#cdddfc);-webkit-background-clip:text;background-clip:text;color:transparent}
+        .back-home{color:var(--text-secondary);text-decoration:none;font-size:0.9rem;cursor:pointer;transition:color 0.2s}
+        .back-home:hover{color:var(--accent)}
+        .post-list{list-style:none;margin-top:1rem}
+        .post-item{background:rgba(255,255,255,0.02);border-radius:1rem;padding:1rem 1.2rem;margin-bottom:1rem;border:0.5px solid rgba(255,255,255,0.05);transition:background 0.2s,transform 0.1s}
+        .post-item:hover{background:rgba(255,255,255,0.05);transform:translateX(4px)}
+        .post-title{font-size:1.2rem;font-weight:500;color:var(--text-primary);text-decoration:none;display:block;margin-bottom:0.3rem}
+        .post-title:hover{color:var(--accent)}
+        .post-date{font-size:0.75rem;color:var(--text-secondary)}
+        .post-tags{display:inline-flex;gap:0.5rem;margin-left:1rem}
+        .tag{background:rgba(192,224,255,0.1);padding:0.1rem 0.5rem;border-radius:20px;font-size:0.7rem;color:var(--accent)}
+        .post-content{margin-top:1rem;word-wrap:break-word}
+        .post-content h1{font-size:1.8rem;margin-bottom:0.5rem}
+        .post-content .post-meta{font-size:0.8rem;color:var(--text-secondary);margin-bottom:1.5rem;border-bottom:0.5px solid rgba(255,255,255,0.1);padding-bottom:0.8rem}
+        .post-content h2{font-size:1.3rem;margin:1.2rem 0 0.6rem;color:var(--accent)}
+        .post-content p{margin:0.8rem 0;line-height:1.6}
+        .post-content img{max-width:100%;border-radius:12px;display:block;margin:1rem 0}
+        .post-content code{background:rgba(0,0,0,0.3);padding:0.2rem 0.4rem;border-radius:6px;font-family:monospace;font-size:0.9em}
+        .post-content pre{background:rgba(0,0,0,0.4);padding:1rem;border-radius:12px;overflow-x:auto}
+        .post-content blockquote{border-left:3px solid var(--accent);padding-left:1rem;color:var(--text-secondary);margin:1rem 0}
+        .loading{text-align:center;padding:3rem;color:var(--text-secondary)}
+        .error{color:#ffaaaa;text-align:center;padding:2rem;background:rgba(255,0,0,0.05);border-radius:1rem}
+        .katex-display{overflow-x:auto;overflow-y:hidden;padding:0.5rem 0}
+        .katex{font-size:1.05em}
+        .mermaid{background:rgba(10,12,18,0.6);border-radius:1rem;padding:1rem;margin:1rem 0;text-align:center}
+        /* 视频容器（响应式） */
+        .video-wrapper{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;margin:1.2rem 0;border-radius:16px;box-shadow:0 8px 20px rgba(0,0,0,0.3);background:#000}
+        .video-wrapper iframe,.video-wrapper video{position:absolute;top:0;left:0;width:100%;height:100%;border:0;border-radius:16px}
     </style>
+    <!-- 核心库 -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" onload="renderMathDelayed()"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
 </head>
 <body>
 <div class="container">
     <div class="glass-card" id="app">
         <div class="blog-header">
-            <div class="blog-title">Logbook</div>
-            <a href="https://space-6oo.pages.dev/bio" class="back-home">← Home</a>
+            <div class="blog-title">Logbook · 公式·视频·饼图</div>
+            <a class="back-home" id="dynamicBackLink" href="https://space-6oo.pages.dev/bio">← Home</a>
         </div>
-        <div id="content">
-            <div class="loading">Loading...</div>
-        </div>
+        <div id="content"><div class="loading">加载中...</div></div>
     </div>
 </div>
-
 <script>
-    function getQueryParam(param) {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get(param);
-    }
+    // ================= 全局 Mermaid 初始化（修复饼图文字颜色） =================
+    (function setupMermaid() {
+        if (typeof mermaid !== 'undefined') {
+            mermaid.initialize({
+                startOnLoad: false, theme: 'dark',
+                themeVariables: {
+                    background: '#0b0d10', primaryColor: '#c0e0ff', primaryBorderColor: '#7f9fbf',
+                    primaryTextColor: '#edeff2', lineColor: '#a1a5b0', secondaryColor: '#2a2e3a',
+                    tertiaryColor: '#1e2129', pieTitleTextColor: '#edeff2', pieSectionTextColor: '#edeff2',
+                    pieLegendTextColor: '#edeff2', pieStrokeColor: '#0b0d10'
+                },
+                securityLevel: 'loose'
+            });
+            const style = document.createElement('style');
+            style.textContent = `.mermaid .pieTitle, .mermaid .pie .slice .label, .mermaid .pie .legend text, .mermaid .pie .slice text, .mermaid text[class*="pie"], .mermaid tspan { fill: #edeff2 !important; color: #edeff2 !important; }`;
+            document.head.appendChild(style);
+        }
+    })();
 
-    const postParam = getQueryParam('post');
-    const contentDiv = document.getElementById('content');
+    (function(){
+        // ----- 工具函数 -----
+        function escapeHtml(text) {
+            if (!text) return text;
+            const map = {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'};
+            return String(text).replace(/[&<>"']/g, m=>map[m]);
+        }
 
-    // 全局存储文章元数据
-    let postsMetadata = [];
+        let postsMetadata = [], isArticleMode = false;
+        const contentDiv = document.getElementById('content');
+        const backLink = document.getElementById('dynamicBackLink');
 
-    async function loadPostList() {
-        try {
-            const res = await fetch('./posts.json');
-            if (!res.ok) throw new Error('Failed to load posts');
-            postsMetadata = await res.json();
-            postsMetadata.sort((a, b) => new Date(b.date) - new Date(a.date));
-            if (postsMetadata.length === 0) {
-                contentDiv.innerHTML = '<div class="error">No posts yet. Stay tuned!</div>';
+        function getQueryParam(p){ return new URLSearchParams(window.location.search).get(p); }
+        function setHeaderMode(articleMode){
+            isArticleMode = articleMode;
+            backLink.innerText = articleMode ? '← List' : '← Home';
+            backLink.href = articleMode ? '#' : 'https://space-6oo.pages.dev/bio';
+        }
+        function navigateToPostList(){
+            if(window.location.search.includes('post')) window.history.pushState({},'',window.location.pathname);
+            renderPostList();
+        }
+
+        // KaTeX 渲染
+        function renderMathInContainer(){
+            if(typeof renderMathInElement !== 'undefined'){
+                try{
+                    renderMathInElement(contentDiv,{
+                        delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false},{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],
+                        throwOnError:false,errorColor:'#ffb3b3',strict:false
+                    });
+                }catch(e){}
+            }else setTimeout(renderMathInContainer,150);
+        }
+        window.renderMathDelayed = renderMathInContainer;
+
+        // Mermaid 代码块转换
+        function transformMermaidBlocks(html){
+            const div = document.createElement('div');
+            div.innerHTML = html;
+            div.querySelectorAll('pre').forEach(pre=>{
+                const code = pre.querySelector('code');
+                if(!code) return;
+                let isMermaid = /language-mermaid|lang-mermaid/.test(code.className) || 
+                               /^(pie|graph|flowchart|sequenceDiagram|gantt|classDiagram|stateDiagram|erDiagram|journey|quadrantChart|requirementDiagram|mindmap|timeline|zenuml|sankey|xychart-beta|block)/i.test(code.textContent.trim());
+                if(isMermaid){
+                    const mDiv = document.createElement('div');
+                    mDiv.className = 'mermaid';
+                    mDiv.textContent = code.textContent;
+                    pre.parentNode.replaceChild(mDiv, pre);
+                }
+            });
+            return div.innerHTML;
+        }
+
+        // 渲染 Mermaid
+        async function renderMermaidCharts(){
+            const els = document.querySelectorAll('.mermaid:not([data-processed])');
+            if(!els.length) return;
+            try{
+                if(typeof mermaid === 'undefined') await new Promise(r=>setTimeout(r,100));
+                await mermaid.run({ querySelector:'.mermaid:not([data-processed])', suppressErrors:true });
+                els.forEach(e=>e.setAttribute('data-processed','true'));
+            }catch(e){}
+        }
+
+        // 🆕 增强版视频URL解析（平台链接 + 直链视频文件）
+        function parseVideoUrl(url) {
+            url = url.trim();
+            if (!url.startsWith('http')) return null;
+            
+            // 1. 视频直链 (mp4/webm/mov/ogg/m4v)
+            const videoFileRegex = /^(https?:\/\/\S+\.(mp4|webm|mov|ogg|m4v)(\?[^\s]*)?)$/i;
+            if (videoFileRegex.test(url)) {
+                const ext = url.match(/\.([a-z0-9]+)(\?|$)/i)[1].toLowerCase();
+                const mimeMap = { mp4: 'video/mp4', webm: 'video/webm', mov: 'video/quicktime', ogg: 'video/ogg', m4v: 'video/mp4' };
+                const mime = mimeMap[ext] || 'video/mp4';
+                return `<div class="video-wrapper"><video controls preload="metadata"><source src="${url}" type="${mime}">您的浏览器不支持 video 标签。</video></div>`;
+            }
+            
+            // 2. YouTube
+            const ytRegex = /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})(?:[?&][^?\s]*)?$/;
+            let match = url.match(ytRegex);
+            if (match) {
+                return `<div class="video-wrapper"><iframe src="https://www.youtube.com/embed/${match[1]}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+            }
+            
+            // 3. Vimeo
+            const vimeoRegex = /^(?:https?:\/\/)?(?:www\.)?vimeo\.com\/(?:.*\/)?([0-9]+)(?:[?&][^?\s]*)?$/;
+            match = url.match(vimeoRegex);
+            if (match) {
+                return `<div class="video-wrapper"><iframe src="https://player.vimeo.com/video/${match[1]}" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>`;
+            }
+            
+            // 4. Bilibili (BV/av)
+            const biliRegex = /^(?:https?:\/\/)?(?:www\.)?bilibili\.com\/video\/((?:BV|av)[a-zA-Z0-9]+)(?:[?&][^?\s]*)?$/;
+            match = url.match(biliRegex);
+            if (match) {
+                const vid = match[1];
+                return `<div class="video-wrapper"><iframe src="//player.bilibili.com/player.html?bvid=${vid}&high_quality=1&danmaku=0" scrolling="no" frameborder="no" allowfullscreen></iframe></div>`;
+            }
+            
+            return null;
+        }
+
+        // 🆕 扫描并替换独立视频URL行
+        function preprocessVideoUrls(markdownText) {
+            const lines = markdownText.split('\n');
+            const processedLines = lines.map(line => {
+                const trimmed = line.trim();
+                if (trimmed === '' || line.includes('<iframe') || line.includes('<video')) return line;
+                const embed = parseVideoUrl(trimmed);
+                return embed ? embed : line;
+            });
+            return processedLines.join('\n');
+        }
+
+        // 🆕 处理 B 站特殊 Markdown 图片语法 (兼容旧格式)
+        function transformBilibiliSyntax(mdText) {
+            const regex = /!\[(.*?)\]\((https?:\/\/www\.bilibili\.com\/video\/([^\/?\s]+)\/?)(?:\s*=(\d+)x(\d+))?\)/g;
+            return mdText.replace(regex, (match, alt, url, bvid, width, height) => {
+                let paddingBottom = '56.25%';
+                if (width && height) paddingBottom = (height / width) * 100 + '%';
+                return `<div class="video-wrapper" style="padding-bottom: ${paddingBottom};"><iframe src="//player.bilibili.com/player.html?bvid=${bvid}&high_quality=1" allowfullscreen></iframe></div>`;
+            });
+        }
+
+        // 渲染文章列表
+        function renderPostList(){
+            if(!postsMetadata.length){
+                contentDiv.innerHTML = '<div class="error">📭 暂无文章</div>';
+                setHeaderMode(false);
                 return;
             }
             let html = '<ul class="post-list">';
-            for (const post of postsMetadata) {
-                html += `
-                    <li class="post-item">
-                        <a href="?post=${encodeURIComponent(post.filename)}" class="post-title">${escapeHtml(post.title)}</a>
-                        <div class="post-date">${post.date} ${post.tags ? `<span class="post-tags">${post.tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}</span>` : ''}</div>
-                    </li>
-                `;
-            }
+            postsMetadata.forEach(p=>{
+                const tags = p.tags ? `<span class="post-tags">${p.tags.map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join('')}</span>` : '';
+                html += `<li class="post-item"><a href="?post=${encodeURIComponent(p.filename)}" class="post-title">${escapeHtml(p.title)}</a>
+                         <div class="post-date">${escapeHtml(p.date)} ${tags}</div></li>`;
+            });
             html += '</ul>';
             contentDiv.innerHTML = html;
-        } catch (err) {
-            contentDiv.innerHTML = `<div class="error">Error: ${err.message}</div>`;
+            setHeaderMode(false);
         }
-    }
 
-    async function loadPost(filename) {
-        try {
-            // 从元数据中找到对应的标题
-            const meta = postsMetadata.find(p => p.filename === filename);
-            const postTitle = meta ? meta.title : filename.replace(/\.md$/, '').replace(/-/g, ' ');
-            
-            const res = await fetch(`./posts/${filename}`);
-            if (!res.ok) throw new Error('Post not found');
-            const markdown = await res.text();
-            const htmlContent = marked.parse(markdown);
-            contentDiv.innerHTML = `
-                <div class="post-content">
-                    <h1>${escapeHtml(postTitle)}</h1>
-                    <div class="post-meta">[Date] ${meta ? meta.date : new Date().toISOString().slice(0,10)}</div>
-                    ${htmlContent}
-                    <a href="?back=true" class="back-link" id="backToList">← Back to list</a>
-                </div>
-            `;
-            document.getElementById('backToList')?.addEventListener('click', (e) => {
-                e.preventDefault();
-                window.history.pushState({}, '', window.location.pathname);
-                loadPostList();
-            });
-        } catch (err) {
-            contentDiv.innerHTML = `<div class="error">Failed to load post: ${err.message}</div>`;
-        }
-    }
-
-    function escapeHtml(str) {
-        return str.replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
-    }
-
-    // 先加载元数据，再决定显示列表还是文章
-    async function init() {
-        try {
-            const res = await fetch('./posts.json');
-            if (!res.ok) throw new Error('Failed to load posts metadata');
-            postsMetadata = await res.json();
-            if (postParam) {
-                loadPost(postParam);
-            } else {
-                loadPostList();
+        // 加载文章
+        async function loadPost(filename){
+            setHeaderMode(true);
+            const meta = postsMetadata.find(p=>p.filename===filename);
+            if(!meta){ contentDiv.innerHTML = '<div class="error">❌ 未知文章</div>'; return; }
+            let mdText = null, errMsg = null;
+            try{
+                const res = await fetch(`./posts/${filename}`);
+                if(!res.ok) errMsg = `HTTP ${res.status}`;
+                else mdText = await res.text();
+            }catch(e){ errMsg = e.message; }
+            if(!mdText){
+                contentDiv.innerHTML = `<div class="error">❌ 加载失败: ${escapeHtml(errMsg||'未知')}</div>`;
+                return;
             }
-        } catch (err) {
-            contentDiv.innerHTML = `<div class="error">Failed to initialize: ${err.message}</div>`;
+            try{
+                // 预处理顺序：先处理独立视频URL行，再处理B站图片语法，最后交给marked
+                const withVideoUrls = preprocessVideoUrls(mdText);
+                const withBilibili = transformBilibiliSyntax(withVideoUrls);
+                
+                let parsed = (typeof marked.parse==='function')? marked.parse(withBilibili) : marked(withBilibili);
+                if(parsed && typeof parsed.then==='function') parsed = await parsed;
+                
+                const withMermaid = transformMermaidBlocks(parsed);
+                const tagSpans = meta.tags ? meta.tags.map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join(' ') : '';
+                const full = `<div class="post-content"><h1>${escapeHtml(meta.title)}</h1>
+                              <div class="post-meta">📅 ${escapeHtml(meta.date)}  ${tagSpans}</div>${withMermaid}</div>`;
+                contentDiv.innerHTML = full;
+                renderMathInContainer();
+                setTimeout(()=>{ renderMermaidCharts().catch(()=>{}); },60);
+            }catch(e){ contentDiv.innerHTML = `<div class="error">解析失败: ${escapeHtml(e.message)}</div>`; }
         }
-    }
 
-    init();
-
-    window.addEventListener('popstate', () => {
-        const newPost = getQueryParam('post');
-        if (newPost) {
-            loadPost(newPost);
-        } else {
-            loadPostList();
+        // 加载 posts.json
+        async function loadMetadata(){
+            try{
+                const r = await fetch('./posts.json');
+                if(!r.ok) throw new Error(`HTTP ${r.status}`);
+                const data = await r.json();
+                if(!Array.isArray(data)) throw new Error('格式错误');
+                postsMetadata = data.filter(d=>d.filename&&d.title&&d.date).sort((a,b)=>new Date(b.date)-new Date(a.date));
+                return true;
+            }catch(e){
+                postsMetadata = [];
+                contentDiv.innerHTML = `<div class="error">🔌 索引读取失败<br><small>${escapeHtml(e.message)}</small></div>`;
+                setHeaderMode(false);
+                return false;
+            }
         }
-    });
+
+        // 初始化
+        async function init(){
+            contentDiv.innerHTML = '<div class="loading">📡 读取索引…</div>';
+            const ok = await loadMetadata();
+            if(!ok) return;
+            if(!postsMetadata.length){ contentDiv.innerHTML='<div class="error">📭 暂无文章</div>'; setHeaderMode(false); return; }
+            const postParam = getQueryParam('post');
+            postParam ? await loadPost(postParam) : renderPostList();
+        }
+
+        // 事件绑定
+        backLink.addEventListener('click',e=>{ if(isArticleMode){ e.preventDefault(); navigateToPostList(); } });
+        window.addEventListener('popstate',async ()=>{
+            if(!postsMetadata.length){ await loadMetadata(); if(!postsMetadata.length) return; }
+            getQueryParam('post') ? await loadPost(getQueryParam('post')) : renderPostList();
+        });
+        document.body.addEventListener('mousemove',e=>{
+            document.body.style.setProperty('--x',(e.clientX/window.innerWidth)*100+'%');
+            document.body.style.setProperty('--y',(e.clientY/window.innerHeight)*100+'%');
+        });
+        init();
+    })();
 </script>
 </body>
 </html>
