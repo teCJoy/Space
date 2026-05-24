@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>teCJoy · 公式笔记 · 搜索·视频·饼图</title>
+    <title>teCJoy · 笔记 · 搜索·视频·公式</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
         body{
@@ -15,104 +16,42 @@
             -webkit-font-smoothing:antialiased;min-height:100vh;
             overflow:hidden;
         }
-        body::before{
-            content:"";position:fixed;top:0;left:0;width:100%;height:100%;
-            background:radial-gradient(circle at 30% 20%,rgba(60,80,120,0.25) 0%,rgba(10,12,18,0.9) 80%),
-                      repeating-linear-gradient(45deg,rgba(255,255,255,0.01) 0px,rgba(255,255,255,0.01) 1px,transparent 1px,transparent 16px);
-            pointer-events:none;z-index:-2;
-        }
-        body::after{
-            content:"";position:fixed;width:100%;height:100%;top:0;left:0;
-            background:radial-gradient(circle at var(--x,50%) var(--y,50%),rgba(140,170,220,0.08) 0%,transparent 60%);
-            pointer-events:none;z-index:-1;
-        }
+        body::before{content:"";position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at 30% 20%,rgba(60,80,120,0.25) 0%,rgba(10,12,18,0.9) 80%),repeating-linear-gradient(45deg,rgba(255,255,255,0.01) 0px,rgba(255,255,255,0.01) 1px,transparent 1px,transparent 16px);pointer-events:none;z-index:-2;}
+        body::after{content:"";position:fixed;width:100%;height:100%;top:0;left:0;background:radial-gradient(circle at var(--x,50%) var(--y,50%),rgba(140,170,220,0.08) 0%,transparent 60%);pointer-events:none;z-index:-1;}
         .container{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem 1.5rem}
-        .glass-card{
-            max-width:1000px;width:100%;max-height:85vh;
-            background:var(--card-bg);backdrop-filter:blur(var(--blur-amount));
-            -webkit-backdrop-filter:blur(var(--blur-amount));border:1px solid var(--card-border);
-            box-shadow:var(--shadow-sm);border-radius:2rem;padding:2rem 2rem 1.5rem;
-            animation:fadeIn 0.45s ease-out;
-            display:flex;flex-direction:column;
-        }
+        .glass-card{max-width:1000px;width:100%;max-height:85vh;background:var(--card-bg);backdrop-filter:blur(var(--blur-amount));-webkit-backdrop-filter:blur(var(--blur-amount));border:1px solid var(--card-border);box-shadow:var(--shadow-sm);border-radius:2rem;padding:2rem 2rem 1.5rem;animation:fadeIn 0.45s ease-out;display:flex;flex-direction:column;}
         @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-        .blog-header{
-            display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1.2rem;
-            flex-wrap:wrap;gap:1rem;flex-shrink:0;
-        }
-        .blog-title{
-            font-size:1.8rem;font-weight:600;background:linear-gradient(135deg,#fff,#cdddfc);
-            -webkit-background-clip:text;background-clip:text;color:transparent;
-        }
-        .back-home{
-            color:var(--text-secondary);text-decoration:none;font-size:0.9rem;cursor:pointer;transition:color 0.2s;
-        }
+        .blog-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1.2rem;flex-wrap:wrap;gap:1rem;flex-shrink:0;}
+        .blog-title{font-size:1.8rem;font-weight:600;background:linear-gradient(135deg,#fff,#cdddfc);-webkit-background-clip:text;background-clip:text;color:transparent;}
+        .header-actions{display:flex;align-items:center;gap:0.8rem}
+        .back-home{color:var(--text-secondary);text-decoration:none;font-size:0.9rem;cursor:pointer;transition:color 0.2s;}
         .back-home:hover{color:var(--accent)}
-
-        /* 搜索条 */
-        .search-wrapper{
-            margin-bottom:1.2rem;flex-shrink:0;
-            display:flex;align-items:center;gap:0.8rem;
-        }
-        .search-box{
-            flex:1;position:relative;
-        }
-        .search-box input{
-            width:100%;padding:0.75rem 1rem 0.75rem 2.5rem;
-            background:rgba(0,0,0,0.25);border:1px solid var(--card-border);
-            border-radius:40px;color:var(--text-primary);font-size:0.95rem;
-            outline:none;transition:border-color 0.2s,box-shadow 0.2s;
-        }
-        .search-box input:focus{
-            border-color:var(--accent);box-shadow:0 0 0 2px rgba(192,224,255,0.15);
-        }
+        .search-toggle-btn{background:none;border:none;color:var(--text-secondary);font-size:1.3rem;cursor:pointer;padding:0.3rem 0.5rem;border-radius:30px;transition:background 0.2s,color 0.2s;display:flex;align-items:center;justify-content:center;}
+        .search-toggle-btn:hover{background:rgba(255,255,255,0.08);color:var(--accent);}
+        .search-toggle-btn.active{color:var(--accent);background:rgba(192,224,255,0.1);}
+        .search-wrapper{margin-bottom:1.2rem;flex-shrink:0;display:flex;align-items:center;gap:0.8rem;transition:all 0.2s ease;overflow:hidden;}
+        .search-wrapper.collapsed{display:none;}
+        .search-box{flex:1;position:relative;}
+        .search-box input{width:100%;padding:0.75rem 1rem 0.75rem 2.5rem;background:rgba(0,0,0,0.25);border:1px solid var(--card-border);border-radius:40px;color:var(--text-primary);font-size:0.95rem;outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
+        .search-box input:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(192,224,255,0.15);}
         .search-box input::placeholder{color:var(--text-secondary);opacity:0.7}
-        .search-icon{
-            position:absolute;left:1rem;top:50%;transform:translateY(-50%);
-            color:var(--text-secondary);font-size:1rem;pointer-events:none;
-        }
-        .clear-search{
-            background:none;border:none;color:var(--text-secondary);
-            font-size:1.2rem;cursor:pointer;padding:0.4rem 0.6rem;
-            border-radius:30px;transition:background 0.2s,color 0.2s;
-            display:flex;align-items:center;justify-content:center;
-        }
+        .search-icon{position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:var(--text-secondary);font-size:1rem;pointer-events:none;}
+        .clear-search{background:none;border:none;color:var(--text-secondary);font-size:1.2rem;cursor:pointer;padding:0.4rem 0.6rem;border-radius:30px;transition:background 0.2s,color 0.2s;display:flex;align-items:center;justify-content:center;}
         .clear-search:hover{background:rgba(255,255,255,0.05);color:var(--accent)}
-        .result-count{
-            font-size:0.8rem;color:var(--text-secondary);margin-left:0.25rem;white-space:nowrap;
-        }
-
-        #content{
-            flex:1;overflow-y:auto;padding-right:0.5rem;scroll-behavior:smooth;
-        }
-        #content::-webkit-scrollbar{width:6px}
-        #content::-webkit-scrollbar-track{background:rgba(255,255,255,0.05);border-radius:10px}
-        #content::-webkit-scrollbar-thumb{background:rgba(192,224,255,0.3);border-radius:10px}
-        #content::-webkit-scrollbar-thumb:hover{background:rgba(192,224,255,0.5)}
-
+        .result-count{font-size:0.8rem;color:var(--text-secondary);margin-left:0.25rem;white-space:nowrap;}
+        #content{flex:1;overflow-y:auto;padding-right:0.5rem;scroll-behavior:smooth;}
+        #content::-webkit-scrollbar{width:6px}#content::-webkit-scrollbar-track{background:rgba(255,255,255,0.05);border-radius:10px}#content::-webkit-scrollbar-thumb{background:rgba(192,224,255,0.3);border-radius:10px}#content::-webkit-scrollbar-thumb:hover{background:rgba(192,224,255,0.5)}
         .post-list{list-style:none;margin-top:0.5rem}
-        .post-item{
-            background:rgba(255,255,255,0.02);border-radius:1rem;padding:1rem 1.2rem;margin-bottom:1rem;
-            border:0.5px solid rgba(255,255,255,0.05);transition:background 0.2s,transform 0.1s;
-        }
+        .post-item{background:rgba(255,255,255,0.02);border-radius:1rem;padding:1rem 1.2rem;margin-bottom:1rem;border:0.5px solid rgba(255,255,255,0.05);transition:background 0.2s,transform 0.1s;}
         .post-item:hover{background:rgba(255,255,255,0.05);transform:translateX(4px)}
-        .post-title{
-            font-size:1.2rem;font-weight:500;color:var(--text-primary);text-decoration:none;
-            display:block;margin-bottom:0.3rem;
-        }
+        .post-title{font-size:1.2rem;font-weight:500;color:var(--text-primary);text-decoration:none;display:block;margin-bottom:0.3rem;}
         .post-title:hover{color:var(--accent)}
         .post-date{font-size:0.75rem;color:var(--text-secondary)}
         .post-tags{display:inline-flex;gap:0.5rem;margin-left:1rem}
-        .tag{
-            background:rgba(192,224,255,0.1);padding:0.1rem 0.5rem;border-radius:20px;
-            font-size:0.7rem;color:var(--accent);
-        }
+        .tag{background:rgba(192,224,255,0.1);padding:0.1rem 0.5rem;border-radius:20px;font-size:0.7rem;color:var(--accent);}
         .post-content{margin-top:0.5rem;word-wrap:break-word}
         .post-content h1{font-size:1.8rem;margin-bottom:0.5rem}
-        .post-content .post-meta{
-            font-size:0.8rem;color:var(--text-secondary);margin-bottom:1.5rem;
-            border-bottom:0.5px solid rgba(255,255,255,0.1);padding-bottom:0.8rem;
-        }
+        .post-content .post-meta{font-size:0.8rem;color:var(--text-secondary);margin-bottom:1.5rem;border-bottom:0.5px solid rgba(255,255,255,0.1);padding-bottom:0.8rem}
         .post-content h2{font-size:1.3rem;margin:1.2rem 0 0.6rem;color:var(--accent)}
         .post-content p{margin:0.8rem 0;line-height:1.6}
         .post-content img{max-width:100%;border-radius:12px;display:block;margin:1rem 0}
@@ -121,359 +60,355 @@
         .post-content blockquote{border-left:3px solid var(--accent);padding-left:1rem;color:var(--text-secondary);margin:1rem 0}
         .loading{text-align:center;padding:2rem;color:var(--text-secondary)}
         .error{color:#ffaaaa;text-align:center;padding:2rem;background:rgba(255,0,0,0.05);border-radius:1rem}
-        .no-results{
-            text-align:center;padding:2rem;color:var(--text-secondary);
-            background:rgba(255,255,255,0.02);border-radius:1rem;
-        }
+        .no-results{text-align:center;padding:2rem;color:var(--text-secondary);background:rgba(255,255,255,0.02);border-radius:1rem;}
         .katex-display{overflow-x:auto;overflow-y:hidden;padding:0.5rem 0}
         .katex{font-size:1.05em}
         .mermaid{background:rgba(10,12,18,0.6);border-radius:1rem;padding:1rem;margin:1rem 0;text-align:center}
-        .video-wrapper{
-            position:relative;padding-bottom:56.25%;height:0;overflow:hidden;margin:1.2rem 0;
-            border-radius:16px;box-shadow:0 8px 20px rgba(0,0,0,0.3);background:#000;
-        }
-        .video-wrapper iframe,.video-wrapper video{
-            position:absolute;top:0;left:0;width:100%;height:100%;border:0;border-radius:16px;
-        }
+        .video-wrapper{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;margin:1.2rem 0;border-radius:16px;box-shadow:0 8px 20px rgba(0,0,0,0.3);background:#000;}
+        .video-wrapper iframe,.video-wrapper video{position:absolute;top:0;left:0;width:100%;height:100%;border:0;border-radius:16px;}
     </style>
-    <!-- 核心库 -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" onload="renderMathDelayed()"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
 </head>
 <body>
 <div class="container">
     <div class="glass-card" id="app">
         <div class="blog-header">
-            <div class="blog-title">Logbook · 搜索·视频·饼图</div>
-            <a class="back-home" id="dynamicBackLink" href="https://space-6oo.pages.dev/bio">← Home</a>
+            <div class="blog-title">Logbook · 搜索·视频·公式</div>
+            <div class="header-actions">
+                <a class="back-home" id="dynamicBackLink" href="https://space-6oo.pages.dev/bio">← Home</a>
+                <button class="search-toggle-btn" id="searchToggleBtn" title="搜索文章">🔍</button>
+            </div>
         </div>
-        <div class="search-wrapper" id="searchWrapper" style="display: none;">
+        <div class="search-wrapper collapsed" id="searchWrapper">
             <div class="search-box">
                 <span class="search-icon">🔍</span>
                 <input type="text" id="searchInput" placeholder="搜索标题或标签..." autocomplete="off">
             </div>
-            <button class="clear-search" id="clearSearchBtn" title="清除搜索">✕</button>
+            <button class="clear-search" id="clearSearchBtn" title="清除并关闭">✕</button>
             <span class="result-count" id="resultCount"></span>
         </div>
         <div id="content"><div class="loading">加载中...</div></div>
     </div>
 </div>
+
 <script>
-    // ================= 全局 Mermaid 初始化 =================
-    (function setupMermaid() {
-        if (typeof mermaid !== 'undefined') {
+    console.log('[系统] 开始加载依赖库...');
+    const CDN = {
+        katex: 'https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js',
+        marked: 'https://cdn.jsdelivr.net/npm/marked@11.2.0/lib/marked.umd.js',
+        mermaid: 'https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js'
+    };
+
+    function loadScript(src) {
+        return new Promise((resolve, reject) => {
+            const s = document.createElement('script');
+            s.src = src;
+            s.onload = () => { console.log(`[系统] 已加载: ${src}`); resolve(); };
+            s.onerror = () => reject(new Error('加载失败: ' + src));
+            document.head.appendChild(s);
+        });
+    }
+
+    async function loadLibraries() {
+        try { await loadScript(CDN.katex); } catch(e) { console.error(e); }
+        try { await loadScript(CDN.marked); } catch(e) { console.error(e); }
+        try {
+            await loadScript(CDN.mermaid);
             mermaid.initialize({
                 startOnLoad: false, theme: 'dark',
                 themeVariables: {
-                    background: '#0b0d10', primaryColor: '#c0e0ff', primaryBorderColor: '#7f9fbf',
-                    primaryTextColor: '#edeff2', lineColor: '#a1a5b0', secondaryColor: '#2a2e3a',
-                    tertiaryColor: '#1e2129', pieTitleTextColor: '#edeff2', pieSectionTextColor: '#edeff2',
-                    pieLegendTextColor: '#edeff2', pieStrokeColor: '#0b0d10'
+                    background:'#0b0d10', primaryColor:'#c0e0ff', primaryBorderColor:'#7f9fbf',
+                    primaryTextColor:'#edeff2', lineColor:'#a1a5b0', secondaryColor:'#2a2e3a',
+                    tertiaryColor:'#1e2129', pieTitleTextColor:'#edeff2', pieSectionTextColor:'#edeff2',
+                    pieLegendTextColor:'#edeff2', pieStrokeColor:'#0b0d10'
                 },
-                securityLevel: 'loose'
+                securityLevel:'loose'
             });
-            const style = document.createElement('style');
-            style.textContent = `.mermaid .pieTitle, .mermaid .pie .slice .label, .mermaid .pie .legend text, .mermaid .pie .slice text, .mermaid text[class*="pie"], .mermaid tspan { fill: #edeff2 !important; color: #edeff2 !important; }`;
-            document.head.appendChild(style);
+            const st = document.createElement('style');
+            st.textContent = '.mermaid .pieTitle,.mermaid .pie .slice .label,.mermaid .pie .legend text,.mermaid .pie .slice text,.mermaid text[class*="pie"],.mermaid tspan{fill:#edeff2!important;color:#edeff2!important}';
+            document.head.appendChild(st);
+        } catch(e) { console.error(e); }
+
+        console.log('[系统] 所有依赖加载完毕，启动主程序');
+        if (typeof window.initApp === 'function') window.initApp();
+        else console.error('[系统] initApp 未定义！');
+    }
+
+    // ========== 主程序 ==========
+    window.initApp = function() {
+        console.log('[主程序] initApp 被调用');
+        if (window.__init) { console.log('[主程序] 已初始化，跳过'); return; }
+        window.__init = true;
+
+        function escapeHtml(t) { const m={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}; return String(t).replace(/[&<>"']/g,c=>m[c]); }
+
+        let postsMeta = [], filtered = [], isArticle = false, searchTerm = '';
+        const content = document.getElementById('content');
+        const back = document.getElementById('dynamicBackLink');
+        const searchBtn = document.getElementById('searchToggleBtn');
+        const searchWrap = document.getElementById('searchWrapper');
+        const searchInp = document.getElementById('searchInput');
+        const clearBtn = document.getElementById('clearSearchBtn');
+        const countSpan = document.getElementById('resultCount');
+
+        function param(p){ return new URLSearchParams(location.search).get(p); }
+        function setArticle(article){
+            isArticle = article;
+            back.innerText = article ? '← List' : '← Home';
+            back.href = article ? '#' : 'https://space-6oo.pages.dev/bio';
+            searchBtn.style.display = article ? 'none' : 'flex';
         }
-    })();
-
-    (function(){
-        // ----- 工具 -----
-        function escapeHtml(text) {
-            if (!text) return text;
-            const map = {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'};
-            return String(text).replace(/[&<>"']/g, m=>map[m]);
-        }
-
-        // ----- 全局状态 -----
-        let postsMetadata = [];
-        let filteredMetadata = [];
-        let isArticleMode = false;
-        let searchTerm = '';
-
-        const contentDiv = document.getElementById('content');
-        const backLink = document.getElementById('dynamicBackLink');
-        const searchWrapper = document.getElementById('searchWrapper');
-        const searchInput = document.getElementById('searchInput');
-        const clearSearchBtn = document.getElementById('clearSearchBtn');
-        const resultCountSpan = document.getElementById('resultCount');
-
-        function getQueryParam(p){ return new URLSearchParams(window.location.search).get(p); }
-        
-        function setHeaderMode(articleMode){
-            isArticleMode = articleMode;
-            backLink.innerText = articleMode ? '← List' : '← Home';
-            backLink.href = articleMode ? '#' : 'https://space-6oo.pages.dev/bio';
-            searchWrapper.style.display = articleMode ? 'none' : 'flex';
-        }
-
-        function navigateToPostList(){
-            if(window.location.search.includes('post')) window.history.pushState({},'',window.location.pathname);
-            searchInput.value = '';
-            searchTerm = '';
-            filterPosts();
-            renderPostList();
-            contentDiv.scrollTop = 0;
-        }
-
-        // ----- 搜索过滤（标题 + 标签）-----
-        function filterPosts() {
-            const term = searchTerm.trim().toLowerCase();
-            if (!term) {
-                filteredMetadata = [...postsMetadata];
+        function toggleSearch(){
+            if (searchWrap.classList.contains('collapsed')) {
+                searchWrap.classList.remove('collapsed');
+                searchBtn.classList.add('active');
+                setTimeout(()=>searchInp.focus(),50);
             } else {
-                filteredMetadata = postsMetadata.filter(post => {
-                    if (post.title.toLowerCase().includes(term)) return true;
-                    if (post.tags && Array.isArray(post.tags)) {
-                        return post.tags.some(tag => tag.toLowerCase().includes(term));
+                searchWrap.classList.add('collapsed');
+                searchBtn.classList.remove('active');
+                searchInp.value = '';
+                searchTerm = '';
+                filterPosts();
+                renderList();
+            }
+        }
+        function goList(){
+            if (location.search.includes('post')) history.pushState({},'',location.pathname);
+            searchWrap.classList.add('collapsed');
+            searchBtn.classList.remove('active');
+            searchInp.value = ''; searchTerm = '';
+            setArticle(false);
+            renderList();
+            content.scrollTop = 0;
+        }
+
+        // ---------- 手动 KaTeX 渲染 ----------
+        function renderMathManually() {
+            if (typeof katex === 'undefined') return;
+            const walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT, null, false);
+            const nodes = [];
+            while(walker.nextNode()) nodes.push(walker.currentNode);
+            for (const node of nodes) {
+                const text = node.textContent;
+                if (!text.includes('$')) continue;
+                const frag = document.createDocumentFragment();
+                let lastIdx = 0;
+                const regex = /\$\$([\s\S]*?)\$\$|\$([^\$]*?)\$/g;
+                let m;
+                while ((m = regex.exec(text)) !== null) {
+                    if (m.index > lastIdx) frag.appendChild(document.createTextNode(text.slice(lastIdx, m.index)));
+                    const formula = m[1] !== undefined ? m[1] : m[2];
+                    const display = m[1] !== undefined;
+                    try {
+                        const html = katex.renderToString(formula, { displayMode: display, throwOnError: false, errorColor: '#ffb3b3' });
+                        const span = document.createElement('span');
+                        span.innerHTML = html;
+                        frag.appendChild(span);
+                    } catch(e) {
+                        frag.appendChild(document.createTextNode(m[0]));
                     }
-                    return false;
-                });
+                    lastIdx = m.index + m[0].length;
+                }
+                if (lastIdx < text.length) frag.appendChild(document.createTextNode(text.slice(lastIdx)));
+                if (frag.childNodes.length) node.parentNode.replaceChild(frag, node);
             }
         }
 
-        // 实时搜索
-        function onSearchInput() {
-            searchTerm = searchInput.value;
-            filterPosts();
-            renderPostList();
-        }
-
-        function clearSearch() {
-            searchInput.value = '';
-            searchTerm = '';
-            filterPosts();
-            renderPostList();
-            searchInput.focus();
-        }
-
-        // KaTeX
-        function renderMathInContainer(){
-            if(typeof renderMathInElement !== 'undefined'){
-                try{
-                    renderMathInElement(contentDiv,{
-                        delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false},{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],
-                        throwOnError:false,errorColor:'#ffb3b3',strict:false
-                    });
-                }catch(e){}
-            }else setTimeout(renderMathInContainer,150);
-        }
-        window.renderMathDelayed = renderMathInContainer;
-
-        // Mermaid 转换
+        // ---------- Mermaid ----------
         function transformMermaidBlocks(html){
-            const div = document.createElement('div');
-            div.innerHTML = html;
-            div.querySelectorAll('pre').forEach(pre=>{
+            const d = document.createElement('div'); d.innerHTML = html;
+            d.querySelectorAll('pre').forEach(pre=>{
                 const code = pre.querySelector('code');
-                if(!code) return;
-                let isMermaid = /language-mermaid|lang-mermaid/.test(code.className) || 
-                               /^(pie|graph|flowchart|sequenceDiagram|gantt|classDiagram|stateDiagram|erDiagram|journey|quadrantChart|requirementDiagram|mindmap|timeline|zenuml|sankey|xychart-beta|block)/i.test(code.textContent.trim());
-                if(isMermaid){
-                    const mDiv = document.createElement('div');
-                    mDiv.className = 'mermaid';
-                    mDiv.textContent = code.textContent;
-                    pre.parentNode.replaceChild(mDiv, pre);
+                if (!code) return;
+                const text = code.textContent.trim();
+                if (/^(pie|graph|flowchart|sequenceDiagram|gantt|classDiagram|stateDiagram|erDiagram|journey|quadrantChart|requirementDiagram|mindmap|timeline|zenuml|sankey|xychart-beta|block)/i.test(text)){
+                    const md = document.createElement('div');
+                    md.className = 'mermaid';
+                    md.textContent = code.textContent;
+                    pre.parentNode.replaceChild(md, pre);
                 }
             });
-            return div.innerHTML;
+            return d.innerHTML;
         }
-
-        async function renderMermaidCharts(){
+        async function renderMermaids(){
             const els = document.querySelectorAll('.mermaid:not([data-processed])');
-            if(!els.length) return;
-            try{
-                if(typeof mermaid === 'undefined') await new Promise(r=>setTimeout(r,100));
+            if (!els.length) return;
+            try {
+                if (typeof mermaid === 'undefined') await new Promise(r=>setTimeout(r,100));
                 await mermaid.run({ querySelector:'.mermaid:not([data-processed])', suppressErrors:true });
                 els.forEach(e=>e.setAttribute('data-processed','true'));
-            }catch(e){}
+            } catch(e){}
         }
 
-        // 视频解析
-        function parseVideoUrl(url) {
-            url = url.trim();
-            if (!url.startsWith('http')) return null;
-            const videoFileRegex = /^(https?:\/\/\S+\.(mp4|webm|mov|ogg|m4v)(\?[^\s]*)?)$/i;
-            if (videoFileRegex.test(url)) {
+        // ---------- 视频 ----------
+        function parseVideoUrl(url){
+            url = url.trim(); if (!url.startsWith('http')) return null;
+            if (/\.(mp4|webm|mov|ogg|m4v)(\?|$)/i.test(url)) {
                 const ext = url.match(/\.([a-z0-9]+)(\?|$)/i)[1].toLowerCase();
-                const mimeMap = { mp4: 'video/mp4', webm: 'video/webm', mov: 'video/quicktime', ogg: 'video/ogg', m4v: 'video/mp4' };
-                const mime = mimeMap[ext] || 'video/mp4';
-                return `<div class="video-wrapper"><video controls preload="metadata"><source src="${url}" type="${mime}">您的浏览器不支持 video 标签。</video></div>`;
+                const mime = {mp4:'video/mp4',webm:'video/webm',mov:'video/quicktime',ogg:'video/ogg',m4v:'video/mp4'}[ext]||'video/mp4';
+                return `<div class="video-wrapper"><video controls preload="metadata"><source src="${url}" type="${mime}"></video></div>`;
             }
-            const ytRegex = /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})(?:[?&][^?\s]*)?$/;
-            let match = url.match(ytRegex);
-            if (match) return `<div class="video-wrapper"><iframe src="https://www.youtube.com/embed/${match[1]}" allowfullscreen></iframe></div>`;
-            const vimeoRegex = /^(?:https?:\/\/)?(?:www\.)?vimeo\.com\/(?:.*\/)?([0-9]+)(?:[?&][^?\s]*)?$/;
-            match = url.match(vimeoRegex);
-            if (match) return `<div class="video-wrapper"><iframe src="https://player.vimeo.com/video/${match[1]}" allowfullscreen></iframe></div>`;
-            const biliRegex = /^(?:https?:\/\/)?(?:www\.)?bilibili\.com\/video\/((?:BV|av)[a-zA-Z0-9]+)(?:[?&][^?\s]*)?$/;
-            match = url.match(biliRegex);
-            if (match) return `<div class="video-wrapper"><iframe src="//player.bilibili.com/player.html?bvid=${match[1]}&high_quality=1&danmaku=0" allowfullscreen></iframe></div>`;
+            let m;
+            m = url.match(/youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/);
+            if (m) return `<div class="video-wrapper"><iframe src="https://www.youtube.com/embed/${m[1]}" allowfullscreen></iframe></div>`;
+            m = url.match(/vimeo\.com\/(?:.*\/)?([0-9]+)/);
+            if (m) return `<div class="video-wrapper"><iframe src="https://player.vimeo.com/video/${m[1]}" allowfullscreen></iframe></div>`;
+            m = url.match(/bilibili\.com\/video\/((?:BV|av)[a-zA-Z0-9]+)/);
+            if (m) return `<div class="video-wrapper"><iframe src="//player.bilibili.com/player.html?bvid=${m[1]}&high_quality=1&danmaku=0" allowfullscreen></iframe></div>`;
             return null;
         }
-
-        function preprocessVideoUrls(markdownText) {
-            const lines = markdownText.split('\n');
-            const processedLines = lines.map(line => {
-                const trimmed = line.trim();
-                if (trimmed === '' || line.includes('<iframe') || line.includes('<video')) return line;
-                const embed = parseVideoUrl(trimmed);
-                return embed ? embed : line;
-            });
-            return processedLines.join('\n');
+        function processVideoLines(md){
+            return md.split('\n').map(line=>{
+                const t = line.trim();
+                if (!t || line.includes('<iframe')||line.includes('<video')) return line;
+                const emb = parseVideoUrl(t);
+                return emb || line;
+            }).join('\n');
+        }
+        function biliSyntax(md){
+            return md.replace(/!\[.*?\]\((https?:\/\/www\.bilibili\.com\/video\/([^\/?\s]+)\/?)(?:\s*=(\d+)x(\d+))?\)/g,
+                (_,url,bvid,w,h)=>{
+                    let pb = '56.25%'; if (w&&h) pb = (h/w)*100+'%';
+                    return `<div class="video-wrapper" style="padding-bottom:${pb}"><iframe src="//player.bilibili.com/player.html?bvid=${bvid}&high_quality=1" allowfullscreen></iframe></div>`;
+                });
         }
 
-        function transformBilibiliSyntax(mdText) {
-            const regex = /!\[(.*?)\]\((https?:\/\/www\.bilibili\.com\/video\/([^\/?\s]+)\/?)(?:\s*=(\d+)x(\d+))?\)/g;
-            return mdText.replace(regex, (match, alt, url, bvid, width, height) => {
-                let paddingBottom = '56.25%';
-                if (width && height) paddingBottom = (height / width) * 100 + '%';
-                return `<div class="video-wrapper" style="padding-bottom: ${paddingBottom};"><iframe src="//player.bilibili.com/player.html?bvid=${bvid}&high_quality=1" allowfullscreen></iframe></div>`;
-            });
+        // ---------- 列表与文章 ----------
+        function filterPosts(){
+            const term = searchTerm.trim().toLowerCase();
+            if (!term) filtered = [...postsMeta];
+            else filtered = postsMeta.filter(p=>
+                p.title.toLowerCase().includes(term) ||
+                (p.tags && p.tags.some(t=>t.toLowerCase().includes(term)))
+            );
         }
-
-        // ----- 渲染文章列表（彻底修复计数）-----
-        function renderPostList(){
-            if(!postsMetadata.length){
-                contentDiv.innerHTML = '<div class="error">📭 暂无文章，请检查 posts.json</div>';
-                setHeaderMode(false);
-                return;
-            }
-            
+        function renderList(){
+            if (!postsMeta.length) { content.innerHTML = '<div class="error">📭 暂无文章</div>'; setArticle(false); return; }
             const term = searchTerm.trim();
-            const list = term === '' ? postsMetadata : filteredMetadata;
-            
-            if (list.length === 0) {
-                contentDiv.innerHTML = `<div class="no-results">🔍 未找到匹配 “${escapeHtml(term)}” 的文章</div>`;
-                setHeaderMode(false);
-                resultCountSpan.textContent = `0 / ${postsMetadata.length} 篇`;
+            const list = term ? filtered : postsMeta.length ? (filtered.length ? filtered : []) : postsMeta;
+            if (!list.length) {
+                content.innerHTML = `<div class="no-results">🔍 未找到匹配 “${escapeHtml(term)}” 的文章</div>`;
+                countSpan.textContent = `0 / ${postsMeta.length} 篇`;
+                setArticle(false);
                 return;
             }
-
             let html = '<ul class="post-list">';
             list.forEach(p=>{
                 const tags = p.tags ? `<span class="post-tags">${p.tags.map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join('')}</span>` : '';
-                html += `<li class="post-item"><a href="?post=${encodeURIComponent(p.filename)}" class="post-title">${escapeHtml(p.title)}</a>
-                         <div class="post-date">${escapeHtml(p.date)} ${tags}</div></li>`;
+                html += `<li class="post-item"><a href="?post=${encodeURIComponent(p.filename)}" class="post-title">${escapeHtml(p.title)}</a><div class="post-date">${escapeHtml(p.date)} ${tags}</div></li>`;
             });
             html += '</ul>';
-            contentDiv.innerHTML = html;
-            setHeaderMode(false);
-            contentDiv.scrollTop = 0;
-            
-            // 更新计数显示
-            if (term === '') {
-                resultCountSpan.textContent = `(${postsMetadata.length} 篇)`;
-            } else {
-                resultCountSpan.textContent = `${list.length} / ${postsMetadata.length} 篇`;
-            }
+            content.innerHTML = html;
+            setArticle(false);
+            content.scrollTop = 0;
+            countSpan.textContent = term ? `${list.length} / ${postsMeta.length} 篇` : `(${postsMeta.length} 篇)`;
         }
 
-        // ----- 加载文章详情 -----
         async function loadPost(filename){
-            setHeaderMode(true);
-            const meta = postsMetadata.find(p=>p.filename===filename);
-            if(!meta){ contentDiv.innerHTML = '<div class="error">❌ 未知文章</div>'; return; }
-            let mdText = null, errMsg = null;
-            try{
-                const res = await fetch(`./posts/${filename}`);
-                if(!res.ok) errMsg = `HTTP ${res.status}`;
-                else mdText = await res.text();
-            }catch(e){ errMsg = e.message; }
-            if(!mdText){
-                contentDiv.innerHTML = `<div class="error">❌ 加载失败: ${escapeHtml(errMsg||'未知')}</div>`;
+            console.log(`[主程序] 开始加载文章: ${filename}`);
+            setArticle(true);
+            const meta = postsMeta.find(p=>p.filename===filename);
+            if (!meta) {
+                console.error('[主程序] 未找到文章元数据');
+                content.innerHTML = '<div class="error">❌ 未知文章</div>';
                 return;
             }
-            try{
-                const withVideoUrls = preprocessVideoUrls(mdText);
-                const withBilibili = transformBilibiliSyntax(withVideoUrls);
-                let parsed = (typeof marked.parse==='function')? marked.parse(withBilibili) : marked(withBilibili);
-                if(parsed && typeof parsed.then==='function') parsed = await parsed;
+            try {
+                console.log('[主程序] 正在 fetch 文章文件...');
+                const res = await fetch(`./posts/${filename}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const md = await res.text();
+                console.log('[主程序] 文章内容获取成功，开始解析...');
+                let processed = processVideoLines(md);
+                processed = biliSyntax(processed);
+                let parsed = (typeof marked.parse==='function') ? marked.parse(processed) : marked(processed);
+                if (parsed && typeof parsed.then === 'function') parsed = await parsed;
                 const withMermaid = transformMermaidBlocks(parsed);
-                const tagSpans = meta.tags ? meta.tags.map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join(' ') : '';
-                const full = `<div class="post-content"><h1>${escapeHtml(meta.title)}</h1>
-                              <div class="post-meta">📅 ${escapeHtml(meta.date)}  ${tagSpans}</div>${withMermaid}</div>`;
-                contentDiv.innerHTML = full;
-                contentDiv.scrollTop = 0;
-                renderMathInContainer();
-                setTimeout(()=>{ renderMermaidCharts().catch(()=>{}); },60);
-            }catch(e){ contentDiv.innerHTML = `<div class="error">解析失败: ${escapeHtml(e.message)}</div>`; }
+                const tags = meta.tags ? meta.tags.map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join(' ') : '';
+                content.innerHTML = `<div class="post-content"><h1>${escapeHtml(meta.title)}</h1><div class="post-meta">📅 ${escapeHtml(meta.date)} ${tags}</div>${withMermaid}</div>`;
+                content.scrollTop = 0;
+                console.log('[主程序] 开始渲染数学公式...');
+                renderMathManually();
+                console.log('[主程序] 开始渲染 Mermaid 图表...');
+                setTimeout(()=>{ renderMermaids().catch(()=>{}); }, 60);
+                console.log('[主程序] 文章加载完成');
+            } catch(e) {
+                console.error('[主程序] 文章加载失败:', e);
+                content.innerHTML = `<div class="error">❌ 加载失败: ${escapeHtml(e.message)}</div>`;
+            }
         }
 
-        // 加载 posts.json
-        async function loadMetadata(){
-            try{
+        async function loadMeta(){
+            console.log('[主程序] 正在加载 posts.json...');
+            try {
                 const r = await fetch('./posts.json');
-                if(!r.ok) throw new Error(`HTTP ${r.status}`);
+                if (!r.ok) throw new Error(`HTTP ${r.status}`);
                 const data = await r.json();
-                if(!Array.isArray(data)) throw new Error('格式错误');
-                postsMetadata = data.filter(d=>d.filename&&d.title&&d.date).sort((a,b)=>new Date(b.date)-new Date(a.date));
-                filteredMetadata = [...postsMetadata];
-                return true;
-            }catch(e){
-                postsMetadata = [];
-                filteredMetadata = [];
-                contentDiv.innerHTML = `<div class="error">🔌 索引读取失败<br><small>${escapeHtml(e.message)}</small></div>`;
-                setHeaderMode(false);
-                return false;
+                if (!Array.isArray(data)) throw new Error('JSON 格式错误，需要数组');
+                postsMeta = data.filter(d=>d.filename&&d.title&&d.date).sort((a,b)=>new Date(b.date)-new Date(a.date));
+                filtered = [...postsMeta];
+                console.log(`[主程序] posts.json 加载成功，共 ${postsMeta.length} 篇文章`);
+                return { success: true };
+            } catch(e) {
+                console.error('[主程序] posts.json 加载失败:', e);
+                content.innerHTML = `<div class="error">🔌 索引读取失败<br><small>${escapeHtml(e.message)}</small></div>`;
+                setArticle(false);
+                return { success: false, error: e.message };
             }
         }
 
-        // 初始化
         async function init(){
-            contentDiv.innerHTML = '<div class="loading">📡 读取索引…</div>';
-            const ok = await loadMetadata();
-            if(!ok) return;
-            if(!postsMetadata.length){ 
-                contentDiv.innerHTML='<div class="error">📭 暂无文章</div>'; 
-                setHeaderMode(false); 
-                return; 
+            console.log('[主程序] init 开始');
+            content.innerHTML = '<div class="loading">📡 读取索引…</div>';
+            const result = await loadMeta();
+            if (!result.success) {
+                console.warn('[主程序] 索引加载失败，停止初始化');
+                return;
             }
-            
-            const postParam = getQueryParam('post');
-            if (postParam) {
-                await loadPost(postParam);
-            } else {
-                setHeaderMode(false);
-                renderPostList();
+            if (!postsMeta.length) {
+                console.warn('[主程序] 索引为空');
+                content.innerHTML = '<div class="error">📭 暂无文章</div>';
+                setArticle(false);
+                return;
             }
-
-            searchInput.addEventListener('input', onSearchInput);
-            clearSearchBtn.addEventListener('click', clearSearch);
-        }
-
-        // 事件绑定
-        backLink.addEventListener('click',e=>{ 
-            if(isArticleMode){ 
-                e.preventDefault(); 
-                navigateToPostList(); 
-            } 
-        });
-        
-        window.addEventListener('popstate',async ()=>{
-            if(!postsMetadata.length){ await loadMetadata(); if(!postsMetadata.length) return; }
-            const p = getQueryParam('post');
+            const p = param('post');
+            console.log(`[主程序] URL 参数 post=${p}`);
             if (p) {
                 await loadPost(p);
             } else {
-                searchInput.value = '';
-                searchTerm = '';
-                filterPosts();
-                renderPostList();
+                setArticle(false);
+                renderList();
+                console.log('[主程序] 文章列表已渲染');
             }
+        }
+
+        back.addEventListener('click', e=>{ if (isArticle) { e.preventDefault(); goList(); } });
+        window.addEventListener('popstate', async ()=>{
+            if (!postsMeta.length) {
+                const r = await loadMeta();
+                if (!r.success) return;
+            }
+            const p = param('post');
+            if (p) await loadPost(p);
+            else { searchWrap.classList.add('collapsed'); searchBtn.classList.remove('active'); setArticle(false); renderList(); }
         });
-        
-        document.body.addEventListener('mousemove',e=>{
-            document.body.style.setProperty('--x',(e.clientX/window.innerWidth)*100+'%');
-            document.body.style.setProperty('--y',(e.clientY/window.innerHeight)*100+'%');
+        document.body.addEventListener('mousemove', e=>{
+            document.body.style.setProperty('--x', (e.clientX/innerWidth)*100+'%');
+            document.body.style.setProperty('--y', (e.clientY/innerHeight)*100+'%');
         });
-        
-        init();
-    })();
+
+        // 启动
+        init().then(() => console.log('[主程序] 初始化流程结束'));
+    };
+
+    // 开始加载库，并在3秒后强制启动（兜底）
+    loadLibraries();
+    setTimeout(() => {
+        if (!window.__init) {
+            console.warn('[系统] 3秒后仍未初始化，强制启动');
+            window.initApp();
+        }
+    }, 3000);
 </script>
 </body>
 </html>
