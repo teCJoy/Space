@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>teCJoy · 笔记 · 高亮·复制·公式</title>
+    <title>teCJoy · 笔记 · 高亮·复制·搜索</title>
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <!-- Prism 暗色主题 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
@@ -58,7 +58,6 @@
         .post-content p{margin:0.8rem 0;line-height:1.6}
         .post-content img{max-width:100%;border-radius:12px;display:block;margin:1rem 0}
         .post-content code{background:rgba(0,0,0,0.3);padding:0.2rem 0.4rem;border-radius:6px;font-family:monospace;font-size:0.9em}
-        /* 确保 pre 内部空白一致 */
         .post-content pre{
             background:rgba(0,0,0,0.4);
             padding:1rem;
@@ -116,7 +115,7 @@
 <div class="container">
     <div class="glass-card" id="app">
         <div class="blog-header">
-            <div class="blog-title">Logbook · 高亮·复制·公式</div>
+            <div class="blog-title">Logbook · 高亮·复制·搜索</div>
             <div class="header-actions">
                 <a class="back-home" id="dynamicBackLink" href="https://space-6oo.pages.dev/bio">← Home</a>
                 <button class="search-toggle-btn" id="searchToggleBtn" title="搜索文章">🔍</button>
@@ -191,33 +190,27 @@
         if (window.__init) return;
         window.__init = true;
 
-        // 修复代码块对齐：去除首尾空白、空行，计算公共缩进，并确保第一行无多余空白
+        // 代码块渲染（对齐、高亮）
         if (typeof marked !== 'undefined') {
             const renderer = new marked.Renderer();
             const origCode = renderer.code.bind(renderer);
             renderer.code = function(code, lang, escaped) {
-                // 1. 彻底去除首尾所有空白字符（包括换行、空格、制表符）
                 let processed = code.replace(/^\s+/, '').replace(/\s+$/, '');
-                // 2. 按行分割，过滤完全空白的行（用于计算缩进，但保留空白行本身）
                 const lines = processed.split('\n');
                 const nonEmptyLines = lines.filter(line => line.trim() !== '');
                 if (nonEmptyLines.length === 0) return origCode('', lang, escaped);
 
-                // 3. 计算公共缩进（只考虑非空行）
                 const minIndent = nonEmptyLines.reduce((min, line) => {
                     const leading = line.match(/^[ \t]*/)[0].length;
                     return Math.min(min, leading);
                 }, Infinity);
 
-                // 4. 移除每行的公共缩进
                 const finalLines = lines.map(line => {
-                    if (line.trim() === '') return ''; // 空白行保留为空字符串
+                    if (line.trim() === '') return '';
                     return line.slice(minIndent);
                 });
 
-                // 5. 重新组合，确保开头没有多余换行
                 let finalCode = finalLines.join('\n');
-                // 再次去除可能出现的首行空行
                 finalCode = finalCode.replace(/^\n+/, '').replace(/\n+$/, '');
 
                 const langClass = lang ? `language-${lang}` : '';
@@ -262,6 +255,7 @@
 
         function escapeHtml(t) { const m={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}; return String(t).replace(/[&<>"']/g,c=>m[c]); }
 
+        // 数据与状态
         let postsMeta = [], filtered = [], isArticle = false, searchTerm = '';
         const content = document.getElementById('content');
         const back = document.getElementById('dynamicBackLink');
@@ -277,28 +271,46 @@
             back.innerText = article ? '← List' : '← Home';
             back.href = article ? '#' : 'https://space-6oo.pages.dev/bio';
             searchBtn.style.display = article ? 'none' : 'flex';
-        }
-        function toggleSearch(){
-            if (searchWrap.classList.contains('collapsed')) {
-                searchWrap.classList.remove('collapsed');
-                searchBtn.classList.add('active');
-                setTimeout(()=>searchInp.focus(),50);
-            } else {
+            if (article) {
+                // 进入文章页时强制关闭搜索
                 searchWrap.classList.add('collapsed');
                 searchBtn.classList.remove('active');
-                searchInp.value = ''; searchTerm = '';
-                filterPosts(); renderList();
             }
         }
+
+        // 搜索栏切换
+        function toggleSearch(){
+            console.log('搜索按钮被点击，当前状态:', searchWrap.classList.contains('collapsed'));
+            if (searchWrap.classList.contains('collapsed')) {
+                // 展开
+                searchWrap.classList.remove('collapsed');
+                searchBtn.classList.add('active');
+                setTimeout(() => searchInp.focus(), 50);
+            } else {
+                // 收起
+                searchWrap.classList.add('collapsed');
+                searchBtn.classList.remove('active');
+                searchInp.value = '';
+                searchTerm = '';
+                filterPosts();
+                renderList();
+            }
+        }
+
+        // 返回列表
         function goList(){
             if (location.search.includes('post')) history.pushState({},'',location.pathname);
             searchWrap.classList.add('collapsed');
             searchBtn.classList.remove('active');
-            searchInp.value = ''; searchTerm = '';
-            setArticle(false); renderList();
+            searchInp.value = '';
+            searchTerm = '';
+            filterPosts();
+            setArticle(false);
+            renderList();
             content.scrollTop = 0;
         }
 
+        // KaTeX 手动渲染
         function renderMathManually() {
             if (typeof katex === 'undefined') return;
             const walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT, null, false);
@@ -455,6 +467,7 @@
             }
         }
 
+        // 启动应用
         async function init(){
             content.innerHTML = '<div class="loading">📡 读取索引…</div>';
             const result = await loadMeta();
@@ -464,21 +477,59 @@
                 setArticle(false); return;
             }
             const p = param('post');
-            if (p) await loadPost(p);
-            else { setArticle(false); renderList(); }
-        }
+            if (p) {
+                await loadPost(p);
+            } else {
+                setArticle(false);
+                renderList();
+            }
 
-        back.addEventListener('click', e=>{ if (isArticle) { e.preventDefault(); goList(); } });
-        window.addEventListener('popstate', async ()=>{
-            if (!postsMeta.length) { const r = await loadMeta(); if (!r.success) return; }
-            const p = param('post');
-            if (p) await loadPost(p);
-            else { searchWrap.classList.add('collapsed'); searchBtn.classList.remove('active'); setArticle(false); renderList(); }
-        });
-        document.body.addEventListener('mousemove', e=>{
-            document.body.style.setProperty('--x', (e.clientX/innerWidth)*100+'%');
-            document.body.style.setProperty('--y', (e.clientY/innerHeight)*100+'%');
-        });
+            // 绑定事件（确保只绑定一次）
+            searchBtn.addEventListener('click', toggleSearch);
+            searchInp.addEventListener('input', () => {
+                searchTerm = searchInp.value;
+                filterPosts();
+                renderList();
+            });
+            clearBtn.addEventListener('click', () => {
+                // 点击✕清空并关闭
+                searchWrap.classList.add('collapsed');
+                searchBtn.classList.remove('active');
+                searchInp.value = '';
+                searchTerm = '';
+                filterPosts();
+                renderList();
+            });
+
+            back.addEventListener('click', e => {
+                if (isArticle) {
+                    e.preventDefault();
+                    goList();
+                }
+            });
+            window.addEventListener('popstate', async () => {
+                if (!postsMeta.length) {
+                    const r = await loadMeta();
+                    if (!r.success) return;
+                }
+                const p = param('post');
+                if (p) {
+                    await loadPost(p);
+                } else {
+                    searchWrap.classList.add('collapsed');
+                    searchBtn.classList.remove('active');
+                    searchInp.value = '';
+                    searchTerm = '';
+                    filterPosts();
+                    setArticle(false);
+                    renderList();
+                }
+            });
+            document.body.addEventListener('mousemove', e => {
+                document.body.style.setProperty('--x', (e.clientX/innerWidth)*100+'%');
+                document.body.style.setProperty('--y', (e.clientY/innerHeight)*100+'%');
+            });
+        }
 
         init();
     };
