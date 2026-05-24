@@ -59,35 +59,12 @@
         .post-content pre{background:rgba(0,0,0,0.4);padding:1rem;border-radius:12px;overflow-x:auto}
         .post-content blockquote{border-left:3px solid var(--accent);padding-left:1rem;color:var(--text-secondary);margin:1rem 0}
 
-        /* 表格样式 */
-        .post-content table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1.2rem 0;
-            font-size: 0.95rem;
-            background: rgba(255,255,255,0.02);
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        }
-        .post-content th,
-        .post-content td {
-            border: 1px solid rgba(255,255,255,0.15);
-            padding: 0.7rem 1rem;
-            text-align: left;
-        }
-        .post-content th {
-            background: rgba(192,224,255,0.1);
-            color: var(--accent);
-            font-weight: 600;
-            white-space: nowrap;
-        }
-        .post-content tr:nth-child(even) {
-            background: rgba(255,255,255,0.03);
-        }
-        .post-content tr:hover {
-            background: rgba(255,255,255,0.05);
-        }
+        /* 表格 */
+        .post-content table{width:100%;border-collapse:collapse;margin:1.2rem 0;font-size:0.95rem;background:rgba(255,255,255,0.02);border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.2)}
+        .post-content th,.post-content td{border:1px solid rgba(255,255,255,0.15);padding:0.7rem 1rem;text-align:left}
+        .post-content th{background:rgba(192,224,255,0.1);color:var(--accent);font-weight:600;white-space:nowrap}
+        .post-content tr:nth-child(even){background:rgba(255,255,255,0.03)}
+        .post-content tr:hover{background:rgba(255,255,255,0.05)}
 
         .loading{text-align:center;padding:2rem;color:var(--text-secondary)}
         .error{color:#ffaaaa;text-align:center;padding:2rem;background:rgba(255,0,0,0.05);border-radius:1rem}
@@ -123,7 +100,7 @@
 </div>
 
 <script>
-    console.log('[系统] 开始加载依赖库...');
+    console.log('[系统] 加载依赖库...');
     const CDN = {
         katex: 'https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js',
         marked: 'https://cdn.jsdelivr.net/npm/marked@11.2.0/lib/marked.umd.js',
@@ -160,16 +137,32 @@
             document.head.appendChild(st);
         } catch(e) { console.error(e); }
 
-        console.log('[系统] 所有依赖加载完毕，启动主程序');
+        console.log('[系统] 依赖加载完毕，启动主程序');
         if (typeof window.initApp === 'function') window.initApp();
-        else console.error('[系统] initApp 未定义！');
     }
 
-    // ========== 主程序 ==========
     window.initApp = function() {
-        console.log('[主程序] initApp 被调用');
-        if (window.__init) { console.log('[主程序] 已初始化，跳过'); return; }
+        if (window.__init) return;
         window.__init = true;
+
+        // 修复代码块多余空格：自定义 marked 的 code 渲染器
+        if (typeof marked !== 'undefined') {
+            const renderer = new marked.Renderer();
+            const origCode = renderer.code.bind(renderer);
+            renderer.code = function(code, infostring, escaped) {
+                // 移除每一行最前面的公共缩进
+                const lines = code.split('\n');
+                if (lines.length <= 1) return origCode(code, infostring, escaped);
+                const minIndent = lines.reduce((min, line) => {
+                    if (line.trim() === '') return min;
+                    const indent = line.match(/^ */)[0].length;
+                    return Math.min(min, indent);
+                }, Infinity);
+                const trimmedCode = lines.map(line => line.slice(minIndent)).join('\n');
+                return origCode(trimmedCode, infostring, escaped);
+            };
+            marked.setOptions({ renderer });
+        }
 
         function escapeHtml(t) { const m={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}; return String(t).replace(/[&<>"']/g,c=>m[c]); }
 
@@ -197,10 +190,8 @@
             } else {
                 searchWrap.classList.add('collapsed');
                 searchBtn.classList.remove('active');
-                searchInp.value = '';
-                searchTerm = '';
-                filterPosts();
-                renderList();
+                searchInp.value = ''; searchTerm = '';
+                filterPosts(); renderList();
             }
         }
         function goList(){
@@ -208,12 +199,11 @@
             searchWrap.classList.add('collapsed');
             searchBtn.classList.remove('active');
             searchInp.value = ''; searchTerm = '';
-            setArticle(false);
-            renderList();
+            setArticle(false); renderList();
             content.scrollTop = 0;
         }
 
-        // ---------- KaTeX 手动渲染 ----------
+        // KaTeX 手动渲染
         function renderMathManually() {
             if (typeof katex === 'undefined') return;
             const walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT, null, false);
@@ -235,9 +225,7 @@
                         const span = document.createElement('span');
                         span.innerHTML = html;
                         frag.appendChild(span);
-                    } catch(e) {
-                        frag.appendChild(document.createTextNode(m[0]));
-                    }
+                    } catch(e) { frag.appendChild(document.createTextNode(m[0])); }
                     lastIdx = m.index + m[0].length;
                 }
                 if (lastIdx < text.length) frag.appendChild(document.createTextNode(text.slice(lastIdx)));
@@ -245,7 +233,6 @@
             }
         }
 
-        // ---------- Mermaid ----------
         function transformMermaidBlocks(html){
             const d = document.createElement('div'); d.innerHTML = html;
             d.querySelectorAll('pre').forEach(pre=>{
@@ -271,7 +258,6 @@
             } catch(e){}
         }
 
-        // ---------- 视频 ----------
         function parseVideoUrl(url){
             url = url.trim(); if (!url.startsWith('http')) return null;
             if (/\.(mp4|webm|mov|ogg|m4v)(\?|$)/i.test(url)) {
@@ -304,7 +290,6 @@
                 });
         }
 
-        // ---------- 列表与文章 ----------
         function filterPosts(){
             const term = searchTerm.trim().toLowerCase();
             if (!term) filtered = [...postsMeta];
@@ -330,13 +315,11 @@
             });
             html += '</ul>';
             content.innerHTML = html;
-            setArticle(false);
-            content.scrollTop = 0;
+            setArticle(false); content.scrollTop = 0;
             countSpan.textContent = term ? `${list.length} / ${postsMeta.length} 篇` : `(${postsMeta.length} 篇)`;
         }
 
         async function loadPost(filename){
-            console.log(`[主程序] 加载文章: ${filename}`);
             setArticle(true);
             const meta = postsMeta.find(p=>p.filename===filename);
             if (!meta) { content.innerHTML = '<div class="error">❌ 未知文章</div>'; return; }
@@ -367,12 +350,11 @@
                 if (!Array.isArray(data)) throw new Error('格式错误');
                 postsMeta = data.filter(d=>d.filename&&d.title&&d.date).sort((a,b)=>new Date(b.date)-new Date(a.date));
                 filtered = [...postsMeta];
-                console.log(`[主程序] 索引加载成功，${postsMeta.length} 篇文章`);
                 return { success: true };
             } catch(e) {
                 content.innerHTML = `<div class="error">🔌 索引读取失败<br><small>${escapeHtml(e.message)}</small></div>`;
                 setArticle(false);
-                return { success: false, error: e.message };
+                return { success: false };
             }
         }
 
@@ -382,8 +364,7 @@
             if (!result.success) return;
             if (!postsMeta.length) {
                 content.innerHTML = '<div class="error">📭 暂无文章</div>';
-                setArticle(false);
-                return;
+                setArticle(false); return;
             }
             const p = param('post');
             if (p) await loadPost(p);
