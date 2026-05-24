@@ -58,7 +58,7 @@
         .post-content p{margin:0.8rem 0;line-height:1.6}
         .post-content img{max-width:100%;border-radius:12px;display:block;margin:1rem 0}
         .post-content code{background:rgba(0,0,0,0.3);padding:0.2rem 0.4rem;border-radius:6px;font-family:monospace;font-size:0.9em}
-        .post-content pre{background:rgba(0,0,0,0.4);padding:1rem;border-radius:12px;overflow-x:auto;position:relative;}
+        .post-content pre{background:rgba(0,0,0,0.4);padding:1rem;border-radius:12px;overflow-x:auto;position:relative;margin:1rem 0;}
         .post-content blockquote{border-left:3px solid var(--accent);padding-left:1rem;color:var(--text-secondary);margin:1rem 0}
 
         /* 表格 */
@@ -130,7 +130,7 @@
         katex: 'https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js',
         marked: 'https://cdn.jsdelivr.net/npm/marked@11.2.0/lib/marked.umd.js',
         mermaid: 'https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js',
-        highlight: 'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/index.min.js'
+        highlight: 'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/highlight.min.js'  // 修正路径
     };
 
     function loadScript(src) {
@@ -146,7 +146,12 @@
     async function loadLibraries() {
         try { await loadScript(CDN.katex); } catch(e) { console.error(e); }
         try { await loadScript(CDN.marked); } catch(e) { console.error(e); }
-        try { await loadScript(CDN.highlight); } catch(e) { console.error(e); }
+        try {
+            await loadScript(CDN.highlight);
+            console.log('[系统] highlight.js 加载成功');
+        } catch(e) {
+            console.warn('[系统] highlight.js 加载失败，代码块将无语法高亮');
+        }
         try {
             await loadScript(CDN.mermaid);
             mermaid.initialize({
@@ -173,45 +178,53 @@
         window.__init = true;
 
         // 配置 marked 语法高亮 + 去除代码公共缩进
-        if (typeof marked !== 'undefined' && typeof hljs !== 'undefined') {
+        if (typeof marked !== 'undefined') {
             const renderer = new marked.Renderer();
             const origCode = renderer.code.bind(renderer);
             renderer.code = function(code, lang, escaped) {
-                // 去除首尾空白，计算公共缩进
-                const trimmed = code.trim();
-                const lines = trimmed.split('\n');
-                let finalCode = trimmed;
-                if (lines.length > 1) {
-                    const minIndent = lines.reduce((min, line) => {
-                        if (line.trim() === '') return min;
-                        const indent = line.match(/^[ \t]*/)[0].length;
-                        return Math.min(min, indent);
-                    }, Infinity);
-                    finalCode = lines.map(line => line.slice(minIndent)).join('\n');
-                }
+                // 彻底去除首尾空白
+                let processed = code.replace(/^\s+|\s+$/g, '');
+                const lines = processed.split('\n');
+                // 过滤掉可能的纯空白行
+                const nonEmptyLines = lines.filter(line => line.trim() !== '');
+                if (nonEmptyLines.length === 0) return origCode('', lang, escaped); // 空代码
 
-                // 使用 highlight.js 进行语法高亮
-                if (lang && hljs.getLanguage(lang)) {
+                // 计算公共缩进（仅基于非空行）
+                const minIndent = nonEmptyLines.reduce((min, line) => {
+                    const leading = line.match(/^[ \t]*/)[0].length;
+                    return Math.min(min, leading);
+                }, Infinity);
+
+                // 去除公共缩进
+                const finalLines = lines.map(line => {
+                    if (line.trim() === '') return ''; // 保留空行（去除缩进后为空）
+                    return line.slice(minIndent);
+                });
+                const finalCode = finalLines.join('\n');
+
+                // 尝试使用 highlight.js 高亮
+                if (typeof hljs !== 'undefined') {
+                    if (lang && hljs.getLanguage(lang)) {
+                        try {
+                            const highlighted = hljs.highlight(finalCode, { language: lang, ignoreIllegals: true }).value;
+                            return `<pre><code class="hljs language-${lang}">${highlighted}</code></pre>`;
+                        } catch (e) {}
+                    }
+                    // 自动检测语言
                     try {
-                        const highlighted = hljs.highlight(finalCode, { language: lang, ignoreIllegals: true }).value;
-                        return `<pre><code class="hljs language-${lang}">${highlighted}</code></pre>`;
+                        const autoHighlighted = hljs.highlightAuto(finalCode).value;
+                        return `<pre><code class="hljs">${autoHighlighted}</code></pre>`;
                     } catch (e) {}
                 }
-                // 未指定语言或高亮失败，使用自动检测
-                try {
-                    const autoHighlighted = hljs.highlightAuto(finalCode).value;
-                    return `<pre><code class="hljs">${autoHighlighted}</code></pre>`;
-                } catch (e) {}
-                // 最终回退
-                return origCode(finalCode, lang, escaped);
+                // 回退：无高亮但格式正确
+                return `<pre><code>${escapeHtml(finalCode)}</code></pre>`;
             };
             marked.setOptions({ renderer });
         }
 
-        // 复制按钮注入函数
+        // 复制按钮注入
         function addCopyButtons() {
             document.querySelectorAll('.post-content pre').forEach(pre => {
-                // 避免重复添加
                 if (pre.querySelector('.code-copy-btn')) return;
                 const btn = document.createElement('button');
                 btn.className = 'code-copy-btn';
@@ -223,7 +236,6 @@
                         btn.innerHTML = '✅ 已复制';
                         setTimeout(() => { btn.innerHTML = '📋 复制'; }, 2000);
                     } catch (err) {
-                        // 降级方案：使用 textarea
                         const textarea = document.createElement('textarea');
                         textarea.value = code;
                         document.body.appendChild(textarea);
@@ -411,7 +423,7 @@
                 content.innerHTML = `<div class="post-content"><h1>${escapeHtml(meta.title)}</h1><div class="post-meta">📅 ${escapeHtml(meta.date)} ${tags}</div>${withMermaid}</div>`;
                 content.scrollTop = 0;
                 renderMathManually();
-                addCopyButtons(); // 为代码块添加复制按钮
+                addCopyButtons();
                 setTimeout(()=>{ renderMermaids().catch(()=>{}); }, 60);
             } catch(e) {
                 content.innerHTML = `<div class="error">❌ 加载失败: ${escapeHtml(e.message)}</div>`;
