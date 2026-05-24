@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>teCJoy · 笔记 · 高亮·复制·公式</title>
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
-    <!-- highlight.js 主题 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/atom-one-dark.min.css">
+    <!-- Prism 主题（暗色） -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
         body{
@@ -130,7 +130,9 @@
         katex: 'https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js',
         marked: 'https://cdn.jsdelivr.net/npm/marked@11.2.0/lib/marked.umd.js',
         mermaid: 'https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js',
-        highlight: 'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/build/highlight.min.js'  // 修正的正确路径
+        prism: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js',
+        // 加载常用语言组件（Python, JavaScript, Bash, SQL, JSON 等）
+        prismLang: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js'
     };
 
     function loadScript(src) {
@@ -146,12 +148,17 @@
     async function loadLibraries() {
         try { await loadScript(CDN.katex); } catch(e) { console.error(e); }
         try { await loadScript(CDN.marked); } catch(e) { console.error(e); }
+        
+        // 加载 Prism 核心与语言组件
         try {
-            await loadScript(CDN.highlight);
-            console.log('[系统] highlight.js 加载成功');
+            await loadScript(CDN.prism);
+            console.log('[系统] Prism.js 加载成功');
+            // 加载常用语言（至少 Python）
+            try { await loadScript(CDN.prismLang); } catch(e) { console.warn('Prism 语言组件加载失败，部分语言可能无高亮'); }
         } catch(e) {
-            console.warn('[系统] highlight.js 加载失败，代码块将无语法高亮');
+            console.warn('[系统] Prism.js 加载失败，代码块将无语法高亮');
         }
+
         try {
             await loadScript(CDN.mermaid);
             mermaid.initialize({
@@ -177,49 +184,39 @@
         if (window.__init) return;
         window.__init = true;
 
-        // 配置 marked 语法高亮 + 去除代码公共缩进
+        // 配置 marked 渲染器：去除代码公共缩进，并保留语言类名供 Prism 使用
         if (typeof marked !== 'undefined') {
             const renderer = new marked.Renderer();
             const origCode = renderer.code.bind(renderer);
             renderer.code = function(code, lang, escaped) {
-                // 彻底去除首尾空白
                 let processed = code.replace(/^\s+|\s+$/g, '');
                 const lines = processed.split('\n');
-                // 过滤纯空白行，用于计算缩进
                 const nonEmptyLines = lines.filter(line => line.trim() !== '');
                 if (nonEmptyLines.length === 0) return origCode('', lang, escaped);
 
-                // 计算公共缩进（基于非空行）
                 const minIndent = nonEmptyLines.reduce((min, line) => {
                     const leading = line.match(/^[ \t]*/)[0].length;
                     return Math.min(min, leading);
                 }, Infinity);
 
-                // 去除公共缩进
                 const finalLines = lines.map(line => {
                     if (line.trim() === '') return '';
                     return line.slice(minIndent);
                 });
                 const finalCode = finalLines.join('\n');
 
-                // 尝试使用 highlight.js 高亮
-                if (typeof hljs !== 'undefined') {
-                    if (lang && hljs.getLanguage(lang)) {
-                        try {
-                            const highlighted = hljs.highlight(finalCode, { language: lang, ignoreIllegals: true }).value;
-                            return `<pre><code class="hljs language-${lang}">${highlighted}</code></pre>`;
-                        } catch (e) {}
-                    }
-                    // 自动检测语言
-                    try {
-                        const autoHighlighted = hljs.highlightAuto(finalCode).value;
-                        return `<pre><code class="hljs">${autoHighlighted}</code></pre>`;
-                    } catch (e) {}
-                }
-                // 无高亮回退（仍需转义 HTML）
-                return `<pre><code>${escapeHtml(finalCode)}</code></pre>`;
+                // 构建代码块 HTML：带有 language-xxx 类，Prism 会自动高亮
+                const langClass = lang ? `language-${lang}` : '';
+                return `<pre><code class="${langClass}">${escapeHtml(finalCode)}</code></pre>`;
             };
             marked.setOptions({ renderer });
+        }
+
+        // Prism 高亮所有代码块（在内容插入后调用）
+        function highlightAllCode() {
+            if (typeof Prism !== 'undefined') {
+                Prism.highlightAll();
+            }
         }
 
         // 复制按钮注入
@@ -423,7 +420,8 @@
                 content.innerHTML = `<div class="post-content"><h1>${escapeHtml(meta.title)}</h1><div class="post-meta">📅 ${escapeHtml(meta.date)} ${tags}</div>${withMermaid}</div>`;
                 content.scrollTop = 0;
                 renderMathManually();
-                addCopyButtons();
+                highlightAllCode();      // Prism 高亮代码块
+                addCopyButtons();       // 添加复制按钮
                 setTimeout(()=>{ renderMermaids().catch(()=>{}); }, 60);
             } catch(e) {
                 content.innerHTML = `<div class="error">❌ 加载失败: ${escapeHtml(e.message)}</div>`;
