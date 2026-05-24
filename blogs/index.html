@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>teCJoy · 笔记 · 搜索·视频·公式</title>
+    <title>teCJoy · 笔记 · 高亮·复制·公式</title>
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <!-- highlight.js 主题 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/atom-one-dark.min.css">
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
         body{
@@ -56,7 +58,7 @@
         .post-content p{margin:0.8rem 0;line-height:1.6}
         .post-content img{max-width:100%;border-radius:12px;display:block;margin:1rem 0}
         .post-content code{background:rgba(0,0,0,0.3);padding:0.2rem 0.4rem;border-radius:6px;font-family:monospace;font-size:0.9em}
-        .post-content pre{background:rgba(0,0,0,0.4);padding:1rem;border-radius:12px;overflow-x:auto}
+        .post-content pre{background:rgba(0,0,0,0.4);padding:1rem;border-radius:12px;overflow-x:auto;position:relative;}
         .post-content blockquote{border-left:3px solid var(--accent);padding-left:1rem;color:var(--text-secondary);margin:1rem 0}
 
         /* 表格 */
@@ -65,6 +67,29 @@
         .post-content th{background:rgba(192,224,255,0.1);color:var(--accent);font-weight:600;white-space:nowrap}
         .post-content tr:nth-child(even){background:rgba(255,255,255,0.03)}
         .post-content tr:hover{background:rgba(255,255,255,0.05)}
+
+        /* 代码块复制按钮 */
+        .code-copy-btn {
+            position: absolute;
+            top: 0.6rem;
+            right: 0.8rem;
+            background: rgba(255,255,255,0.08);
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.2rem;
+            z-index: 2;
+        }
+        .code-copy-btn:hover {
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+        }
 
         .loading{text-align:center;padding:2rem;color:var(--text-secondary)}
         .error{color:#ffaaaa;text-align:center;padding:2rem;background:rgba(255,0,0,0.05);border-radius:1rem}
@@ -81,7 +106,7 @@
 <div class="container">
     <div class="glass-card" id="app">
         <div class="blog-header">
-            <div class="blog-title">Logbook · 搜索·视频·公式</div>
+            <div class="blog-title">Logbook · 高亮·复制·公式</div>
             <div class="header-actions">
                 <a class="back-home" id="dynamicBackLink" href="https://space-6oo.pages.dev/bio">← Home</a>
                 <button class="search-toggle-btn" id="searchToggleBtn" title="搜索文章">🔍</button>
@@ -104,7 +129,8 @@
     const CDN = {
         katex: 'https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js',
         marked: 'https://cdn.jsdelivr.net/npm/marked@11.2.0/lib/marked.umd.js',
-        mermaid: 'https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js'
+        mermaid: 'https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js',
+        highlight: 'https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/index.min.js'
     };
 
     function loadScript(src) {
@@ -120,6 +146,7 @@
     async function loadLibraries() {
         try { await loadScript(CDN.katex); } catch(e) { console.error(e); }
         try { await loadScript(CDN.marked); } catch(e) { console.error(e); }
+        try { await loadScript(CDN.highlight); } catch(e) { console.error(e); }
         try {
             await loadScript(CDN.mermaid);
             mermaid.initialize({
@@ -145,23 +172,71 @@
         if (window.__init) return;
         window.__init = true;
 
-        // 修复代码块多余空格：自定义 marked 的 code 渲染器
-        if (typeof marked !== 'undefined') {
+        // 配置 marked 语法高亮 + 去除代码公共缩进
+        if (typeof marked !== 'undefined' && typeof hljs !== 'undefined') {
             const renderer = new marked.Renderer();
             const origCode = renderer.code.bind(renderer);
-            renderer.code = function(code, infostring, escaped) {
-                // 移除每一行最前面的公共缩进
-                const lines = code.split('\n');
-                if (lines.length <= 1) return origCode(code, infostring, escaped);
-                const minIndent = lines.reduce((min, line) => {
-                    if (line.trim() === '') return min;
-                    const indent = line.match(/^ */)[0].length;
-                    return Math.min(min, indent);
-                }, Infinity);
-                const trimmedCode = lines.map(line => line.slice(minIndent)).join('\n');
-                return origCode(trimmedCode, infostring, escaped);
+            renderer.code = function(code, lang, escaped) {
+                // 去除首尾空白，计算公共缩进
+                const trimmed = code.trim();
+                const lines = trimmed.split('\n');
+                let finalCode = trimmed;
+                if (lines.length > 1) {
+                    const minIndent = lines.reduce((min, line) => {
+                        if (line.trim() === '') return min;
+                        const indent = line.match(/^[ \t]*/)[0].length;
+                        return Math.min(min, indent);
+                    }, Infinity);
+                    finalCode = lines.map(line => line.slice(minIndent)).join('\n');
+                }
+
+                // 使用 highlight.js 进行语法高亮
+                if (lang && hljs.getLanguage(lang)) {
+                    try {
+                        const highlighted = hljs.highlight(finalCode, { language: lang, ignoreIllegals: true }).value;
+                        return `<pre><code class="hljs language-${lang}">${highlighted}</code></pre>`;
+                    } catch (e) {}
+                }
+                // 未指定语言或高亮失败，使用自动检测
+                try {
+                    const autoHighlighted = hljs.highlightAuto(finalCode).value;
+                    return `<pre><code class="hljs">${autoHighlighted}</code></pre>`;
+                } catch (e) {}
+                // 最终回退
+                return origCode(finalCode, lang, escaped);
             };
             marked.setOptions({ renderer });
+        }
+
+        // 复制按钮注入函数
+        function addCopyButtons() {
+            document.querySelectorAll('.post-content pre').forEach(pre => {
+                // 避免重复添加
+                if (pre.querySelector('.code-copy-btn')) return;
+                const btn = document.createElement('button');
+                btn.className = 'code-copy-btn';
+                btn.innerHTML = '📋 复制';
+                btn.addEventListener('click', async () => {
+                    const code = pre.querySelector('code') ? pre.querySelector('code').innerText : pre.innerText;
+                    try {
+                        await navigator.clipboard.writeText(code);
+                        btn.innerHTML = '✅ 已复制';
+                        setTimeout(() => { btn.innerHTML = '📋 复制'; }, 2000);
+                    } catch (err) {
+                        // 降级方案：使用 textarea
+                        const textarea = document.createElement('textarea');
+                        textarea.value = code;
+                        document.body.appendChild(textarea);
+                        textarea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textarea);
+                        btn.innerHTML = '✅ 已复制';
+                        setTimeout(() => { btn.innerHTML = '📋 复制'; }, 2000);
+                    }
+                });
+                pre.style.position = 'relative';
+                pre.appendChild(btn);
+            });
         }
 
         function escapeHtml(t) { const m={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}; return String(t).replace(/[&<>"']/g,c=>m[c]); }
@@ -336,6 +411,7 @@
                 content.innerHTML = `<div class="post-content"><h1>${escapeHtml(meta.title)}</h1><div class="post-meta">📅 ${escapeHtml(meta.date)} ${tags}</div>${withMermaid}</div>`;
                 content.scrollTop = 0;
                 renderMathManually();
+                addCopyButtons(); // 为代码块添加复制按钮
                 setTimeout(()=>{ renderMermaids().catch(()=>{}); }, 60);
             } catch(e) {
                 content.innerHTML = `<div class="error">❌ 加载失败: ${escapeHtml(e.message)}</div>`;
