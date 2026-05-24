@@ -58,6 +58,37 @@
         .post-content code{background:rgba(0,0,0,0.3);padding:0.2rem 0.4rem;border-radius:6px;font-family:monospace;font-size:0.9em}
         .post-content pre{background:rgba(0,0,0,0.4);padding:1rem;border-radius:12px;overflow-x:auto}
         .post-content blockquote{border-left:3px solid var(--accent);padding-left:1rem;color:var(--text-secondary);margin:1rem 0}
+
+        /* 表格样式 */
+        .post-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.2rem 0;
+            font-size: 0.95rem;
+            background: rgba(255,255,255,0.02);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .post-content th,
+        .post-content td {
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 0.7rem 1rem;
+            text-align: left;
+        }
+        .post-content th {
+            background: rgba(192,224,255,0.1);
+            color: var(--accent);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .post-content tr:nth-child(even) {
+            background: rgba(255,255,255,0.03);
+        }
+        .post-content tr:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
         .loading{text-align:center;padding:2rem;color:var(--text-secondary)}
         .error{color:#ffaaaa;text-align:center;padding:2rem;background:rgba(255,0,0,0.05);border-radius:1rem}
         .no-results{text-align:center;padding:2rem;color:var(--text-secondary);background:rgba(255,255,255,0.02);border-radius:1rem;}
@@ -182,7 +213,7 @@
             content.scrollTop = 0;
         }
 
-        // ---------- 手动 KaTeX 渲染 ----------
+        // ---------- KaTeX 手动渲染 ----------
         function renderMathManually() {
             if (typeof katex === 'undefined') return;
             const walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT, null, false);
@@ -285,7 +316,7 @@
         function renderList(){
             if (!postsMeta.length) { content.innerHTML = '<div class="error">📭 暂无文章</div>'; setArticle(false); return; }
             const term = searchTerm.trim();
-            const list = term ? filtered : postsMeta.length ? (filtered.length ? filtered : []) : postsMeta;
+            const list = term ? filtered : postsMeta;
             if (!list.length) {
                 content.innerHTML = `<div class="no-results">🔍 未找到匹配 “${escapeHtml(term)}” 的文章</div>`;
                 countSpan.textContent = `0 / ${postsMeta.length} 篇`;
@@ -305,20 +336,14 @@
         }
 
         async function loadPost(filename){
-            console.log(`[主程序] 开始加载文章: ${filename}`);
+            console.log(`[主程序] 加载文章: ${filename}`);
             setArticle(true);
             const meta = postsMeta.find(p=>p.filename===filename);
-            if (!meta) {
-                console.error('[主程序] 未找到文章元数据');
-                content.innerHTML = '<div class="error">❌ 未知文章</div>';
-                return;
-            }
+            if (!meta) { content.innerHTML = '<div class="error">❌ 未知文章</div>'; return; }
             try {
-                console.log('[主程序] 正在 fetch 文章文件...');
                 const res = await fetch(`./posts/${filename}`);
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const md = await res.text();
-                console.log('[主程序] 文章内容获取成功，开始解析...');
                 let processed = processVideoLines(md);
                 processed = biliSyntax(processed);
                 let parsed = (typeof marked.parse==='function') ? marked.parse(processed) : marked(processed);
@@ -327,30 +352,24 @@
                 const tags = meta.tags ? meta.tags.map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join(' ') : '';
                 content.innerHTML = `<div class="post-content"><h1>${escapeHtml(meta.title)}</h1><div class="post-meta">📅 ${escapeHtml(meta.date)} ${tags}</div>${withMermaid}</div>`;
                 content.scrollTop = 0;
-                console.log('[主程序] 开始渲染数学公式...');
                 renderMathManually();
-                console.log('[主程序] 开始渲染 Mermaid 图表...');
                 setTimeout(()=>{ renderMermaids().catch(()=>{}); }, 60);
-                console.log('[主程序] 文章加载完成');
             } catch(e) {
-                console.error('[主程序] 文章加载失败:', e);
                 content.innerHTML = `<div class="error">❌ 加载失败: ${escapeHtml(e.message)}</div>`;
             }
         }
 
         async function loadMeta(){
-            console.log('[主程序] 正在加载 posts.json...');
             try {
                 const r = await fetch('./posts.json');
                 if (!r.ok) throw new Error(`HTTP ${r.status}`);
                 const data = await r.json();
-                if (!Array.isArray(data)) throw new Error('JSON 格式错误，需要数组');
+                if (!Array.isArray(data)) throw new Error('格式错误');
                 postsMeta = data.filter(d=>d.filename&&d.title&&d.date).sort((a,b)=>new Date(b.date)-new Date(a.date));
                 filtered = [...postsMeta];
-                console.log(`[主程序] posts.json 加载成功，共 ${postsMeta.length} 篇文章`);
+                console.log(`[主程序] 索引加载成功，${postsMeta.length} 篇文章`);
                 return { success: true };
             } catch(e) {
-                console.error('[主程序] posts.json 加载失败:', e);
                 content.innerHTML = `<div class="error">🔌 索引读取失败<br><small>${escapeHtml(e.message)}</small></div>`;
                 setArticle(false);
                 return { success: false, error: e.message };
@@ -358,36 +377,22 @@
         }
 
         async function init(){
-            console.log('[主程序] init 开始');
             content.innerHTML = '<div class="loading">📡 读取索引…</div>';
             const result = await loadMeta();
-            if (!result.success) {
-                console.warn('[主程序] 索引加载失败，停止初始化');
-                return;
-            }
+            if (!result.success) return;
             if (!postsMeta.length) {
-                console.warn('[主程序] 索引为空');
                 content.innerHTML = '<div class="error">📭 暂无文章</div>';
                 setArticle(false);
                 return;
             }
             const p = param('post');
-            console.log(`[主程序] URL 参数 post=${p}`);
-            if (p) {
-                await loadPost(p);
-            } else {
-                setArticle(false);
-                renderList();
-                console.log('[主程序] 文章列表已渲染');
-            }
+            if (p) await loadPost(p);
+            else { setArticle(false); renderList(); }
         }
 
         back.addEventListener('click', e=>{ if (isArticle) { e.preventDefault(); goList(); } });
         window.addEventListener('popstate', async ()=>{
-            if (!postsMeta.length) {
-                const r = await loadMeta();
-                if (!r.success) return;
-            }
+            if (!postsMeta.length) { const r = await loadMeta(); if (!r.success) return; }
             const p = param('post');
             if (p) await loadPost(p);
             else { searchWrap.classList.add('collapsed'); searchBtn.classList.remove('active'); setArticle(false); renderList(); }
@@ -397,18 +402,11 @@
             document.body.style.setProperty('--y', (e.clientY/innerHeight)*100+'%');
         });
 
-        // 启动
-        init().then(() => console.log('[主程序] 初始化流程结束'));
+        init();
     };
 
-    // 开始加载库，并在3秒后强制启动（兜底）
     loadLibraries();
-    setTimeout(() => {
-        if (!window.__init) {
-            console.warn('[系统] 3秒后仍未初始化，强制启动');
-            window.initApp();
-        }
-    }, 3000);
+    setTimeout(() => { if (!window.__init) window.initApp(); }, 3000);
 </script>
 </body>
 </html>
