@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>teCJoy · 笔记 · 高亮·复制·公式</title>
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
-    <!-- Prism 主题（暗色） -->
+    <!-- Prism 暗色主题 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
@@ -58,7 +58,17 @@
         .post-content p{margin:0.8rem 0;line-height:1.6}
         .post-content img{max-width:100%;border-radius:12px;display:block;margin:1rem 0}
         .post-content code{background:rgba(0,0,0,0.3);padding:0.2rem 0.4rem;border-radius:6px;font-family:monospace;font-size:0.9em}
-        .post-content pre{background:rgba(0,0,0,0.4);padding:1rem;border-radius:12px;overflow-x:auto;position:relative;margin:1rem 0;}
+        /* 确保 pre 内部空白一致 */
+        .post-content pre{
+            background:rgba(0,0,0,0.4);
+            padding:1rem;
+            border-radius:12px;
+            overflow-x:auto;
+            position:relative;
+            margin:1rem 0;
+            white-space:pre;
+            tab-size:4;
+        }
         .post-content blockquote{border-left:3px solid var(--accent);padding-left:1rem;color:var(--text-secondary);margin:1rem 0}
 
         /* 表格 */
@@ -131,7 +141,6 @@
         marked: 'https://cdn.jsdelivr.net/npm/marked@11.2.0/lib/marked.umd.js',
         mermaid: 'https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js',
         prism: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js',
-        // 加载常用语言组件（Python, JavaScript, Bash, SQL, JSON 等）
         prismLang: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js'
     };
 
@@ -149,12 +158,10 @@
         try { await loadScript(CDN.katex); } catch(e) { console.error(e); }
         try { await loadScript(CDN.marked); } catch(e) { console.error(e); }
         
-        // 加载 Prism 核心与语言组件
         try {
             await loadScript(CDN.prism);
             console.log('[系统] Prism.js 加载成功');
-            // 加载常用语言（至少 Python）
-            try { await loadScript(CDN.prismLang); } catch(e) { console.warn('Prism 语言组件加载失败，部分语言可能无高亮'); }
+            try { await loadScript(CDN.prismLang); } catch(e) { console.warn('Prism 语言组件加载失败'); }
         } catch(e) {
             console.warn('[系统] Prism.js 加载失败，代码块将无语法高亮');
         }
@@ -184,42 +191,47 @@
         if (window.__init) return;
         window.__init = true;
 
-        // 配置 marked 渲染器：去除代码公共缩进，并保留语言类名供 Prism 使用
+        // 修复代码块对齐：去除首尾空白、空行，计算公共缩进，并确保第一行无多余空白
         if (typeof marked !== 'undefined') {
             const renderer = new marked.Renderer();
             const origCode = renderer.code.bind(renderer);
             renderer.code = function(code, lang, escaped) {
-                let processed = code.replace(/^\s+|\s+$/g, '');
+                // 1. 彻底去除首尾所有空白字符（包括换行、空格、制表符）
+                let processed = code.replace(/^\s+/, '').replace(/\s+$/, '');
+                // 2. 按行分割，过滤完全空白的行（用于计算缩进，但保留空白行本身）
                 const lines = processed.split('\n');
                 const nonEmptyLines = lines.filter(line => line.trim() !== '');
                 if (nonEmptyLines.length === 0) return origCode('', lang, escaped);
 
+                // 3. 计算公共缩进（只考虑非空行）
                 const minIndent = nonEmptyLines.reduce((min, line) => {
                     const leading = line.match(/^[ \t]*/)[0].length;
                     return Math.min(min, leading);
                 }, Infinity);
 
+                // 4. 移除每行的公共缩进
                 const finalLines = lines.map(line => {
-                    if (line.trim() === '') return '';
+                    if (line.trim() === '') return ''; // 空白行保留为空字符串
                     return line.slice(minIndent);
                 });
-                const finalCode = finalLines.join('\n');
 
-                // 构建代码块 HTML：带有 language-xxx 类，Prism 会自动高亮
+                // 5. 重新组合，确保开头没有多余换行
+                let finalCode = finalLines.join('\n');
+                // 再次去除可能出现的首行空行
+                finalCode = finalCode.replace(/^\n+/, '').replace(/\n+$/, '');
+
                 const langClass = lang ? `language-${lang}` : '';
                 return `<pre><code class="${langClass}">${escapeHtml(finalCode)}</code></pre>`;
             };
             marked.setOptions({ renderer });
         }
 
-        // Prism 高亮所有代码块（在内容插入后调用）
         function highlightAllCode() {
             if (typeof Prism !== 'undefined') {
                 Prism.highlightAll();
             }
         }
 
-        // 复制按钮注入
         function addCopyButtons() {
             document.querySelectorAll('.post-content pre').forEach(pre => {
                 if (pre.querySelector('.code-copy-btn')) return;
@@ -287,7 +299,6 @@
             content.scrollTop = 0;
         }
 
-        // KaTeX 手动渲染
         function renderMathManually() {
             if (typeof katex === 'undefined') return;
             const walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT, null, false);
@@ -420,8 +431,8 @@
                 content.innerHTML = `<div class="post-content"><h1>${escapeHtml(meta.title)}</h1><div class="post-meta">📅 ${escapeHtml(meta.date)} ${tags}</div>${withMermaid}</div>`;
                 content.scrollTop = 0;
                 renderMathManually();
-                highlightAllCode();      // Prism 高亮代码块
-                addCopyButtons();       // 添加复制按钮
+                highlightAllCode();
+                addCopyButtons();
                 setTimeout(()=>{ renderMermaids().catch(()=>{}); }, 60);
             } catch(e) {
                 content.innerHTML = `<div class="error">❌ 加载失败: ${escapeHtml(e.message)}</div>`;
