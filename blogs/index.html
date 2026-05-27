@@ -57,27 +57,45 @@
         .post-content h2{font-size:1.3rem;margin:1.2rem 0 0.6rem;color:var(--accent)}
         .post-content p{margin:0.8rem 0;line-height:1.6}
         .post-content img{max-width:100%;border-radius:12px;display:block;margin:1rem 0}
-        .post-content code{background:rgba(0,0,0,0.3);padding:0.2rem 0.4rem;border-radius:6px;font-family:monospace;font-size:0.9em}
-        .post-content pre{
-            background:rgba(0,0,0,0.4);
-            padding:1rem;
-            border-radius:12px;
-            overflow-x:auto;
-            position:relative;
-            margin:1rem 0;
-            white-space:pre;
-            tab-size:4;
+        .post-content code,
+        .post-content pre {
+            font-family: Consolas, "Courier New", monospace;
         }
-        .post-content blockquote{border-left:3px solid var(--accent);padding-left:1rem;color:var(--text-secondary);margin:1rem 0}
-
-        /* 表格 */
-        .post-content table{width:100%;border-collapse:collapse;margin:1.2rem 0;font-size:0.95rem;background:rgba(255,255,255,0.02);border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.2)}
-        .post-content th,.post-content td{border:1px solid rgba(255,255,255,0.15);padding:0.7rem 1rem;text-align:left}
-        .post-content th{background:rgba(192,224,255,0.1);color:var(--accent);font-weight:600;white-space:nowrap}
-        .post-content tr:nth-child(even){background:rgba(255,255,255,0.03)}
-        .post-content tr:hover{background:rgba(255,255,255,0.05)}
-
-        /* 代码块复制按钮 */
+        .post-content code {
+            background: rgba(0,0,0,0.3);
+            padding: 0.2rem 0.4rem;
+            border-radius: 6px;
+            font-size: 0.9em;
+        }
+        .post-content pre code {
+            background: transparent !important;
+            padding: 0 !important;
+            display: block;
+            border-radius: 0;
+        }
+        .post-content pre {
+            background: rgba(0,0,0,0.4);
+            padding: 1rem;
+            border-radius: 12px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            white-space: pre;
+            tab-size: 4;
+            font-size: 0.9rem;
+        }
+        .post-content :not(pre) > code {
+            background: rgba(0,0,0,0.3);
+            padding: 0.2rem 0.4rem;
+            border-radius: 6px;
+        }
+        /* 代码块包裹容器（用于固定复制按钮） */
+        .code-block-wrapper {
+            position: relative;
+            margin: 1rem 0;
+        }
+        .code-block-wrapper pre {
+            margin: 0;
+        }
         .code-copy-btn {
             position: absolute;
             top: 0.6rem;
@@ -85,21 +103,24 @@
             background: rgba(255,255,255,0.08);
             border: none;
             color: var(--text-secondary);
-            font-size: 0.8rem;
+            font-size: 1rem;
             padding: 0.3rem 0.6rem;
             border-radius: 6px;
             cursor: pointer;
             transition: background 0.2s, color 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 0.2rem;
             z-index: 2;
+            backdrop-filter: blur(4px);
         }
         .code-copy-btn:hover {
-            background: rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.2);
             color: #fff;
         }
-
+        .post-content blockquote{border-left:3px solid var(--accent);padding-left:1rem;color:var(--text-secondary);margin:1rem 0}
+        .post-content table{width:100%;border-collapse:collapse;margin:1.2rem 0;font-size:0.95rem;background:rgba(255,255,255,0.02);border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.2)}
+        .post-content th,.post-content td{border:1px solid rgba(255,255,255,0.15);padding:0.7rem 1rem;text-align:left}
+        .post-content th{background:rgba(192,224,255,0.1);color:var(--accent);font-weight:600;white-space:nowrap}
+        .post-content tr:nth-child(even){background:rgba(255,255,255,0.03)}
+        .post-content tr:hover{background:rgba(255,255,255,0.05)}
         .loading{text-align:center;padding:2rem;color:var(--text-secondary)}
         .error{color:#ffaaaa;text-align:center;padding:2rem;background:rgba(255,0,0,0.05);border-radius:1rem}
         .no-results{text-align:center;padding:2rem;color:var(--text-secondary);background:rgba(255,255,255,0.02);border-radius:1rem;}
@@ -190,29 +211,33 @@
         if (window.__init) return;
         window.__init = true;
 
-        // 代码块渲染（对齐、高亮）
+        // 修复后的代码块渲染（保留原有缩进处理）
         if (typeof marked !== 'undefined') {
             const renderer = new marked.Renderer();
-            const origCode = renderer.code.bind(renderer);
             renderer.code = function(code, lang, escaped) {
-                let processed = code.replace(/^\s+/, '').replace(/\s+$/, '');
+                let processed = code.replace(/\t/g, '    ');
+                processed = processed.replace(/^\n+/, '').replace(/\n+$/, '');
                 const lines = processed.split('\n');
+                if (lines.length <= 1) {
+                    const langClass = lang ? `language-${lang}` : '';
+                    const content = lines[0] ? lines[0].trim() : '';
+                    return `<pre><code class="${langClass}">${escapeHtml(content)}</code></pre>`;
+                }
                 const nonEmptyLines = lines.filter(line => line.trim() !== '');
-                if (nonEmptyLines.length === 0) return origCode('', lang, escaped);
-
+                if (nonEmptyLines.length === 0) {
+                    const langClass = lang ? `language-${lang}` : '';
+                    return `<pre><code class="${langClass}">${escapeHtml(processed)}</code></pre>`;
+                }
                 const minIndent = nonEmptyLines.reduce((min, line) => {
-                    const leading = line.match(/^[ \t]*/)[0].length;
+                    const leading = line.match(/^ */)[0].length;
                     return Math.min(min, leading);
                 }, Infinity);
-
                 const finalLines = lines.map(line => {
                     if (line.trim() === '') return '';
                     return line.slice(minIndent);
                 });
-
                 let finalCode = finalLines.join('\n');
                 finalCode = finalCode.replace(/^\n+/, '').replace(/\n+$/, '');
-
                 const langClass = lang ? `language-${lang}` : '';
                 return `<pre><code class="${langClass}">${escapeHtml(finalCode)}</code></pre>`;
             };
@@ -225,37 +250,51 @@
             }
         }
 
+        // 改进后的复制按钮：不随横向滚动，且只保留 emoji
         function addCopyButtons() {
             document.querySelectorAll('.post-content pre').forEach(pre => {
-                if (pre.querySelector('.code-copy-btn')) return;
+                // 如果已经被包裹过，跳过
+                if (pre.parentElement.classList && pre.parentElement.classList.contains('code-block-wrapper')) return;
+                
+                // 获取代码文本（优先取 code 内的）
+                const codeElement = pre.querySelector('code');
+                const codeText = codeElement ? codeElement.innerText : pre.innerText;
+                
+                // 创建包裹容器
+                const wrapper = document.createElement('div');
+                wrapper.className = 'code-block-wrapper';
+                // 将 pre 放入 wrapper
+                pre.parentNode.insertBefore(wrapper, pre);
+                wrapper.appendChild(pre);
+                
+                // 创建复制按钮
                 const btn = document.createElement('button');
                 btn.className = 'code-copy-btn';
-                btn.innerHTML = '📋 复制';
-                btn.addEventListener('click', async () => {
-                    const code = pre.querySelector('code') ? pre.querySelector('code').innerText : pre.innerText;
+                btn.innerHTML = '📋';  // 只有 emoji
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
                     try {
-                        await navigator.clipboard.writeText(code);
-                        btn.innerHTML = '✅ 已复制';
-                        setTimeout(() => { btn.innerHTML = '📋 复制'; }, 2000);
+                        await navigator.clipboard.writeText(codeText);
+                        btn.innerHTML = '✅';
+                        setTimeout(() => { btn.innerHTML = '📋'; }, 2000);
                     } catch (err) {
+                        // 降级方案
                         const textarea = document.createElement('textarea');
-                        textarea.value = code;
+                        textarea.value = codeText;
                         document.body.appendChild(textarea);
                         textarea.select();
                         document.execCommand('copy');
                         document.body.removeChild(textarea);
-                        btn.innerHTML = '✅ 已复制';
-                        setTimeout(() => { btn.innerHTML = '📋 复制'; }, 2000);
+                        btn.innerHTML = '✅';
+                        setTimeout(() => { btn.innerHTML = '📋'; }, 2000);
                     }
                 });
-                pre.style.position = 'relative';
-                pre.appendChild(btn);
+                wrapper.appendChild(btn);
             });
         }
 
         function escapeHtml(t) { const m={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}; return String(t).replace(/[&<>"']/g,c=>m[c]); }
 
-        // 数据与状态
         let postsMeta = [], filtered = [], isArticle = false, searchTerm = '';
         const content = document.getElementById('content');
         const back = document.getElementById('dynamicBackLink');
@@ -272,22 +311,17 @@
             back.href = article ? '#' : 'https://space-6oo.pages.dev/bio';
             searchBtn.style.display = article ? 'none' : 'flex';
             if (article) {
-                // 进入文章页时强制关闭搜索
                 searchWrap.classList.add('collapsed');
                 searchBtn.classList.remove('active');
             }
         }
 
-        // 搜索栏切换
         function toggleSearch(){
-            console.log('搜索按钮被点击，当前状态:', searchWrap.classList.contains('collapsed'));
             if (searchWrap.classList.contains('collapsed')) {
-                // 展开
                 searchWrap.classList.remove('collapsed');
                 searchBtn.classList.add('active');
                 setTimeout(() => searchInp.focus(), 50);
             } else {
-                // 收起
                 searchWrap.classList.add('collapsed');
                 searchBtn.classList.remove('active');
                 searchInp.value = '';
@@ -297,7 +331,6 @@
             }
         }
 
-        // 返回列表
         function goList(){
             if (location.search.includes('post')) history.pushState({},'',location.pathname);
             searchWrap.classList.add('collapsed');
@@ -310,7 +343,6 @@
             content.scrollTop = 0;
         }
 
-        // KaTeX 手动渲染
         function renderMathManually() {
             if (typeof katex === 'undefined') return;
             const walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT, null, false);
@@ -410,7 +442,7 @@
             const term = searchTerm.trim();
             const list = term ? filtered : postsMeta;
             if (!list.length) {
-                content.innerHTML = `<div class="no-results">🔍 未找到匹配 “${escapeHtml(term)}” 的文章</div>`;
+                content.innerHTML = `<div class="no-results">🔍 未找到匹配 "${escapeHtml(term)}" 的文章</div>`;
                 countSpan.textContent = `0 / ${postsMeta.length} 篇`;
                 setArticle(false);
                 return;
@@ -444,7 +476,7 @@
                 content.scrollTop = 0;
                 renderMathManually();
                 highlightAllCode();
-                addCopyButtons();
+                addCopyButtons();  // 添加复制按钮（不随滚动）
                 setTimeout(()=>{ renderMermaids().catch(()=>{}); }, 60);
             } catch(e) {
                 content.innerHTML = `<div class="error">❌ 加载失败: ${escapeHtml(e.message)}</div>`;
@@ -467,7 +499,6 @@
             }
         }
 
-        // 启动应用
         async function init(){
             content.innerHTML = '<div class="loading">📡 读取索引…</div>';
             const result = await loadMeta();
@@ -477,14 +508,9 @@
                 setArticle(false); return;
             }
             const p = param('post');
-            if (p) {
-                await loadPost(p);
-            } else {
-                setArticle(false);
-                renderList();
-            }
+            if (p) await loadPost(p);
+            else { setArticle(false); renderList(); }
 
-            // 绑定事件（确保只绑定一次）
             searchBtn.addEventListener('click', toggleSearch);
             searchInp.addEventListener('input', () => {
                 searchTerm = searchInp.value;
@@ -492,7 +518,6 @@
                 renderList();
             });
             clearBtn.addEventListener('click', () => {
-                // 点击✕清空并关闭
                 searchWrap.classList.add('collapsed');
                 searchBtn.classList.remove('active');
                 searchInp.value = '';
@@ -502,20 +527,13 @@
             });
 
             back.addEventListener('click', e => {
-                if (isArticle) {
-                    e.preventDefault();
-                    goList();
-                }
+                if (isArticle) { e.preventDefault(); goList(); }
             });
             window.addEventListener('popstate', async () => {
-                if (!postsMeta.length) {
-                    const r = await loadMeta();
-                    if (!r.success) return;
-                }
+                if (!postsMeta.length) { const r = await loadMeta(); if (!r.success) return; }
                 const p = param('post');
-                if (p) {
-                    await loadPost(p);
-                } else {
+                if (p) await loadPost(p);
+                else {
                     searchWrap.classList.add('collapsed');
                     searchBtn.classList.remove('active');
                     searchInp.value = '';
