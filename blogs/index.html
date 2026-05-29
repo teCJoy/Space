@@ -5,67 +5,352 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>teCJoy · 笔记 · 高亮·复制·搜索</title>
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
-    <!-- Prism 暗色主题 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
     <style>
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{
-            --bg-dark:#0b0d10;--card-bg:rgba(22,24,30,0.68);--card-border:rgba(255,255,255,0.05);
-            --text-primary:#edeff2;--text-secondary:#a1a5b0;--accent:#c0e0ff;--accent-hover:#d9f0ff;
-            --shadow-sm:0 12px 32px -12px rgba(0,0,0,0.4);--blur-amount:12px;
-            font-family:system-ui,-apple-system,'Segoe UI','Roboto',sans-serif;
-            background:var(--bg-dark);color:var(--text-primary);line-height:1.5;
-            -webkit-font-smoothing:antialiased;min-height:100vh;
-            overflow:hidden;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        body::before{content:"";position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at 30% 20%,rgba(60,80,120,0.25) 0%,rgba(10,12,18,0.9) 80%),repeating-linear-gradient(45deg,rgba(255,255,255,0.01) 0px,rgba(255,255,255,0.01) 1px,transparent 1px,transparent 16px);pointer-events:none;z-index:-2;}
-        body::after{content:"";position:fixed;width:100%;height:100%;top:0;left:0;background:radial-gradient(circle at var(--x,50%) var(--y,50%),rgba(140,170,220,0.08) 0%,transparent 60%);pointer-events:none;z-index:-1;}
-        .container{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem 1.5rem}
-        .glass-card{max-width:1000px;width:100%;max-height:85vh;background:var(--card-bg);backdrop-filter:blur(var(--blur-amount));-webkit-backdrop-filter:blur(var(--blur-amount));border:1px solid var(--card-border);box-shadow:var(--shadow-sm);border-radius:2rem;padding:2rem 2rem 1.5rem;animation:fadeIn 0.45s ease-out;display:flex;flex-direction:column;}
-        @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-        .blog-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1.2rem;flex-wrap:wrap;gap:1rem;flex-shrink:0;}
-        .blog-title{font-size:1.8rem;font-weight:600;background:linear-gradient(135deg,#fff,#cdddfc);-webkit-background-clip:text;background-clip:text;color:transparent;}
-        .header-actions{display:flex;align-items:center;gap:0.8rem}
-        .back-home{color:var(--text-secondary);text-decoration:none;font-size:0.9rem;cursor:pointer;transition:color 0.2s;}
-        .back-home:hover{color:var(--accent)}
-        .search-toggle-btn{background:none;border:none;color:var(--text-secondary);font-size:1.3rem;cursor:pointer;padding:0.3rem 0.5rem;border-radius:30px;transition:background 0.2s,color 0.2s;display:flex;align-items:center;justify-content:center;}
-        .search-toggle-btn:hover{background:rgba(255,255,255,0.08);color:var(--accent);}
-        .search-toggle-btn.active{color:var(--accent);background:rgba(192,224,255,0.1);}
-        .search-wrapper{margin-bottom:1.2rem;flex-shrink:0;display:flex;align-items:center;gap:0.8rem;transition:all 0.2s ease;overflow:hidden;}
-        .search-wrapper.collapsed{display:none;}
-        .search-box{flex:1;position:relative;}
-        .search-box input{width:100%;padding:0.75rem 1rem 0.75rem 2.5rem;background:rgba(0,0,0,0.25);border:1px solid var(--card-border);border-radius:40px;color:var(--text-primary);font-size:0.95rem;outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
-        .search-box input:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(192,224,255,0.15);}
-        .search-box input::placeholder{color:var(--text-secondary);opacity:0.7}
-        .search-icon{position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:var(--text-secondary);font-size:1rem;pointer-events:none;}
-        .clear-search{background:none;border:none;color:var(--text-secondary);font-size:1.2rem;cursor:pointer;padding:0.4rem 0.6rem;border-radius:30px;transition:background 0.2s,color 0.2s;display:flex;align-items:center;justify-content:center;}
-        .clear-search:hover{background:rgba(255,255,255,0.05);color:var(--accent)}
-        .result-count{font-size:0.8rem;color:var(--text-secondary);margin-left:0.25rem;white-space:nowrap;}
-        #content{flex:1;overflow-y:auto;padding-right:0.5rem;scroll-behavior:smooth;}
-        #content::-webkit-scrollbar{width:6px}#content::-webkit-scrollbar-track{background:rgba(255,255,255,0.05);border-radius:10px}#content::-webkit-scrollbar-thumb{background:rgba(192,224,255,0.3);border-radius:10px}#content::-webkit-scrollbar-thumb:hover{background:rgba(192,224,255,0.5)}
-        .post-list{list-style:none;margin-top:0.5rem}
-        .post-item{background:rgba(255,255,255,0.02);border-radius:1rem;padding:1rem 1.2rem;margin-bottom:1rem;border:0.5px solid rgba(255,255,255,0.05);transition:background 0.2s,transform 0.1s;}
-        .post-item:hover{background:rgba(255,255,255,0.05);transform:translateX(4px)}
-        .post-title{font-size:1.2rem;font-weight:500;color:var(--text-primary);text-decoration:none;display:block;margin-bottom:0.3rem;}
-        .post-title:hover{color:var(--accent)}
-        .post-date{font-size:0.75rem;color:var(--text-secondary)}
-        .post-tags{display:inline-flex;gap:0.5rem;margin-left:1rem}
-        .tag{background:rgba(192,224,255,0.1);padding:0.1rem 0.5rem;border-radius:20px;font-size:0.7rem;color:var(--accent);}
-        .post-content{margin-top:0.5rem;word-wrap:break-word}
-        .post-content h1{font-size:1.8rem;margin-bottom:0.5rem}
-        .post-content .post-meta{font-size:0.8rem;color:var(--text-secondary);margin-bottom:1.5rem;border-bottom:0.5px solid rgba(255,255,255,0.1);padding-bottom:0.8rem}
-        .post-content h2{font-size:1.3rem;margin:1.2rem 0 0.6rem;color:var(--accent)}
-        .post-content p{margin:0.8rem 0;line-height:1.6}
-        .post-content img{max-width:100%;border-radius:12px;display:block;margin:1rem 0}
+        body {
+            --bg-dark: #0b0d10;
+            --card-bg: rgba(22, 24, 30, 0.68);
+            --card-border: rgba(255, 255, 255, 0.05);
+            --text-primary: #edeff2;
+            --text-secondary: #a1a5b0;
+            --accent: #c0e0ff;
+            --accent-hover: #d9f0ff;
+            --shadow-sm: 0 12px 32px -12px rgba(0, 0, 0, 0.4);
+            --blur-amount: 12px;
+            font-family: system-ui, -apple-system, 'Segoe UI', 'Roboto', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 20%, rgba(60, 80, 120, 0.25) 0%, rgba(10, 12, 18, 0.9) 80%), repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.01) 0px, rgba(255, 255, 255, 0.01) 1px, transparent 1px, transparent 16px);
+            pointer-events: none;
+            z-index: -2;
+        }
+        body::after {
+            content: "";
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(140, 170, 220, 0.12) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+            transition: background 0.3s ease;
+        }
+        .container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1.5rem;
+        }
+        .glass-card {
+            max-width: 1000px;
+            width: 100%;
+            max-height: 85vh;
+            background: var(--card-bg);
+            backdrop-filter: blur(var(--blur-amount));
+            -webkit-backdrop-filter: blur(var(--blur-amount));
+            border: 1px solid var(--card-border);
+            box-shadow: var(--shadow-sm);
+            border-radius: 2rem;
+            padding: 2rem 2rem 1.5rem;
+            animation: cardEntrance 0.6s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+            display: flex;
+            flex-direction: column;
+            transition: box-shadow 0.3s ease;
+        }
+        .glass-card:hover {
+            box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.06);
+        }
+        @keyframes cardEntrance {
+            from { opacity: 0; transform: translateY(30px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .blog-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+        .blog-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #fff, #cdddfc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            transition: letter-spacing 0.3s ease;
+            margin-right: auto;
+        }
+        .blog-title:hover {
+            letter-spacing: 0.5px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+        }
+
+        /* 返回按钮 */
+        .back-home {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.2rem 0.5rem;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            background: none;
+            border: none;
+        }
+        .back-home:hover {
+            color: var(--accent);
+            background: rgba(255, 255, 255, 0.08);
+            transform: scale(1.1);
+        }
+
+        /* 搜索按钮 - 加入旋转过渡 */
+        .search-toggle-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.3rem;
+            cursor: pointer;
+            padding: 0.3rem 0.5rem;
+            border-radius: 30px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .search-toggle-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        .search-toggle-btn:active::after {
+            width: 200px;
+            height: 200px;
+        }
+        .search-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--accent);
+            transform: scale(1.05);
+        }
+        .search-toggle-btn.active {
+            color: var(--accent);
+            background: rgba(192, 224, 255, 0.15);
+            transform: rotate(90deg);
+        }
+
+        /* 搜索栏容器：向左展开 */
+        .search-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            max-width: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            opacity: 0;
+            margin: 0;
+            padding: 0;
+            transition: max-width 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.3s ease,
+                        margin 0.5s ease,
+                        padding 0.5s ease;
+            pointer-events: none;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 40px;
+            backdrop-filter: blur(4px);
+            border: 1px solid transparent;
+        }
+        .search-wrapper:not(.collapsed) {
+            max-width: 320px;
+            opacity: 1;
+            margin-left: 0.4rem;
+            padding: 0.2rem 0.6rem;
+            pointer-events: auto;
+            border-color: var(--card-border);
+        }
+
+        .search-box {
+            flex: 1;
+            position: relative;
+            min-width: 120px;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 0.5rem 0.8rem 0.5rem 2rem;
+            background: transparent;
+            border: none;
+            border-radius: 40px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+        .search-box input::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.6;
+        }
+        .search-icon {
+            position: absolute;
+            left: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            pointer-events: none;
+        }
+        /* 移除原有清除按钮样式，不再需要 */
+        .result-count {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        #content {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+            scroll-behavior: smooth;
+        }
+        #content::-webkit-scrollbar { width: 6px; }
+        #content::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.03); border-radius: 10px; }
+        #content::-webkit-scrollbar-thumb { background: rgba(192, 224, 255, 0.3); border-radius: 10px; transition: background 0.3s; }
+        #content::-webkit-scrollbar-thumb:hover { background: rgba(192, 224, 255, 0.5); }
+
+        .post-list { list-style: none; margin-top: 0.5rem; }
+        .post-item {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 1rem;
+            padding: 1rem 1.2rem;
+            margin-bottom: 1rem;
+            border: 0.5px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: listItemFadeIn 0.5s ease forwards;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        @keyframes listItemFadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .post-item:nth-child(1) { animation-delay: 0.05s; }
+        .post-item:nth-child(2) { animation-delay: 0.1s; }
+        .post-item:nth-child(3) { animation-delay: 0.15s; }
+        .post-item:nth-child(4) { animation-delay: 0.2s; }
+        .post-item:nth-child(5) { animation-delay: 0.25s; }
+        .post-item:nth-child(6) { animation-delay: 0.3s; }
+        .post-item:nth-child(7) { animation-delay: 0.35s; }
+        .post-item:nth-child(8) { animation-delay: 0.4s; }
+        .post-item:nth-child(9) { animation-delay: 0.45s; }
+        .post-item:nth-child(10) { animation-delay: 0.5s; }
+
+        .post-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateY(-3px) scale(1.01);
+            box-shadow: 0 8px 20px -8px rgba(0, 0, 0, 0.3);
+            border-color: rgba(192, 224, 255, 0.15);
+        }
+        .post-title {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.3rem;
+            transition: color 0.3s;
+        }
+        .post-title:hover { color: var(--accent); }
+        .post-date { font-size: 0.75rem; color: var(--text-secondary); }
+        .post-tags { display: inline-flex; gap: 0.5rem; margin-left: 1rem; }
+        .tag {
+            background: rgba(192, 224, 255, 0.1);
+            padding: 0.1rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: var(--accent);
+            transition: background 0.3s, transform 0.3s;
+        }
+        .post-item:hover .tag {
+            background: rgba(192, 224, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .post-content {
+            margin-top: 0.5rem;
+            word-wrap: break-word;
+            animation: contentFadeIn 0.5s ease;
+        }
+        @keyframes contentFadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .post-content h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+        .post-content .post-meta {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            border-bottom: 0.5px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 0.8rem;
+        }
+        .post-content h2 { font-size: 1.3rem; margin: 1.2rem 0 0.6rem; color: var(--accent); }
+        .post-content p { margin: 0.8rem 0; line-height: 1.6; }
+        .post-content img { max-width: 100%; border-radius: 12px; display: block; margin: 1rem 0; transition: transform 0.3s; }
+        .post-content img:hover { transform: scale(1.01); }
         .post-content code,
-        .post-content pre {
-            font-family: Consolas, "Courier New", monospace;
-        }
+        .post-content pre { font-family: Consolas, "Courier New", monospace; }
         .post-content code {
-            background: rgba(0,0,0,0.3);
+            background: rgba(0, 0, 0, 0.3);
             padding: 0.2rem 0.4rem;
             border-radius: 6px;
             font-size: 0.9em;
+            transition: background 0.3s;
+        }
+        .post-content code:hover {
+            background: rgba(0, 0, 0, 0.5);
+        }
+        .post-content pre {
+            background: transparent;
+            padding: 1.2rem !important;
+            border-radius: 0;
+            overflow: initial;
         }
         .post-content pre code {
             background: transparent !important;
@@ -73,62 +358,147 @@
             display: block;
             border-radius: 0;
         }
-        .post-content pre {
-            background: rgba(0,0,0,0.4);
-            padding: 1rem;
+
+        .code-block {
+            margin: 1rem 0;
             border-radius: 12px;
-            overflow-x: auto;
-            margin: 1rem 0;
-            white-space: pre;
-            tab-size: 4;
-            font-size: 0.9rem;
+            background: transparent;
+            overflow: visible;
         }
-        .post-content :not(pre) > code {
-            background: rgba(0,0,0,0.3);
-            padding: 0.2rem 0.4rem;
-            border-radius: 6px;
-        }
-        /* 代码块包裹容器（用于固定复制按钮） */
-        .code-block-wrapper {
-            position: relative;
-            margin: 1rem 0;
-        }
-        .code-block-wrapper pre {
-            margin: 0;
-        }
-        .code-copy-btn {
-            position: absolute;
-            top: 0.6rem;
-            right: 0.8rem;
-            background: rgba(255,255,255,0.08);
-            border: none;
-            color: var(--text-secondary);
-            font-size: 1rem;
-            padding: 0.3rem 0.6rem;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background 0.2s, color 0.2s;
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.45rem 1rem;
+            background: rgba(0, 0, 0, 0.55);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.75rem;
+            color: var(--accent);
+            letter-spacing: 0.3px;
+            border-radius: 12px 12px 0 0;
+            position: sticky;
+            top: 0;
             z-index: 2;
             backdrop-filter: blur(4px);
         }
-        .code-copy-btn:hover {
-            background: rgba(255,255,255,0.2);
-            color: #fff;
+        .code-lang { text-transform: lowercase; font-weight: 500; }
+        .code-copy-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            cursor: pointer;
+            padding: 0.15rem 0.4rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.15rem;
         }
-        .post-content blockquote{border-left:3px solid var(--accent);padding-left:1rem;color:var(--text-secondary);margin:1rem 0}
-        .post-content table{width:100%;border-collapse:collapse;margin:1.2rem 0;font-size:0.95rem;background:rgba(255,255,255,0.02);border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.2)}
-        .post-content th,.post-content td{border:1px solid rgba(255,255,255,0.15);padding:0.7rem 1rem;text-align:left}
-        .post-content th{background:rgba(192,224,255,0.1);color:var(--accent);font-weight:600;white-space:nowrap}
-        .post-content tr:nth-child(even){background:rgba(255,255,255,0.03)}
-        .post-content tr:hover{background:rgba(255,255,255,0.05)}
-        .loading{text-align:center;padding:2rem;color:var(--text-secondary)}
-        .error{color:#ffaaaa;text-align:center;padding:2rem;background:rgba(255,0,0,0.05);border-radius:1rem}
-        .no-results{text-align:center;padding:2rem;color:var(--text-secondary);background:rgba(255,255,255,0.02);border-radius:1rem;}
-        .katex-display{overflow-x:auto;overflow-y:hidden;padding:0.5rem 0}
-        .katex{font-size:1.05em}
-        .mermaid{background:rgba(10,12,18,0.6);border-radius:1rem;padding:1rem;margin:1rem 0;text-align:center}
-        .video-wrapper{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;margin:1.2rem 0;border-radius:16px;box-shadow:0 8px 20px rgba(0,0,0,0.3);background:#000;}
-        .video-wrapper iframe,.video-wrapper video{position:absolute;top:0;left:0;width:100%;height:100%;border:0;border-radius:16px;}
+        .code-copy-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            transform: scale(1.1);
+        }
+        .code-content {
+            overflow-x: auto;
+            overflow-y: hidden;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 0 0 12px 12px;
+        }
+        .code-content pre {
+            margin: 0;
+            padding: 1.5rem !important;
+            background: transparent;
+            border-radius: 0;
+        }
+
+        .post-content blockquote {
+            border-left: 3px solid var(--accent);
+            padding-left: 1rem;
+            color: var(--text-secondary);
+            margin: 1rem 0;
+        }
+        .post-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.2rem 0;
+            font-size: 0.95rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        .post-content th,
+        .post-content td {
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 0.7rem 1rem;
+            text-align: left;
+        }
+        .post-content th {
+            background: rgba(192, 224, 255, 0.1);
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .post-content tr:nth-child(even) { background: rgba(255, 255, 255, 0.03); }
+        .post-content tr:hover { background: rgba(255, 255, 255, 0.05); }
+
+        .loading, .error, .no-results {
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .error {
+            color: #ffaaaa;
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 0, 0, 0.05);
+            border-radius: 1rem;
+        }
+        .no-results {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 1rem;
+        }
+
+        .katex-display { overflow-x: auto; overflow-y: hidden; padding: 0.5rem 0; }
+        .katex { font-size: 1.05em; }
+        .mermaid {
+            background: rgba(10, 12, 18, 0.6);
+            border-radius: 1rem;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            margin: 1.2rem 0;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            background: #000;
+            transition: box-shadow 0.3s, transform 0.3s;
+        }
+        .video-wrapper:hover {
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
+            transform: scale(1.01);
+        }
+        .video-wrapper iframe,
+        .video-wrapper video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+            border-radius: 16px;
+        }
     </style>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
 </head>
@@ -138,17 +508,16 @@
         <div class="blog-header">
             <div class="blog-title">Logbook · 高亮·复制·搜索</div>
             <div class="header-actions">
-                <a class="back-home" id="dynamicBackLink" href="https://space-6oo.pages.dev/bio">← Home</a>
+                <a class="back-home" id="dynamicBackLink" href="https://space-6oo.pages.dev/bio">⬅</a>
+                <div class="search-wrapper collapsed" id="searchWrapper">
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="searchInput" placeholder="搜索标题或标签..." autocomplete="off">
+                    </div>
+                    <span class="result-count" id="resultCount"></span>
+                </div>
                 <button class="search-toggle-btn" id="searchToggleBtn" title="搜索文章">🔍</button>
             </div>
-        </div>
-        <div class="search-wrapper collapsed" id="searchWrapper">
-            <div class="search-box">
-                <span class="search-icon">🔍</span>
-                <input type="text" id="searchInput" placeholder="搜索标题或标签..." autocomplete="off">
-            </div>
-            <button class="clear-search" id="clearSearchBtn" title="清除并关闭">✕</button>
-            <span class="result-count" id="resultCount"></span>
         </div>
         <div id="content"><div class="loading">加载中...</div></div>
     </div>
@@ -177,15 +546,11 @@
     async function loadLibraries() {
         try { await loadScript(CDN.katex); } catch(e) { console.error(e); }
         try { await loadScript(CDN.marked); } catch(e) { console.error(e); }
-        
         try {
             await loadScript(CDN.prism);
             console.log('[系统] Prism.js 加载成功');
             try { await loadScript(CDN.prismLang); } catch(e) { console.warn('Prism 语言组件加载失败'); }
-        } catch(e) {
-            console.warn('[系统] Prism.js 加载失败，代码块将无语法高亮');
-        }
-
+        } catch(e) { console.warn('[系统] Prism.js 加载失败'); }
         try {
             await loadScript(CDN.mermaid);
             mermaid.initialize({
@@ -202,7 +567,6 @@
             st.textContent = '.mermaid .pieTitle,.mermaid .pie .slice .label,.mermaid .pie .legend text,.mermaid .pie .slice text,.mermaid text[class*="pie"],.mermaid tspan{fill:#edeff2!important;color:#edeff2!important}';
             document.head.appendChild(st);
         } catch(e) { console.error(e); }
-
         console.log('[系统] 依赖加载完毕，启动主程序');
         if (typeof window.initApp === 'function') window.initApp();
     }
@@ -211,7 +575,6 @@
         if (window.__init) return;
         window.__init = true;
 
-        // 修复后的代码块渲染（保留原有缩进处理）
         if (typeof marked !== 'undefined') {
             const renderer = new marked.Renderer();
             renderer.code = function(code, lang, escaped) {
@@ -245,55 +608,70 @@
         }
 
         function highlightAllCode() {
-            if (typeof Prism !== 'undefined') {
-                Prism.highlightAll();
-            }
+            if (typeof Prism !== 'undefined') Prism.highlightAll();
         }
 
-        // 改进后的复制按钮：不随横向滚动，且只保留 emoji
         function addCopyButtons() {
-            document.querySelectorAll('.post-content pre').forEach(pre => {
-                // 如果已经被包裹过，跳过
-                if (pre.parentElement.classList && pre.parentElement.classList.contains('code-block-wrapper')) return;
-                
-                // 获取代码文本（优先取 code 内的）
-                const codeElement = pre.querySelector('code');
-                const codeText = codeElement ? codeElement.innerText : pre.innerText;
-                
-                // 创建包裹容器
+            document.querySelectorAll('.post-content pre:not(.code-processed)').forEach(pre => {
+                pre.classList.add('code-processed');
+                const codeElem = pre.querySelector('code');
+                let lang = 'Code';
+                if (codeElem && codeElem.className) {
+                    const match = codeElem.className.match(/language-([a-zA-Z0-9_+-]+)/);
+                    if (match) lang = match[1];
+                }
+                const codeText = codeElem ? codeElem.textContent : pre.textContent;
                 const wrapper = document.createElement('div');
-                wrapper.className = 'code-block-wrapper';
-                // 将 pre 放入 wrapper
-                pre.parentNode.insertBefore(wrapper, pre);
-                wrapper.appendChild(pre);
-                
-                // 创建复制按钮
-                const btn = document.createElement('button');
-                btn.className = 'code-copy-btn';
-                btn.innerHTML = '📋';  // 只有 emoji
-                btn.addEventListener('click', async (e) => {
+                wrapper.className = 'code-block';
+                const header = document.createElement('div');
+                header.className = 'code-header';
+                const langSpan = document.createElement('span');
+                langSpan.className = 'code-lang';
+                langSpan.textContent = lang;
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'code-copy-btn';
+                copyBtn.innerHTML = '📋';
+                copyBtn.title = '复制代码';
+                copyBtn.addEventListener('click', async (e) => {
                     e.stopPropagation();
                     try {
                         await navigator.clipboard.writeText(codeText);
-                        btn.innerHTML = '✅';
-                        setTimeout(() => { btn.innerHTML = '📋'; }, 2000);
+                        copyBtn.innerHTML = '✅';
+                        copyBtn.style.transform = 'scale(1.2)';
+                        setTimeout(() => {
+                            copyBtn.innerHTML = '📋';
+                            copyBtn.style.transform = '';
+                        }, 2000);
                     } catch (err) {
-                        // 降级方案
                         const textarea = document.createElement('textarea');
                         textarea.value = codeText;
                         document.body.appendChild(textarea);
                         textarea.select();
                         document.execCommand('copy');
                         document.body.removeChild(textarea);
-                        btn.innerHTML = '✅';
-                        setTimeout(() => { btn.innerHTML = '📋'; }, 2000);
+                        copyBtn.innerHTML = '✅';
+                        copyBtn.style.transform = 'scale(1.2)';
+                        setTimeout(() => {
+                            copyBtn.innerHTML = '📋';
+                            copyBtn.style.transform = '';
+                        }, 2000);
                     }
                 });
-                wrapper.appendChild(btn);
+                header.appendChild(langSpan);
+                header.appendChild(copyBtn);
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'code-content';
+                pre.parentNode.insertBefore(wrapper, pre);
+                wrapper.appendChild(header);
+                wrapper.appendChild(contentDiv);
+                contentDiv.appendChild(pre);
             });
         }
 
-        function escapeHtml(t) { const m={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}; return String(t).replace(/[&<>"']/g,c=>m[c]); }
+        function escapeHtml(t) {
+            const m = {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'};
+            return String(t).replace(/[&<>"']/g, c => m[c]);
+        }
 
         let postsMeta = [], filtered = [], isArticle = false, searchTerm = '';
         const content = document.getElementById('content');
@@ -301,40 +679,42 @@
         const searchBtn = document.getElementById('searchToggleBtn');
         const searchWrap = document.getElementById('searchWrapper');
         const searchInp = document.getElementById('searchInput');
-        const clearBtn = document.getElementById('clearSearchBtn');
         const countSpan = document.getElementById('resultCount');
 
         function param(p){ return new URLSearchParams(location.search).get(p); }
         function setArticle(article){
             isArticle = article;
-            back.innerText = article ? '← List' : '← Home';
+            back.textContent = '⬅';
+            back.title = article ? '返回列表' : '回到主页';
             back.href = article ? '#' : 'https://space-6oo.pages.dev/bio';
             searchBtn.style.display = article ? 'none' : 'flex';
             if (article) {
                 searchWrap.classList.add('collapsed');
                 searchBtn.classList.remove('active');
+                searchBtn.innerHTML = '🔍';
             }
         }
-
         function toggleSearch(){
             if (searchWrap.classList.contains('collapsed')) {
                 searchWrap.classList.remove('collapsed');
                 searchBtn.classList.add('active');
-                setTimeout(() => searchInp.focus(), 50);
+                searchBtn.innerHTML = '❌';
+                setTimeout(() => searchInp.focus(), 100);
             } else {
                 searchWrap.classList.add('collapsed');
                 searchBtn.classList.remove('active');
+                searchBtn.innerHTML = '🔍';
                 searchInp.value = '';
                 searchTerm = '';
                 filterPosts();
                 renderList();
             }
         }
-
         function goList(){
-            if (location.search.includes('post')) history.pushState({},'',location.pathname);
+            if (location.search.includes('post')) history.pushState({}, '', location.pathname);
             searchWrap.classList.add('collapsed');
             searchBtn.classList.remove('active');
+            searchBtn.innerHTML = '🔍';
             searchInp.value = '';
             searchTerm = '';
             filterPosts();
@@ -342,7 +722,6 @@
             renderList();
             content.scrollTop = 0;
         }
-
         function renderMathManually() {
             if (typeof katex === 'undefined') return;
             const walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT, null, false);
@@ -371,10 +750,9 @@
                 if (frag.childNodes.length) node.parentNode.replaceChild(frag, node);
             }
         }
-
         function transformMermaidBlocks(html){
             const d = document.createElement('div'); d.innerHTML = html;
-            d.querySelectorAll('pre').forEach(pre=>{
+            d.querySelectorAll('pre').forEach(pre => {
                 const code = pre.querySelector('code');
                 if (!code) return;
                 const text = code.textContent.trim();
@@ -391,12 +769,11 @@
             const els = document.querySelectorAll('.mermaid:not([data-processed])');
             if (!els.length) return;
             try {
-                if (typeof mermaid === 'undefined') await new Promise(r=>setTimeout(r,100));
+                if (typeof mermaid === 'undefined') await new Promise(r => setTimeout(r, 100));
                 await mermaid.run({ querySelector:'.mermaid:not([data-processed])', suppressErrors:true });
-                els.forEach(e=>e.setAttribute('data-processed','true'));
-            } catch(e){}
+                els.forEach(e => e.setAttribute('data-processed','true'));
+            } catch(e) {}
         }
-
         function parseVideoUrl(url){
             url = url.trim(); if (!url.startsWith('http')) return null;
             if (/\.(mp4|webm|mov|ogg|m4v)(\?|$)/i.test(url)) {
@@ -414,7 +791,7 @@
             return null;
         }
         function processVideoLines(md){
-            return md.split('\n').map(line=>{
+            return md.split('\n').map(line => {
                 const t = line.trim();
                 if (!t || line.includes('<iframe')||line.includes('<video')) return line;
                 const emb = parseVideoUrl(t);
@@ -423,19 +800,15 @@
         }
         function biliSyntax(md){
             return md.replace(/!\[.*?\]\((https?:\/\/www\.bilibili\.com\/video\/([^\/?\s]+)\/?)(?:\s*=(\d+)x(\d+))?\)/g,
-                (_,url,bvid,w,h)=>{
+                (_, url, bvid, w, h) => {
                     let pb = '56.25%'; if (w&&h) pb = (h/w)*100+'%';
                     return `<div class="video-wrapper" style="padding-bottom:${pb}"><iframe src="//player.bilibili.com/player.html?bvid=${bvid}&high_quality=1" allowfullscreen></iframe></div>`;
                 });
         }
-
         function filterPosts(){
             const term = searchTerm.trim().toLowerCase();
             if (!term) filtered = [...postsMeta];
-            else filtered = postsMeta.filter(p=>
-                p.title.toLowerCase().includes(term) ||
-                (p.tags && p.tags.some(t=>t.toLowerCase().includes(term)))
-            );
+            else filtered = postsMeta.filter(p => p.title.toLowerCase().includes(term) || (p.tags && p.tags.some(t => t.toLowerCase().includes(term))));
         }
         function renderList(){
             if (!postsMeta.length) { content.innerHTML = '<div class="error">📭 暂无文章</div>'; setArticle(false); return; }
@@ -443,24 +816,23 @@
             const list = term ? filtered : postsMeta;
             if (!list.length) {
                 content.innerHTML = `<div class="no-results">🔍 未找到匹配 "${escapeHtml(term)}" 的文章</div>`;
-                countSpan.textContent = `0 / ${postsMeta.length} 篇`;
+                countSpan.textContent = `0/${postsMeta.length}`;
                 setArticle(false);
                 return;
             }
             let html = '<ul class="post-list">';
-            list.forEach(p=>{
-                const tags = p.tags ? `<span class="post-tags">${p.tags.map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join('')}</span>` : '';
+            list.forEach(p => {
+                const tags = p.tags ? `<span class="post-tags">${p.tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}</span>` : '';
                 html += `<li class="post-item"><a href="?post=${encodeURIComponent(p.filename)}" class="post-title">${escapeHtml(p.title)}</a><div class="post-date">${escapeHtml(p.date)} ${tags}</div></li>`;
             });
             html += '</ul>';
             content.innerHTML = html;
             setArticle(false); content.scrollTop = 0;
-            countSpan.textContent = term ? `${list.length} / ${postsMeta.length} 篇` : `(${postsMeta.length} 篇)`;
+            countSpan.textContent = term ? `${list.length}/${postsMeta.length}` : '';
         }
-
         async function loadPost(filename){
             setArticle(true);
-            const meta = postsMeta.find(p=>p.filename===filename);
+            const meta = postsMeta.find(p => p.filename === filename);
             if (!meta) { content.innerHTML = '<div class="error">❌ 未知文章</div>'; return; }
             try {
                 const res = await fetch(`./posts/${filename}`);
@@ -468,28 +840,27 @@
                 const md = await res.text();
                 let processed = processVideoLines(md);
                 processed = biliSyntax(processed);
-                let parsed = (typeof marked.parse==='function') ? marked.parse(processed) : marked(processed);
+                let parsed = (typeof marked.parse === 'function') ? marked.parse(processed) : marked(processed);
                 if (parsed && typeof parsed.then === 'function') parsed = await parsed;
                 const withMermaid = transformMermaidBlocks(parsed);
-                const tags = meta.tags ? meta.tags.map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join(' ') : '';
+                const tags = meta.tags ? meta.tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join(' ') : '';
                 content.innerHTML = `<div class="post-content"><h1>${escapeHtml(meta.title)}</h1><div class="post-meta">📅 ${escapeHtml(meta.date)} ${tags}</div>${withMermaid}</div>`;
                 content.scrollTop = 0;
                 renderMathManually();
                 highlightAllCode();
-                addCopyButtons();  // 添加复制按钮（不随滚动）
-                setTimeout(()=>{ renderMermaids().catch(()=>{}); }, 60);
+                addCopyButtons();
+                setTimeout(() => { renderMermaids().catch(() => {}); }, 60);
             } catch(e) {
                 content.innerHTML = `<div class="error">❌ 加载失败: ${escapeHtml(e.message)}</div>`;
             }
         }
-
         async function loadMeta(){
             try {
                 const r = await fetch('./posts.json');
                 if (!r.ok) throw new Error(`HTTP ${r.status}`);
                 const data = await r.json();
                 if (!Array.isArray(data)) throw new Error('格式错误');
-                postsMeta = data.filter(d=>d.filename&&d.title&&d.date).sort((a,b)=>new Date(b.date)-new Date(a.date));
+                postsMeta = data.filter(d => d.filename && d.title && d.date).sort((a,b) => new Date(b.date) - new Date(a.date));
                 filtered = [...postsMeta];
                 return { success: true };
             } catch(e) {
@@ -498,15 +869,11 @@
                 return { success: false };
             }
         }
-
         async function init(){
             content.innerHTML = '<div class="loading">📡 读取索引…</div>';
             const result = await loadMeta();
             if (!result.success) return;
-            if (!postsMeta.length) {
-                content.innerHTML = '<div class="error">📭 暂无文章</div>';
-                setArticle(false); return;
-            }
+            if (!postsMeta.length) { content.innerHTML = '<div class="error">📭 暂无文章</div>'; setArticle(false); return; }
             const p = param('post');
             if (p) await loadPost(p);
             else { setArticle(false); renderList(); }
@@ -517,17 +884,11 @@
                 filterPosts();
                 renderList();
             });
-            clearBtn.addEventListener('click', () => {
-                searchWrap.classList.add('collapsed');
-                searchBtn.classList.remove('active');
-                searchInp.value = '';
-                searchTerm = '';
-                filterPosts();
-                renderList();
-            });
-
             back.addEventListener('click', e => {
-                if (isArticle) { e.preventDefault(); goList(); }
+                if (isArticle) {
+                    e.preventDefault();
+                    goList();
+                }
             });
             window.addEventListener('popstate', async () => {
                 if (!postsMeta.length) { const r = await loadMeta(); if (!r.success) return; }
@@ -536,6 +897,7 @@
                 else {
                     searchWrap.classList.add('collapsed');
                     searchBtn.classList.remove('active');
+                    searchBtn.innerHTML = '🔍';
                     searchInp.value = '';
                     searchTerm = '';
                     filterPosts();
@@ -548,7 +910,6 @@
                 document.body.style.setProperty('--y', (e.clientY/innerHeight)*100+'%');
             });
         }
-
         init();
     };
 
