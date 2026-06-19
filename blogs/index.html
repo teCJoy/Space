@@ -917,5 +917,17 @@
     loadLibraries();
     setTimeout(() => { if (!window.__init) window.initApp(); }, 3000);
 </script>
+<!-- 放在 <body> 底部 -->
+<script src="https://browser-update.org/update.min.js"></script>
+<script>
+  var $buoop = {
+    required: { e: -3, f: -3, o: -3, s: 26, c: -3 },
+    insecure: true,
+    position: 'bottom' 
+  };
+  $buoop.ol = document.createElement('script');
+  $buoop.ol.src = 'https://browser-update.org/update.min.js';
+  document.body.appendChild($buoop.ol);
+</script>
 </body>
 </html>
