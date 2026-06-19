@@ -71,7 +71,7 @@
             border: 1px solid var(--card-border);
             box-shadow: var(--shadow-sm);
             border-radius: 2rem;
-            padding: 2rem 2rem 1.5rem;
+            padding: 2rem 2rem 0 2rem;  /* 底部padding挪到footer里 */
             animation: cardEntrance 0.6s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
             display: flex;
             flex-direction: column;
@@ -115,7 +115,6 @@
             position: relative;
         }
 
-        /* 返回按钮 */
         .back-home {
             color: var(--text-secondary);
             text-decoration: none;
@@ -137,7 +136,6 @@
             transform: scale(1.1);
         }
 
-        /* 搜索按钮 - 加入旋转过渡 */
         .search-toggle-btn {
             background: none;
             border: none;
@@ -180,7 +178,6 @@
             transform: rotate(90deg);
         }
 
-        /* 搜索栏容器：向左展开 */
         .search-wrapper {
             display: flex;
             align-items: center;
@@ -239,7 +236,6 @@
             font-size: 0.9rem;
             pointer-events: none;
         }
-        /* 移除原有清除按钮样式，不再需要 */
         .result-count {
             font-size: 0.75rem;
             color: var(--text-secondary);
@@ -251,6 +247,7 @@
             overflow-y: auto;
             padding-right: 0.5rem;
             scroll-behavior: smooth;
+            padding-bottom: 1rem; /* 让内容不紧贴底部 */
         }
         #content::-webkit-scrollbar { width: 6px; }
         #content::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.03); border-radius: 10px; }
@@ -500,6 +497,30 @@
             border: 0;
             border-radius: 16px;
         }
+
+        /* Footer 样式 */
+        .site-footer {
+            flex-shrink: 0;
+            text-align: center;
+            padding: 1rem 0.5rem 0.8rem;
+            border-top: 0.5px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            letter-spacing: 0.3px;
+            margin-top: auto; /* 确保即使内容少时也在底部 */
+        }
+        .site-footer a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .site-footer a:hover {
+            color: #fff;
+        }
+        .site-footer img {
+            vertical-align: middle;
+            display: inline-block;
+        }
     </style>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
 </head>
@@ -521,6 +542,18 @@
             </div>
         </div>
         <div id="content"><div class="loading">加载中...</div></div>
+
+        <!-- CC 许可 footer 移到卡片内部，固定底部 -->
+        <footer class="site-footer">
+            <p>
+                This work is licensed under 
+                <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">
+                    Creative Commons Attribution 4.0 International
+                </a>
+                <img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="CC" style="max-width: 1em;max-height:1em;margin-left: .2em;">
+                <img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="BY" style="max-width: 1em;max-height:1em;margin-left: .2em;">
+            </p>
+        </footer>
     </div>
 </div>
 
@@ -917,7 +950,7 @@
     loadLibraries();
     setTimeout(() => { if (!window.__init) window.initApp(); }, 3000);
 </script>
-<!-- 放在 <body> 底部 -->
+<!-- 浏览器升级提示仍在 <body> 底部 -->
 <script src="https://browser-update.org/update.min.js"></script>
 <script>
   var $buoop = {
@@ -930,14 +963,4 @@
   document.body.appendChild($buoop.ol);
 </script>
 </body>
-<footer>
-<p>
-  This work is licensed under 
-  <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">
-    Creative Commons Attribution 4.0 International
-  </a>
-  <img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="CC" style="max-width: 1em;max-height:1em;margin-left: .2em;">
-  <img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="BY" style="max-width: 1em;max-height:1em;margin-left: .2em;">
-</p>
-</footer>
 </html>
