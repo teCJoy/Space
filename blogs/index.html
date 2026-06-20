@@ -951,21 +951,15 @@
     setTimeout(() => { if (!window.__init) window.initApp(); }, 3000);
 </script>
 
-<!-- 浏览器升级提示：配置在前，脚本只加载一次，自定义底部 UI -->
-<script>
-  var $buoop = {
-    required: { e: -3, f: -3, o: -3, s: 26, c: -3 },
-    insecure: true,
-    notify: function(data) {
-      var bar = document.createElement('div');
-      bar.id = 'buorg';
-      bar.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#1e1e2e;color:#edeff2;text-align:center;padding:1rem;z-index:9999;font-size:0.9rem;border-top:1px solid rgba(255,255,255,0.1);';
-      bar.innerHTML = '你的浏览器版本过旧，可能无法正常显示本站。' +
-        '<a href="https://browser-update.org/update.html" style="color:#c0e0ff;margin-left:1rem;">了解更多</a>' +
-        '<button onclick="this.parentNode.style.display=\'none\'" style="margin-left:1rem;background:none;border:1px solid #a1a5b0;color:#a1a5b0;padding:0.2rem 0.6rem;border-radius:4px;cursor:pointer;">忽略</button>';
-      document.body.appendChild(bar);
-    }
-  };
+<script> 
+var $buoop = {required:{e:-3,f:-3,o:-3,s:-1,c:-3},insecure:true,unsupported:true,style:"bottom",api:2026.06 }; 
+function $buo_f(){ 
+ var e = document.createElement("script"); 
+ e.src = "//browser-update.org/update.min.js"; 
+ document.body.appendChild(e);
+};
+try {document.addEventListener("DOMContentLoaded", $buo_f,false)}
+catch(e){window.attachEvent("onload", $buo_f)}
 </script>
 <script src="https://browser-update.org/update.min.js"></script>
 </body>
