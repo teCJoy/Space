@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>推荐书目 · 下载</title>
+    <style>
+        /* ── 全局重置 ── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+            background: #f5f5f5;
+            color: #2c2c2c;
+            min-height: 100vh;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            padding: 36px 32px 28px;
+        }
+
+        /* ── 头部 ── */
+        .header {
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eaeaea;
+            margin-bottom: 28px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: #1e2a3a;
+        }
+
+        .header .sub {
+            font-size: 15px;
+            font-weight: 400;
+            color: #888;
+            margin-left: 12px;
+        }
+
+        /* ── 统计条 ── */
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 28px;
+            font-size: 14px;
+            color: #666;
+        }
+        .stats .count {
+            background: #f0f0f0;
+            padding: 4px 16px;
+            border-radius: 20px;
+            color: #333;
+        }
+        .stats .count strong {
+            color: #1e2a3a;
+            font-weight: 600;
+        }
+        .stats .hint {
+            color: #999;
+        }
+        .stats .hint i {
+            font-style: normal;
+            background: #f0f0f0;
+            padding: 2px 12px;
+            border-radius: 12px;
+        }
+
+        /* ── 卡片网格 ── */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 20px;
+        }
+
+        /* ── 卡片 ── */
+        .card {
+            background: #fafafa;
+            border-radius: 12px;
+            padding: 20px 18px 18px;
+            border: 1px solid #eee;
+            transition: background 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+        .card:hover {
+            background: #f7f7f7;
+            border-color: #ddd;
+        }
+
+        .card .badge {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 500;
+            color: #888;
+            background: #eaeaea;
+            padding: 0 10px;
+            border-radius: 12px;
+            line-height: 22px;
+            align-self: flex-start;
+            margin-bottom: 10px;
+            letter-spacing: 0.3px;
+        }
+
+        .card .title {
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 1.5;
+            color: #1e2a3a;
+            margin-bottom: 4px;
+        }
+        .card .title .bookmark {
+            color: #b8860b;
+            font-weight: 400;
+        }
+
+        .card .author {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 2px;
+        }
+        .card .publisher {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+
+        .card .download-wrap {
+            margin-top: auto;
+        }
+
+        .card .btn-download {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: #1e2a3a;
+            color: #fff;
+            border: none;
+            padding: 7px 18px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background 0.2s, transform 0.1s;
+            letter-spacing: 0.3px;
+            width: 100%;
+        }
+        .card .btn-download:hover {
+            background: #2c3e5a;
+        }
+        .card .btn-download:active {
+            transform: scale(0.97);
+        }
+        .card .btn-download svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+            flex-shrink: 0;
+        }
+
+        /* ── 响应式 ── */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 16px;
+            }
+            .header h1 {
+                font-size: 20px;
+            }
+            .grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+                gap: 14px;
+            }
+            .card {
+                padding: 16px 14px;
+            }
+            .card .title {
+                font-size: 15px;
+            }
+            .stats {
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            .card .btn-download {
+                padding: 9px 16px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部（简洁） -->
+        <header class="header">
+            <h1>📖 推荐书目 <span class="sub">· 下载</span></h1>
+        </header>
+
+        <!-- 统计 -->
+        <div class="stats">
+            <span class="count">共 <strong>14</strong> 册</span>
+            <span class="hint"><i>点击下载 PDF</i></span>
+        </div>
+
+        <!-- 卡片网格 -->
+        <div class="grid">
+            <!-- 1. 西方现代思想讲义 -->
+            <div class="card">
+                <span class="badge">#01</span>
+                <div class="title"><span class="bookmark">「</span>西方现代思想讲义<span class="bookmark">」</span></div>
+                <div class="author">刘擎</div>
+                <div class="publisher">新星出版社</div>
+                <div class="download-wrap">
+                    <a class="btn-download" href="./语文书单/西方现代思想讲义.pdf" download="西方现代思想讲义.pdf">
+                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/><path d="M12 15l-4-4h2.5V8h3v3H16l-4 4z"/><path d="M8 17h8v1.5H8V17z"/></svg>
+                        下载 PDF
+                    </a>
+                </div>
+            </div>
+
+            <!-- 2. 人类的群星闪耀时 -->
+            <div class="card">
+                <span class="badge">#02</span>
+                <div class="title"><span class="bookmark">「</span>人类的群星闪耀时<span class="bookmark">」</span></div>
+                <div class="author">【奥】茨威格</div>
+                <div class="publisher">生活·读书·新知三联书店</div>
+                <div class="download-wrap">
+                    <a class="btn-download" href="./语文书单/人类的群星闪耀时.pdf" download="人类的群星闪耀时.pdf">
+                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/><path d="M12 15l-4-4h2.5V8h3v3H16l-4 4z"/><path d="M8 17h8v1.5H8V17z"/></svg>
+                        下载 PDF
+                    </a>
+                </div>
+            </div>
+
+            <!-- 3. 宽容 -->
+            <div class="card">
+                <span class="badge">#03</span>
+                <div class="title"><span class="bookmark">「</span>宽容<span class="bookmark">」</span></div>
+                <div class="author">【美】房龙</div>
+                <div class="publisher">生活·读书·新知三联书店 · 胡允桓译</div>
+                <div class="download-wrap">
+                    <a class="btn-download" href="./语文书单/宽容.pdf" download="宽容.pdf">
+                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/><path d="M12 15l-4-4h2.5V8h3v3H16l-4 4z"/><path d="M8 17h8v1.5H8V17z"/></svg>
+                        下载 PDF
+                    </a>
+                </div>
+            </div>
+
+            <!-- 4. 极简世界史 -->
+            <div class="card">
+                <span class="badge">#04</span>
+                <div class="title"><span class="bookmark">「</span>极简世界史<span class="bookmark">」</span></div>
+                <div class="author">【英】乔治·威尔斯</div>
+                <div class="publisher">现代出版社 · 罗建华译</div>
+                <div class="download-wrap">
+                    <a class="btn-download" href="./语文书单/极简世界史.pdf" download="极简世界史.pdf">
+                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/><path d="M12 15l-4-4h2.5V8h3v3H16l-4 4z"/><path d="M8 17h8v1.5H8V17z"/></svg>
+                        下载 PDF
+                    </a>
+                </div>
+            </div>
+
+            <!-- 5. 希腊神话和传说 -->
+            <div class="card">
+                <span class="badge">#05</span>
+                <div class="title"><span class="bookmark">「</span>希腊神话和传说<span class="bookmark">」</span></div>
+                <div class="author">【德】斯瓦布 · 楚图南译</div>
+                <div class="publisher">人民文学出版社</div>
+                <div class="download-wrap">
+                    <a class="btn-download" href="./语文书单/希腊神话和传说.pdf" download="希腊神话和传说.pdf">
+                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/><path d="M12 15l-4-4h2.5V8h3v3H16l-4 4z"/><path d="M8 17h8v1.5H8V17z"/></svg>
+                        下载 PDF
+                    </a>
+                </div>
+            </div>
+
+            <!-- 6. 动物农场 -->
+            <div class="card">
+                <span class="badge">#06</span>
+                <div class="title"><span class="bookmark">「</span>动物农场<span class="bookmark">」</span></div>
+                <div class="author">【英】乔治·奥威尔 · 傅惟慈译</div>
+                <div class="publisher">北京十月文艺出版社</div>
+                <div class="download-wrap">
+                    <a class="btn-download" href="./语文书单/动物农场.pdf" download="动物农场.pdf">
+                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/><path d="M12 15l-4-4h2.5V8h3v3H16l-4 4z"/><path d="M8 17h8v1.5H8V17z"/></svg>
+                        下载 PDF
+                    </a>
+                </div>
+            </div>
+
+            <!-- 7. 巨流河 -->
+            <div class="card">
+                <span class="badge">#07</span>
+                <div class="title"><span class="bookmark">「</span>巨流河<span class="bookmark">」</span></div>
+                <div class="author">齐邦媛</div>
+                <div class="publisher">生活·读书·新知三联书店</div>
+                <div class="download-wrap">
+                    <a class="btn-download" href="./语文书单/巨流河.pdf" download="巨流河.pdf">
+                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/><path d="M12 15l-4-4h2.5V8h3v3H16l-4 4z"/><path d="M8 17h8v1.5H8V17z"/></svg>
+                        下载 PDF
+                    </a>
+                </div>
+            </div>
+
+            <!-- 8. 谈美书简 -->
+            <div class="card">
+                <span class="badge">#08</span>
+                <div class="title"><span class="bookmark">「</span>谈美书简<span class="bookmark">」</span></div>
+                <div class="author">朱光潜</div>
+                <div class="publisher">人民文学出版社</div>
+                <div class="download-wrap">
+                    <a class="btn-download" href="./语文书单/谈美书简.pdf" download="谈美书简.pdf">
+                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/><path d="M12 15l-4-4h2.5V8h3v3H16l-4 4z"/><path d="M8 17h8v1.5H8V17z"/></svg>
+                        下载 PDF
+                    </a>
+                </div>
+            </div>
+
+            <!-- 9. 美的历程 -->
+            <div class="card">
+                <span class="badge">#09</span>
+                <div class="title"><span class="bookmark">「</span>美的历程<span class="bookmark">」</span></div>
+                <div class="author">李泽厚</div>
+                <div class="publisher">生活·读书·新知三联书店</div>
+                <div class="download-wrap">
+                    <a class="btn-download" href="./语文书单/美的历程.pdf" download="美的历程.pdf">
+                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/><path d="M12 15l-4-4h2.5V8h3v3H16l-4 4z"/><path d="M8 17h8v1.5H8V17z"/></svg>
+                        下载 PDF
+                    </a>
+                </div>
+            </div>
+
+            <!-- 10. 先生 -->
+            <div class="card">
+                <span class="badge">#10</span>
+                <div class="title"><span class="bookmark">「</span>先生<span class="bookmark">」</span></div>
+                <div class="author">《先生》编写组</div>
+                <div class="publisher">中信出版社</div>
+                <div class="download-wrap">
+                    <a class="btn-download" href="./语文书单/先生.pdf" download="先生.pdf">
+                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/><path d="M12 15l-4-4h2.5V8h3v3H16l-4 4z"/><path d="M8 17h8v1.5H8V17z"/></svg>
+                        下载 PDF
+                    </a>
+                </div>
+            </div>
+
+            <!-- 11. 寂寞圣哲 -->
+            <div class="card">
+                <span class="badge">#11</span>
+                <div class="title"><span class="bookmark">「</span>寂寞圣哲<span class="bookmark">」</span></div>
+                <div class="author">鲍鹏山</div>
+                <div class="publisher">东方出版中心</div>
+                <div class="download-wrap">
+                    <a class="btn-download" href="./语文书单/寂寞圣哲.pdf" download="寂寞圣哲.pdf">
+                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/><path d="M12 15l-4-4h2.5V8h3v3H16l-4 4z"/><path d="M8 17h8v1.5H8V17z"/></svg>
+                        下载 PDF
+                    </a>
+                </div>
+            </div>
+
+            <!-- 12. 古文观止（中学生版，含译文） -->
+            <div class="card">
+                <span class="badge">#12</span>
+                <div class="title"><span class="bookmark">「</span>古文观止（中学生版，含译文）<span class="bookmark">」</span></div>
+                <div class="author">吴楚材，吴调侯 编选</div>
+                <div class="publisher">中华书局</div>
+                <div class="download-wrap">
+                    <a class="btn-download" href="./语文书单/古文观止（中学生版，含译文）.pdf" download="古文观止（中学生版，含译文）.pdf">
+                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/><path d="M12 15l-4-4h2.5V8h3v3H16l-4 4z"/><path d="M8 17h8v1.5H8V17z"/></svg>
+                        下载 PDF
+                    </a>
+                </div>
+            </div>
+
+            <!-- 13. 世说新语 -->
+            <div class="card">
+                <span class="badge">#13</span>
+                <div class="title"><span class="bookmark">「</span>世说新语<span class="bookmark">」</span></div>
+                <div class="author">【南朝宋】刘义庆</div>
+                <div class="publisher">中华书局</div>
+                <div class="download-wrap">
+                    <a class="btn-download" href="./语文书单/世说新语.pdf" download="世说新语.pdf">
+                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/><path d="M12 15l-4-4h2.5V8h3v3H16l-4 4z"/><path d="M8 17h8v1.5H8V17z"/></svg>
+                        下载 PDF
+                    </a>
+                </div>
+            </div>
+
+            <!-- 14. 唐宋词十七讲 -->
+            <div class="card">
+                <span class="badge">#14</span>
+                <div class="title"><span class="bookmark">「</span>唐宋词十七讲<span class="bookmark">」</span></div>
+                <div class="author">叶嘉莹</div>
+                <div class="publisher">北京大学出版社</div>
+                <div class="download-wrap">
+                    <a class="btn-download" href="./语文书单/唐宋词十七讲.pdf" download="唐宋词十七讲.pdf">
+                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/><path d="M12 15l-4-4h2.5V8h3v3H16l-4 4z"/><path d="M8 17h8v1.5H8V17z"/></svg>
+                        下载 PDF
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
