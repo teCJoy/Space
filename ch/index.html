@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>书单 · 下载</title>
     <style>
-        /* ── 全局 ── */
         * {
             margin: 0;
             padding: 0;
@@ -14,452 +13,766 @@
 
         body {
             font-family: "Georgia", "PingFang SC", "Microsoft YaHei", serif;
-            background: linear-gradient(145deg, #f9f5f0 0%, #eee8e0 100%);
-            min-height: 100vh;
-            padding: 40px 20px;
+            background: #f0ebe5;
+            height: 100vh;
+            overflow: hidden;
             display: flex;
+            align-items: center;
             justify-content: center;
-            align-items: flex-start;
+            padding: 24px;
         }
 
         .container {
-            max-width: 1260px;
             width: 100%;
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(4px);
-            border-radius: 40px;
-            padding: 40px 36px 32px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.06), 0 6px 18px rgba(0, 0, 0, 0.02);
+            height: 100%;
+            max-width: 1400px;
+            max-height: 900px;
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border-radius: 48px;
+            padding: 32px 28px 24px;
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.08), 0 10px 30px rgba(0, 0, 0, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.5);
-        }
-
-        /* ── 头部 ── */
-        .header {
-            display: flex;
-            align-items: baseline;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 12px;
-            padding-bottom: 18px;
-            border-bottom: 2px dashed #dcd3c8;
-            margin-bottom: 32px;
-        }
-
-        .header h1 {
-            font-size: 28px;
-            font-weight: 600;
-            letter-spacing: 2px;
-            color: #3a2c21;
-            font-family: "Georgia", serif;
-        }
-        .header h1 span {
-            font-weight: 300;
-            color: #b0957a;
-            font-size: 20px;
-            margin-left: 10px;
-        }
-
-        .header .stats {
-            font-size: 15px;
-            color: #6a5c4c;
-            background: rgba(255, 242, 232, 0.7);
-            padding: 6px 20px;
-            border-radius: 40px;
-            border: 1px solid #e6d9cd;
-        }
-        .header .stats strong {
-            color: #3a2c21;
-            font-weight: 700;
-        }
-
-        /* ── 网格 ── */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 28px 22px;
-        }
-
-        /* ── 卡片（彩色竖条 + 柔和底色） ── */
-        .card {
-            background: #ffffff;
-            border-radius: 18px;
-            padding: 22px 20px 18px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.03);
-            border: 1px solid #ece3d9;
-            transition: all 0.25s ease;
             display: flex;
             flex-direction: column;
-            position: relative;
-            overflow: hidden;
-        }
-        .card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.06);
-            border-color: #d6c8ba;
         }
 
-        /* 左侧彩色竖条 */
+        .scroll-wrapper {
+            flex: 1;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            padding: 8px 0 12px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            scroll-behavior: smooth;
+        }
+
+        .scroll-wrapper::-webkit-scrollbar {
+            height: 6px;
+        }
+        .scroll-wrapper::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.04);
+            border-radius: 10px;
+        }
+        .scroll-wrapper::-webkit-scrollbar-thumb {
+            background: #d6c8ba;
+            border-radius: 10px;
+        }
+
+        .card {
+            flex: 0 0 76%;
+            height: 100%;
+            min-height: 360px;
+            background: #ffffff;
+            border-radius: 28px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.04);
+            border: 1px solid #ece3d9;
+            scroll-snap-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            padding: 40px 44px 32px;
+        }
+
+        .card:hover {
+            transform: scale(1.01);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.06);
+        }
+
         .card::before {
             content: '';
             position: absolute;
             left: 0;
             top: 0;
-            width: 6px;
+            width: 8px;
             height: 100%;
-            border-radius: 18px 0 0 18px;
-            transition: width 0.2s;
+            border-radius: 28px 0 0 28px;
+            transition: width 0.3s;
+            z-index: 1;
         }
         .card:hover::before {
-            width: 8px;
+            width: 10px;
         }
 
-        /* 不同颜色通过 nth-child 循环 */
-        .card:nth-child(6n+1)::before { background: #f4b8b8; }
-        .card:nth-child(6n+2)::before { background: #f5d0a9; }
-        .card:nth-child(6n+3)::before { background: #d4e2b3; }
-        .card:nth-child(6n+4)::before { background: #b8d4e3; }
-        .card:nth-child(6n+5)::before { background: #d4b8e3; }
-        .card:nth-child(6n+6)::before { background: #f0c8d8; }
+        .card-color-1::before { background: #f4b8b8; }
+        .card-color-2::before { background: #f5d0a9; }
+        .card-color-3::before { background: #d4e2b3; }
+        .card-color-4::before { background: #b8d4e3; }
+        .card-color-5::before { background: #d4b8e3; }
+        .card-color-0::before { background: #f0c8d8; }
 
-        /* 编号徽章 — 彩色小圆点 */
-        .card .badge {
-            display: inline-block;
-            font-size: 12px;
-            font-weight: 500;
-            color: #6a5c4c;
-            background: #f3ede8;
-            padding: 0 14px;
-            border-radius: 20px;
-            line-height: 26px;
-            align-self: flex-start;
-            margin-bottom: 12px;
-            letter-spacing: 0.5px;
-            border: 1px solid #e6dbd0;
+        /* ── 第一张卡片 ── */
+        .card-hero {
+            flex: 0 0 88%;
+            padding: 0;
+            border: none;
+            background: transparent;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.07);
+        }
+        .card-hero:hover {
+            transform: scale(1.008);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.09);
+        }
+        .card-hero::before {
+            display: none;
         }
 
-        .card .title {
-            font-size: 19px;
+        .card-hero .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 28px;
+        }
+
+        .card-hero .hero-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60%;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.55) 0%, transparent 100%);
+            border-radius: 0 0 28px 28px;
+            pointer-events: none;
+        }
+
+        .card-hero .hero-text {
+            position: absolute;
+            bottom: 50px;
+            left: 52px;
+            z-index: 2;
+            text-align: left;
+            pointer-events: none;
+        }
+
+        .card-hero .line1,
+        .card-hero .line2,
+        .card-hero .line3 {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+            text-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+        }
+        .card-hero .line1 {
+            font-size: 80px;
             font-weight: 700;
-            line-height: 1.4;
-            color: #2b2a29;
-            margin-bottom: 4px;
-            font-family: "Georgia", serif;
+            color: #ffffff;
+            letter-spacing: 8px;
+            transition-delay: 0s;
         }
-        .card .title .quote {
-            color: #b0957a;
+        .card-hero .line2 {
+            font-size: 44px;
+            font-weight: 500;
+            color: #f5e8d8;
+            letter-spacing: 4px;
+            margin-top: 2px;
+            transition-delay: 0.3s;
+        }
+        .card-hero .line3 {
+            font-size: 20px;
             font-weight: 300;
+            color: #d4c5b5;
+            letter-spacing: 2px;
+            margin-top: 12px;
+            transition-delay: 0.6s;
         }
 
-        .card .author {
-            font-size: 15px;
-            color: #5a4d3d;
-            margin-bottom: 2px;
+        .card-hero.visible .line1,
+        .card-hero.visible .line2,
+        .card-hero.visible .line3 {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ── 普通卡片内容 ── */
+        .card .book-title {
+            font-size: 42px;
+            font-weight: 700;
+            color: #2b2a29;
+            font-family: "Georgia", serif;
+            letter-spacing: 1px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+            transition-delay: 0s;
+        }
+
+        .card .book-author {
+            font-size: 18px;
             font-weight: 400;
-        }
-        .card .publisher {
-            font-size: 13px;
-            color: #8f7e6a;
+            color: #8a7a6a;
+            letter-spacing: 1px;
+            margin-top: 2px;
             margin-bottom: 18px;
-            line-height: 1.5;
+            text-align: right;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+            transition-delay: 0.1s;
         }
 
-        .card .download-wrap {
+        .card .quote-wrapper {
             margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            width: 100%;
         }
 
-        .card .btn-download {
+        .card .quote-line {
+            display: block;
+            text-align: right;
+            font-size: 26px;
+            color: #4a3d31;
+            font-style: italic;
+            line-height: 1.8;
+            font-family: "Georgia", serif;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .card .quote-line:first-child::before {
+            content: "“";
+            color: #b0957a;
+            font-size: 54px;
+            font-style: normal;
+            display: inline-block;
+            margin-right: 4px;
+            vertical-align: middle;
+        }
+        .card .quote-line:not(:first-child)::before {
+            content: "";
+            margin-right: 0;
+        }
+
+        .card .card-footer {
+            margin-top: 18px;
+            display: flex;
+            justify-content: flex-end;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+            position: relative;
+            z-index: 10;
+        }
+
+        .card.visible .book-title,
+        .card.visible .book-author,
+        .card.visible .quote-line,
+        .card.visible .card-footer {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ══════════════════════════════════════════
+           重新设计的下载按钮（仅样式美化）
+           ══════════════════════════════════════════ */
+        .card .download-link {
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            gap: 8px;
-            background: #2c3e50;
-            color: #fff;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 40px;
-            font-size: 14px;
-            font-weight: 500;
-            text-decoration: none;
-            transition: background 0.2s, transform 0.1s;
-            letter-spacing: 0.4px;
-            width: 100%;
+            gap: 6px;
+            padding: 10px 22px;
+            font-size: 20px;
+            font-weight: 600;
             font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            letter-spacing: 0.6px;
+            text-decoration: none;
+            color: #fff;
+            background: linear-gradient(135deg, #b3a18b 0%, #8f7b63 100%);
+            border: none;
+            border-radius: 40px;
+            box-shadow: 0 6px 18px rgba(110, 90, 70, 0.25),
+                        0 2px 6px rgba(0,0,0,0.08),
+                        inset 0 1px 0 rgba(255,255,255,0.25);
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            user-select: none;
+            -webkit-user-select: none;
+            position: relative;
+            z-index: 20;
         }
-        .card .btn-download:hover {
-            background: #1e2f3f;
-            transform: scale(1.01);
+
+        .card .download-link::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 40px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 70%);
+            pointer-events: none;
         }
-        .card .btn-download:active {
-            transform: scale(0.97);
+
+        .card .download-link:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 12px 28px rgba(110, 90, 70, 0.35),
+                        0 3px 10px rgba(0,0,0,0.1),
+                        inset 0 1px 0 rgba(255,255,255,0.35);
+            background: linear-gradient(135deg, #c2b09a 0%, #9e8b73 100%);
         }
-        .card .btn-download svg {
-            width: 16px;
-            height: 16px;
-            fill: currentColor;
+
+        .card .download-link:active {
+            transform: translateY(1px) scale(0.98);
+            box-shadow: 0 4px 12px rgba(110, 90, 70, 0.3),
+                        inset 0 1px 2px rgba(0,0,0,0.1);
+            transition-duration: 0.1s;
+        }
+
+        /* 无链接禁用态 */
+        .card .download-link.disabled {
+            color: #a3917f;
+            background: #e7dfd5;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            cursor: not-allowed;
+            pointer-events: none;
+            transform: none;
+        }
+        .card .download-link.disabled::after {
+            display: none;
+        }
+        .card .download-link.disabled:hover {
+            transform: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+
+        /* ── 底部导航栏 ── */
+        .bottom-nav {
             flex-shrink: 0;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding-top: 12px;
+            margin-top: 4px;
+            border-top: 1px solid rgba(220, 211, 200, 0.4);
         }
 
-        /* ── 底部小装饰 ── */
-        .footer-note {
-            margin-top: 36px;
-            text-align: center;
-            font-size: 13px;
-            color: #b8a99a;
-            letter-spacing: 1px;
-            border-top: 1px solid #e8ddd2;
-            padding-top: 22px;
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
         }
 
-        /* ── 响应式 ── */
-        @media (max-width: 768px) {
-            .container {
-                padding: 24px 16px 20px;
-                border-radius: 28px;
-            }
-            .header h1 {
-                font-size: 22px;
-            }
-            .header h1 span {
-                font-size: 16px;
-                display: block;
-                margin-left: 0;
-            }
-            .grid {
-                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-                gap: 18px;
-            }
-            .card {
-                padding: 18px 16px 16px;
-            }
-            .card .title {
-                font-size: 17px;
-            }
-            .header .stats {
-                font-size: 13px;
-                padding: 4px 14px;
-            }
+        .nav-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.78);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+            color: #1a1a1a;
+            user-select: none;
         }
 
-        @media (max-width: 480px) {
-            .grid {
-                grid-template-columns: 1fr;
-            }
-            .card .btn-download {
-                padding: 10px 16px;
-                font-size: 15px;
-            }
+        .nav-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+            transition: transform 0.2s ease;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.95);
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .nav-btn:active {
+            transform: scale(0.88);
+            transition-duration: 0.08s;
+        }
+
+        .nav-btn.disabled {
+            opacity: 0.2;
+            cursor: not-allowed;
+            pointer-events: none;
+            transform: scale(0.92);
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 1024px) {
+            .card-hero { flex: 0 0 84%; }
+            .card-hero .line1 { font-size: 64px; }
+            .card-hero .line2 { font-size: 36px; }
+            .card-hero .line3 { font-size: 18px; }
+            .card-hero .hero-text { bottom: 44px; left: 40px; }
+            .card .book-title { font-size: 36px; }
+            .card .quote-line { font-size: 22px; }
+            .nav-btn { width: 40px; height: 40px; }
+            .nav-btn svg { width: 18px; height: 18px; }
+            .card .download-link { font-size: 18px; padding: 8px 18px; }
+        }
+
+        @media (max-width: 900px) {
+            .card { flex: 0 0 82%; padding: 32px 30px 24px; }
+            .card .book-title { font-size: 30px; }
+            .card .quote-line { font-size: 19px; }
+            .card .book-author { font-size: 16px; }
+            .card-hero { flex: 0 0 80%; }
+            .card-hero .line1 { font-size: 52px; letter-spacing: 4px; }
+            .card-hero .line2 { font-size: 30px; letter-spacing: 2px; }
+            .card-hero .line3 { font-size: 16px; }
+            .card-hero .hero-text { bottom: 36px; left: 32px; }
+            .nav-btn { width: 38px; height: 38px; }
+            .nav-btn svg { width: 17px; height: 17px; }
+            .bottom-nav { padding-top: 10px; }
+            .card .download-link { font-size: 17px; padding: 7px 16px; }
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 12px; }
+            .container { padding: 18px 14px 16px; border-radius: 28px; max-height: none; }
+            .card { flex: 0 0 88%; padding: 24px 20px 20px; min-height: 300px; border-radius: 20px; }
+            .card .book-title { font-size: 24px; }
+            .card .quote-line { font-size: 17px; }
+            .card .book-author { font-size: 14px; }
+            .card-hero { flex: 0 0 86%; border-radius: 20px; }
+            .card-hero .hero-bg { border-radius: 20px; }
+            .card-hero .hero-overlay { border-radius: 0 0 20px 20px; }
+            .card-hero .line1 { font-size: 40px; letter-spacing: 3px; }
+            .card-hero .line2 { font-size: 24px; }
+            .card-hero .line3 { font-size: 14px; }
+            .card-hero .hero-text { bottom: 28px; left: 24px; }
+            .card .download-link { font-size: 16px; padding: 6px 14px; }
+            .nav-btn { width: 36px; height: 36px; }
+            .nav-btn svg { width: 16px; height: 16px; }
+            .bottom-nav { padding-top: 8px; }
+        }
+
+        @media (max-width: 400px) {
+            .card { flex: 0 0 92%; padding: 18px 14px 16px; }
+            .card .book-title { font-size: 20px; }
+            .card .quote-line { font-size: 15px; }
+            .card .book-author { font-size: 13px; }
+            .card-hero { flex: 0 0 90%; }
+            .card-hero .line1 { font-size: 32px; }
+            .card-hero .line2 { font-size: 20px; }
+            .card-hero .line3 { font-size: 12px; }
+            .card-hero .hero-text { bottom: 20px; left: 18px; }
+            .card .download-link { font-size: 15px; padding: 5px 12px; }
+            .nav-btn { width: 32px; height: 32px; }
+            .nav-btn svg { width: 14px; height: 14px; }
+            .bottom-nav { padding-top: 6px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- 头部 -->
-        <header class="header">
-            <h1>📖 书单 <span>· 下载</span></h1>
-            <div class="stats">共 <strong>14</strong> 册</div>
-        </header>
+        <div class="scroll-wrapper" id="scrollWrapper"></div>
 
-        <!-- 卡片网格 -->
-        <div class="grid">
-            <!-- 1. 西方现代思想讲义 -->
-            <div class="card">
-                <span class="badge">#01</span>
-                <div class="title"><span class="quote">「</span>西方现代思想讲义<span class="quote">」</span></div>
-                <div class="author">刘擎</div>
-                <div class="publisher">新星出版社</div>
-                <div class="download-wrap">
-                    <a class="btn-download" href="./语文书单/西方现代思想讲义.pdf" download="西方现代思想讲义.pdf">
-                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/><path d="M12 15l-4-4h2.5V8h3v3H16l-4 4z"/><path d="M8 17h8v1.5H8V17z"/></svg>
-                        下载 PDF
-                    </a>
-                </div>
-            </div>
-
-            <!-- 2. 人类的群星闪耀时 -->
-            <div class="card">
-                <span class="badge">#02</span>
-                <div class="title"><span class="quote">「</span>人类的群星闪耀时<span class="quote">」</span></div>
-                <div class="author">【奥】茨威格</div>
-                <div class="publisher">生活·读书·新知三联书店</div>
-                <div class="download-wrap">
-                    <a class="btn-download" href="./语文书单/人类的群星闪耀时.pdf" download="人类的群星闪耀时.pdf">
-                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/><path d="M12 15l-4-4h2.5V8h3v3H16l-4 4z"/><path d="M8 17h8v1.5H8V17z"/></svg>
-                        下载 PDF
-                    </a>
-                </div>
-            </div>
-
-            <!-- 3. 宽容 -->
-            <div class="card">
-                <span class="badge">#03</span>
-                <div class="title"><span class="quote">「</span>宽容<span class="quote">」</span></div>
-                <div class="author">【美】房龙</div>
-                <div class="publisher">生活·读书·新知三联书店 · 胡允桓译</div>
-                <div class="download-wrap">
-                    <a class="btn-download" href="./语文书单/宽容.pdf" download="宽容.pdf">
-                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/><path d="M12 15l-4-4h2.5V8h3v3H16l-4 4z"/><path d="M8 17h8v1.5H8V17z"/></svg>
-                        下载 PDF
-                    </a>
-                </div>
-            </div>
-
-            <!-- 4. 极简世界史 -->
-            <div class="card">
-                <span class="badge">#04</span>
-                <div class="title"><span class="quote">「</span>极简世界史<span class="quote">」</span></div>
-                <div class="author">【英】乔治·威尔斯</div>
-                <div class="publisher">现代出版社 · 罗建华译</div>
-                <div class="download-wrap">
-                    <a class="btn-download" href="./语文书单/极简世界史.pdf" download="极简世界史.pdf">
-                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/><path d="M12 15l-4-4h2.5V8h3v3H16l-4 4z"/><path d="M8 17h8v1.5H8V17z"/></svg>
-                        下载 PDF
-                    </a>
-                </div>
-            </div>
-
-            <!-- 5. 希腊神话和传说 -->
-            <div class="card">
-                <span class="badge">#05</span>
-                <div class="title"><span class="quote">「</span>希腊神话和传说<span class="quote">」</span></div>
-                <div class="author">【德】斯瓦布 · 楚图南译</div>
-                <div class="publisher">人民文学出版社</div>
-                <div class="download-wrap">
-                    <a class="btn-download" href="./语文书单/希腊神话和传说.pdf" download="希腊神话和传说.pdf">
-                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/><path d="M12 15l-4-4h2.5V8h3v3H16l-4 4z"/><path d="M8 17h8v1.5H8V17z"/></svg>
-                        下载 PDF
-                    </a>
-                </div>
-            </div>
-
-            <!-- 6. 动物农场 -->
-            <div class="card">
-                <span class="badge">#06</span>
-                <div class="title"><span class="quote">「</span>动物农场<span class="quote">」</span></div>
-                <div class="author">【英】乔治·奥威尔 · 傅惟慈译</div>
-                <div class="publisher">北京十月文艺出版社</div>
-                <div class="download-wrap">
-                    <a class="btn-download" href="./语文书单/动物农场.pdf" download="动物农场.pdf">
-                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/><path d="M12 15l-4-4h2.5V8h3v3H16l-4 4z"/><path d="M8 17h8v1.5H8V17z"/></svg>
-                        下载 PDF
-                    </a>
-                </div>
-            </div>
-
-            <!-- 7. 巨流河 -->
-            <div class="card">
-                <span class="badge">#07</span>
-                <div class="title"><span class="quote">「</span>巨流河<span class="quote">」</span></div>
-                <div class="author">齐邦媛</div>
-                <div class="publisher">生活·读书·新知三联书店</div>
-                <div class="download-wrap">
-                    <a class="btn-download" href="./语文书单/巨流河.pdf" download="巨流河.pdf">
-                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/><path d="M12 15l-4-4h2.5V8h3v3H16l-4 4z"/><path d="M8 17h8v1.5H8V17z"/></svg>
-                        下载 PDF
-                    </a>
-                </div>
-            </div>
-
-            <!-- 8. 谈美书简 -->
-            <div class="card">
-                <span class="badge">#08</span>
-                <div class="title"><span class="quote">「</span>谈美书简<span class="quote">」</span></div>
-                <div class="author">朱光潜</div>
-                <div class="publisher">人民文学出版社</div>
-                <div class="download-wrap">
-                    <a class="btn-download" href="./语文书单/谈美书简.pdf" download="谈美书简.pdf">
-                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/><path d="M12 15l-4-4h2.5V8h3v3H16l-4 4z"/><path d="M8 17h8v1.5H8V17z"/></svg>
-                        下载 PDF
-                    </a>
-                </div>
-            </div>
-
-            <!-- 9. 美的历程 -->
-            <div class="card">
-                <span class="badge">#09</span>
-                <div class="title"><span class="quote">「</span>美的历程<span class="quote">」</span></div>
-                <div class="author">李泽厚</div>
-                <div class="publisher">生活·读书·新知三联书店</div>
-                <div class="download-wrap">
-                    <a class="btn-download" href="./语文书单/美的历程.pdf" download="美的历程.pdf">
-                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/><path d="M12 15l-4-4h2.5V8h3v3H16l-4 4z"/><path d="M8 17h8v1.5H8V17z"/></svg>
-                        下载 PDF
-                    </a>
-                </div>
-            </div>
-
-            <!-- 10. 先生 -->
-            <div class="card">
-                <span class="badge">#10</span>
-                <div class="title"><span class="quote">「</span>先生<span class="quote">」</span></div>
-                <div class="author">《先生》编写组</div>
-                <div class="publisher">中信出版社</div>
-                <div class="download-wrap">
-                    <a class="btn-download" href="./语文书单/先生.pdf" download="先生.pdf">
-                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/><path d="M12 15l-4-4h2.5V8h3v3H16l-4 4z"/><path d="M8 17h8v1.5H8V17z"/></svg>
-                        下载 PDF
-                    </a>
-                </div>
-            </div>
-
-            <!-- 11. 寂寞圣哲 -->
-            <div class="card">
-                <span class="badge">#11</span>
-                <div class="title"><span class="quote">「</span>寂寞圣哲<span class="quote">」</span></div>
-                <div class="author">鲍鹏山</div>
-                <div class="publisher">东方出版中心</div>
-                <div class="download-wrap">
-                    <a class="btn-download" href="./语文书单/寂寞圣哲.pdf" download="寂寞圣哲.pdf">
-                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/><path d="M12 15l-4-4h2.5V8h3v3H16l-4 4z"/><path d="M8 17h8v1.5H8V17z"/></svg>
-                        下载 PDF
-                    </a>
-                </div>
-            </div>
-
-            <!-- 12. 古文观止（中学生版，含译文） -->
-            <div class="card">
-                <span class="badge">#12</span>
-                <div class="title"><span class="quote">「</span>古文观止（中学生版，含译文）<span class="quote">」</span></div>
-                <div class="author">吴楚材，吴调侯 编选</div>
-                <div class="publisher">中华书局</div>
-                <div class="download-wrap">
-                    <a class="btn-download" href="./语文书单/古文观止（中学生版，含译文）.pdf" download="古文观止（中学生版，含译文）.pdf">
-                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/><path d="M12 15l-4-4h2.5V8h3v3H16l-4 4z"/><path d="M8 17h8v1.5H8V17z"/></svg>
-                        下载 PDF
-                    </a>
-                </div>
-            </div>
-
-            <!-- 13. 世说新语 -->
-            <div class="card">
-                <span class="badge">#13</span>
-                <div class="title"><span class="quote">「</span>世说新语<span class="quote">」</span></div>
-                <div class="author">【南朝宋】刘义庆</div>
-                <div class="publisher">中华书局</div>
-                <div class="download-wrap">
-                    <a class="btn-download" href="./语文书单/世说新语.pdf" download="世说新语.pdf">
-                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/><path d="M12 15l-4-4h2.5V8h3v3H16l-4 4z"/><path d="M8 17h8v1.5H8V17z"/></svg>
-                        下载 PDF
-                    </a>
-                </div>
-            </div>
-
-            <!-- 14. 唐宋词十七讲 -->
-            <div class="card">
-                <span class="badge">#14</span>
-                <div class="title"><span class="quote">「</span>唐宋词十七讲<span class="quote">」</span></div>
-                <div class="author">叶嘉莹</div>
-                <div class="publisher">北京大学出版社</div>
-                <div class="download-wrap">
-                    <a class="btn-download" href="./语文书单/唐宋词十七讲.pdf" download="唐宋词十七讲.pdf">
-                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/><path d="M12 15l-4-4h2.5V8h3v3H16l-4 4z"/><path d="M8 17h8v1.5H8V17z"/></svg>
-                        下载 PDF
-                    </a>
-                </div>
+        <div class="bottom-nav">
+            <div class="nav-buttons">
+                <button class="nav-btn disabled" id="prevBtn" aria-label="上一张">
+                    <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+                </button>
+                <button class="nav-btn" id="nextBtn" aria-label="下一张">
+                    <svg viewBox="0 0 24 24"><path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/></svg>
+                </button>
             </div>
         </div>
-
-        <!-- 底部点缀 -->
-        <div class="footer-note">— 点击卡片即可下载 —</div>
     </div>
+
+    <script>
+        const books = [{
+            title: '西方现代思想讲义',
+            author: '刘擎',
+            quote: [
+                '理性是激情的奴隶，',
+                '我们越是努力追求理性，',
+                '越要警惕理性本身变成新的枷锁。'
+            ],
+            pdf: ''
+        }, {
+            title: '人类的群星闪耀时',
+            author: '【奥】茨威格',
+            quote: [
+                '命运总是迎着强有力的人物走去，',
+                '在那些真正闪耀的瞬间，',
+                '一个人的意志足以撼动整个时代的边界。'
+            ],
+            pdf: 'https://wwbud.lanzoum.com/izogd3uwcdyf'
+        }, {
+            title: '宽容',
+            author: '【美】房龙',
+            quote: [
+                '宽容不是软弱，',
+                '而是尊重每一种信念存在的权利，',
+                '在差异中看见人性共通的光亮。'
+            ],
+            pdf: 'https://wwbud.lanzoum.com/if2AZ3uwce0h'
+        }, {
+            title: '极简世界史',
+            author: '【英】乔治·威尔斯',
+            quote: [
+                '历史是时光的见证，',
+                '每一页都写满了人类对生存、',
+                '权力与意义的永恒追问。'
+            ],
+            pdf: 'https://wwbud.lanzoum.com/iUJcl3uwccqb'
+        }, {
+            title: '希腊神话和传说',
+            author: '【德】斯瓦布',
+            quote: [
+                '神祇的恩怨即凡人的命运，',
+                '在奥林匹斯的阴影之下，',
+                '英雄的每一步都踏着宿命与自由的双重回声。'
+            ],
+            pdf: 'https://wwbud.lanzoum.com/iOhyz3uwcf7a'
+        }, {
+            title: '动物农场',
+            author: '【英】乔治·奥威尔',
+            quote: [
+                '所有动物一律平等，',
+                '但有些动物更平等——',
+                '这是对乌托邦最残酷的嘲讽，',
+                '也是对权力本质最清醒的揭示。'
+            ],
+            pdf: 'https://wwbud.lanzoum.com/iF7RR3uwce1i'
+        }, {
+            title: '巨流河',
+            author: '齐邦媛',
+            quote: [
+                '山河巨流，人间岁月，',
+                '一条大河承载的不只是水，',
+                '更是一代人的漂泊、',
+                '乡愁与不灭的记忆。'
+            ],
+            pdf: 'https://wwbud.lanzoum.com/iIN0y3uwcdqh'
+        }, {
+            title: '谈美书简',
+            author: '朱光潜',
+            quote: [
+                '美是心灵的愉悦，',
+                '是感官与精神的共鸣，',
+                '在平凡的事物中发现不平凡的光泽，',
+                '便是美学的全部奥秘。'
+            ],
+            pdf: 'https://wwbud.lanzoum.com/i7TS03uwcfbe'
+        }, {
+            title: '美的历程',
+            author: '李泽厚',
+            quote: [
+                '美是造型的完成，',
+                '是线条、色彩与材质在时间中沉淀为文明的印记，',
+                '每一件器物都是一段无声的诗。'
+            ],
+            pdf: 'https://wwbud.lanzoum.com/it3pa3uwcd2d'
+        }, {
+            title: '先生',
+            author: '《先生》编写组',
+            quote: [
+                '先生之风，山高水长。',
+                '他们用一生诠释了什么是风骨与学养，',
+                '在时代的洪流中守护着思想的火种。'
+            ],
+            pdf: ''
+        }, {
+            title: '寂寞圣哲',
+            author: '鲍鹏山',
+            quote: [
+                '孤独是思想的启明，',
+                '在寂寞中圣哲与天地对话，',
+                '那些不被理解的言辞，',
+                '终将成为后世仰望的星空。'
+            ],
+            pdf: 'https://wwbud.lanzoum.com/ifQ1h3uwccwh'
+        }, {
+            title: '古文观止',
+            author: '吴楚材、吴调侯',
+            quote: [
+                '文以载道，书以传情，',
+                '千年文章汇聚成一条河流，',
+                '读之可见古人之心，',
+                '亦可见今日之镜。'
+            ],
+            pdf: 'https://wwbud.lanzoum.com/i75sK3uwcgdc'
+        }, {
+            title: '世说新语',
+            author: '【南朝宋】刘义庆',
+            quote: [
+                '魏晋风度，名士风流，',
+                '那是中国历史上最肆意、最真率的一群人，',
+                '在乱世中活出了生命的旷达与韵致。'
+            ],
+            pdf: 'https://wwbud.lanzoum.com/ixdW53uwce7e'
+        }, {
+            title: '唐宋词十七讲',
+            author: '叶嘉莹',
+            quote: [
+                '词心婉转，意境深远，',
+                '长短句间藏着古人的悲欢与浮沉，',
+                '每一个韵脚都是心灵的一次呼吸。'
+            ],
+            pdf: 'https://wwbud.lanzoum.com/ioxHX3uwccni'
+        }];
+
+        const wrapper = document.getElementById('scrollWrapper');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        // ─── 创建卡片 ──────────────────────────────────────────
+        // 1. 第一张特殊卡片
+        const hero = document.createElement('div');
+        hero.className = 'card card-hero';
+        hero.innerHTML = `
+            <img class="hero-bg" src="https://i2.hdslb.com/bfs/new_dyn/2025f3cf3cbedc3fd6eaeb3cc2b7c7543493139379653168.png" alt="美琴粉丝" referrerpolicy="no-referrer" loading="lazy" />
+            <div class="hero-overlay"></div>
+            <div class="hero-text">
+                <div class="line1">原来</div>
+                <div class="line2">你也是美琴的粉丝</div>
+                <div class="line3">2026暑假书单 · 右滑以开始</div>
+            </div>
+        `;
+        wrapper.appendChild(hero);
+
+        // 2. 书籍卡片
+        books.forEach((book, index) => {
+            const card = document.createElement('div');
+            card.className = `card card-color-${index % 6}`;
+
+            const titleDiv = document.createElement('div');
+            titleDiv.className = 'book-title';
+            titleDiv.textContent = book.title;
+
+            const authorDiv = document.createElement('div');
+            authorDiv.className = 'book-author';
+            authorDiv.textContent = '— ' + book.author;
+
+            const quoteWrapper = document.createElement('div');
+            quoteWrapper.className = 'quote-wrapper';
+
+            book.quote.forEach((line, lineIndex) => {
+                const lineDiv = document.createElement('span');
+                lineDiv.className = 'quote-line';
+                lineDiv.textContent = line;
+                const delay = 0.2 + lineIndex * 0.2;
+                lineDiv.style.transitionDelay = delay + 's';
+                quoteWrapper.appendChild(lineDiv);
+            });
+
+            const footer = document.createElement('div');
+            footer.className = 'card-footer';
+            const lastDelay = 0.2 + (book.quote.length - 1) * 0.2;
+            footer.style.transitionDelay = (lastDelay + 0.25) + 's';
+
+            // ── 标准链接（不用任何 onclick，完全依赖 href）──
+            const link = document.createElement('a');
+            link.className = 'download-link';
+            const hasLink = book.pdf && book.pdf.trim() !== '';
+
+            if (hasLink) {
+                link.href = book.pdf;
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                link.textContent = '📥 下载 PDF';
+            } else {
+                link.classList.add('disabled');
+                link.textContent = '⛔ 暂无链接';
+            }
+
+            footer.appendChild(link);
+            card.appendChild(titleDiv);
+            card.appendChild(authorDiv);
+            card.appendChild(quoteWrapper);
+            card.appendChild(footer);
+            wrapper.appendChild(card);
+        });
+
+        // ─── Intersection Observer ──────────────────────────────
+        const cards = wrapper.querySelectorAll('.card');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                } else {
+                    entry.target.classList.remove('visible');
+                }
+            });
+        }, { threshold: 0.3 });
+        cards.forEach(card => observer.observe(card));
+
+        // ─── 导航功能 ──────────────────────────────────────────
+        function getCurrentCardIndex() {
+            const allCards = wrapper.querySelectorAll('.card');
+            const containerRect = wrapper.getBoundingClientRect();
+            const centerX = containerRect.left + containerRect.width / 2;
+            let closestIndex = 0;
+            let closestDist = Infinity;
+            allCards.forEach((card, index) => {
+                const rect = card.getBoundingClientRect();
+                const cardCenter = rect.left + rect.width / 2;
+                const dist = Math.abs(cardCenter - centerX);
+                if (dist < closestDist) {
+                    closestDist = dist;
+                    closestIndex = index;
+                }
+            });
+            return closestIndex;
+        }
+
+        function scrollToCard(index) {
+            const allCards = wrapper.querySelectorAll('.card');
+            if (index < 0 || index >= allCards.length) return;
+            const targetCard = allCards[index];
+            const wrapperRect = wrapper.getBoundingClientRect();
+            const cardRect = targetCard.getBoundingClientRect();
+            const offset = wrapper.scrollLeft + (cardRect.left - wrapperRect.left) - (wrapper.clientWidth - cardRect.width) / 2;
+            wrapper.scrollTo({
+                left: offset,
+                behavior: 'smooth'
+            });
+        }
+
+        function updateButtons() {
+            const total = wrapper.querySelectorAll('.card').length;
+            const current = getCurrentCardIndex();
+            prevBtn.classList.toggle('disabled', current <= 0);
+            nextBtn.classList.toggle('disabled', current >= total - 1);
+        }
+
+        prevBtn.addEventListener('click', () => {
+            const current = getCurrentCardIndex();
+            if (current > 0) scrollToCard(current - 1);
+        });
+
+        nextBtn.addEventListener('click', () => {
+            const total = wrapper.querySelectorAll('.card').length;
+            const current = getCurrentCardIndex();
+            if (current < total - 1) scrollToCard(current + 1);
+        });
+
+        let scrollTimeout = null;
+        wrapper.addEventListener('scroll', () => {
+            if (scrollTimeout) cancelAnimationFrame(scrollTimeout);
+            scrollTimeout = requestAnimationFrame(updateButtons);
+        });
+
+        let resizeTimeout = null;
+        window.addEventListener('resize', () => {
+            if (resizeTimeout) cancelAnimationFrame(resizeTimeout);
+            resizeTimeout = requestAnimationFrame(updateButtons);
+        });
+
+        setTimeout(updateButtons, 100);
+
+        wrapper.addEventListener('wheel', function(e) {
+            if (e.shiftKey) return;
+            e.preventDefault();
+            wrapper.scrollLeft += e.deltaY;
+        }, { passive: false });
+    </script>
 </body>
 </html>
