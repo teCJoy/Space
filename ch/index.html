@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>推荐书目 · 下载</title>
+    <title>书单 · 下载</title>
     <style>
-        /* ── 全局重置 ── */
+        /* ── 全局 ── */
         * {
             margin: 0;
             padding: 0;
@@ -13,9 +13,8 @@
         }
 
         body {
-            font-family: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
-            background: #f5f5f5;
-            color: #2c2c2c;
+            font-family: "Georgia", "PingFang SC", "Microsoft YaHei", serif;
+            background: linear-gradient(145deg, #f9f5f0 0%, #eee8e0 100%);
             min-height: 100vh;
             padding: 40px 20px;
             display: flex;
@@ -24,124 +23,144 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1260px;
             width: 100%;
-            background: #ffffff;
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-            padding: 36px 32px 28px;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(4px);
+            border-radius: 40px;
+            padding: 40px 36px 32px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.06), 0 6px 18px rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.5);
         }
 
         /* ── 头部 ── */
         .header {
-            padding-bottom: 20px;
-            border-bottom: 1px solid #eaeaea;
-            margin-bottom: 28px;
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding-bottom: 18px;
+            border-bottom: 2px dashed #dcd3c8;
+            margin-bottom: 32px;
         }
 
         .header h1 {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: 600;
-            letter-spacing: 1px;
-            color: #1e2a3a;
+            letter-spacing: 2px;
+            color: #3a2c21;
+            font-family: "Georgia", serif;
+        }
+        .header h1 span {
+            font-weight: 300;
+            color: #b0957a;
+            font-size: 20px;
+            margin-left: 10px;
         }
 
-        .header .sub {
+        .header .stats {
             font-size: 15px;
-            font-weight: 400;
-            color: #888;
-            margin-left: 12px;
+            color: #6a5c4c;
+            background: rgba(255, 242, 232, 0.7);
+            padding: 6px 20px;
+            border-radius: 40px;
+            border: 1px solid #e6d9cd;
+        }
+        .header .stats strong {
+            color: #3a2c21;
+            font-weight: 700;
         }
 
-        /* ── 统计条 ── */
-        .stats {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 28px;
-            font-size: 14px;
-            color: #666;
-        }
-        .stats .count {
-            background: #f0f0f0;
-            padding: 4px 16px;
-            border-radius: 20px;
-            color: #333;
-        }
-        .stats .count strong {
-            color: #1e2a3a;
-            font-weight: 600;
-        }
-        .stats .hint {
-            color: #999;
-        }
-        .stats .hint i {
-            font-style: normal;
-            background: #f0f0f0;
-            padding: 2px 12px;
-            border-radius: 12px;
-        }
-
-        /* ── 卡片网格 ── */
+        /* ── 网格 ── */
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 28px 22px;
         }
 
-        /* ── 卡片 ── */
+        /* ── 卡片（彩色竖条 + 柔和底色） ── */
         .card {
-            background: #fafafa;
-            border-radius: 12px;
-            padding: 20px 18px 18px;
-            border: 1px solid #eee;
-            transition: background 0.2s;
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 22px 20px 18px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.03);
+            border: 1px solid #ece3d9;
+            transition: all 0.25s ease;
             display: flex;
             flex-direction: column;
+            position: relative;
+            overflow: hidden;
         }
         .card:hover {
-            background: #f7f7f7;
-            border-color: #ddd;
+            transform: translateY(-4px);
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.06);
+            border-color: #d6c8ba;
         }
 
+        /* 左侧彩色竖条 */
+        .card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 6px;
+            height: 100%;
+            border-radius: 18px 0 0 18px;
+            transition: width 0.2s;
+        }
+        .card:hover::before {
+            width: 8px;
+        }
+
+        /* 不同颜色通过 nth-child 循环 */
+        .card:nth-child(6n+1)::before { background: #f4b8b8; }
+        .card:nth-child(6n+2)::before { background: #f5d0a9; }
+        .card:nth-child(6n+3)::before { background: #d4e2b3; }
+        .card:nth-child(6n+4)::before { background: #b8d4e3; }
+        .card:nth-child(6n+5)::before { background: #d4b8e3; }
+        .card:nth-child(6n+6)::before { background: #f0c8d8; }
+
+        /* 编号徽章 — 彩色小圆点 */
         .card .badge {
             display: inline-block;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 500;
-            color: #888;
-            background: #eaeaea;
-            padding: 0 10px;
-            border-radius: 12px;
-            line-height: 22px;
+            color: #6a5c4c;
+            background: #f3ede8;
+            padding: 0 14px;
+            border-radius: 20px;
+            line-height: 26px;
             align-self: flex-start;
-            margin-bottom: 10px;
-            letter-spacing: 0.3px;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+            border: 1px solid #e6dbd0;
         }
 
         .card .title {
-            font-size: 16px;
-            font-weight: 600;
-            line-height: 1.5;
-            color: #1e2a3a;
+            font-size: 19px;
+            font-weight: 700;
+            line-height: 1.4;
+            color: #2b2a29;
             margin-bottom: 4px;
+            font-family: "Georgia", serif;
         }
-        .card .title .bookmark {
-            color: #b8860b;
-            font-weight: 400;
+        .card .title .quote {
+            color: #b0957a;
+            font-weight: 300;
         }
 
         .card .author {
-            font-size: 14px;
-            color: #555;
+            font-size: 15px;
+            color: #5a4d3d;
             margin-bottom: 2px;
+            font-weight: 400;
         }
         .card .publisher {
             font-size: 13px;
-            color: #888;
-            margin-bottom: 16px;
-            line-height: 1.4;
+            color: #8f7e6a;
+            margin-bottom: 18px;
+            line-height: 1.5;
         }
 
         .card .download-wrap {
@@ -152,21 +171,23 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
-            background: #1e2a3a;
+            gap: 8px;
+            background: #2c3e50;
             color: #fff;
             border: none;
-            padding: 7px 18px;
-            border-radius: 30px;
-            font-size: 13px;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-size: 14px;
             font-weight: 500;
             text-decoration: none;
             transition: background 0.2s, transform 0.1s;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.4px;
             width: 100%;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
         }
         .card .btn-download:hover {
-            background: #2c3e5a;
+            background: #1e2f3f;
+            transform: scale(1.01);
         }
         .card .btn-download:active {
             transform: scale(0.97);
@@ -178,26 +199,44 @@
             flex-shrink: 0;
         }
 
+        /* ── 底部小装饰 ── */
+        .footer-note {
+            margin-top: 36px;
+            text-align: center;
+            font-size: 13px;
+            color: #b8a99a;
+            letter-spacing: 1px;
+            border-top: 1px solid #e8ddd2;
+            padding-top: 22px;
+        }
+
         /* ── 响应式 ── */
         @media (max-width: 768px) {
             .container {
-                padding: 20px 16px;
+                padding: 24px 16px 20px;
+                border-radius: 28px;
             }
             .header h1 {
-                font-size: 20px;
+                font-size: 22px;
+            }
+            .header h1 span {
+                font-size: 16px;
+                display: block;
+                margin-left: 0;
             }
             .grid {
                 grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-                gap: 14px;
+                gap: 18px;
             }
             .card {
-                padding: 16px 14px;
+                padding: 18px 16px 16px;
             }
             .card .title {
-                font-size: 15px;
+                font-size: 17px;
             }
-            .stats {
+            .header .stats {
                 font-size: 13px;
+                padding: 4px 14px;
             }
         }
 
@@ -206,31 +245,26 @@
                 grid-template-columns: 1fr;
             }
             .card .btn-download {
-                padding: 9px 16px;
-                font-size: 14px;
+                padding: 10px 16px;
+                font-size: 15px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- 头部（简洁） -->
+        <!-- 头部 -->
         <header class="header">
-            <h1>📖 推荐书目 <span class="sub">· 下载</span></h1>
+            <h1>📖 书单 <span>· 下载</span></h1>
+            <div class="stats">共 <strong>14</strong> 册</div>
         </header>
-
-        <!-- 统计 -->
-        <div class="stats">
-            <span class="count">共 <strong>14</strong> 册</span>
-            <span class="hint"><i>点击下载 PDF</i></span>
-        </div>
 
         <!-- 卡片网格 -->
         <div class="grid">
             <!-- 1. 西方现代思想讲义 -->
             <div class="card">
                 <span class="badge">#01</span>
-                <div class="title"><span class="bookmark">「</span>西方现代思想讲义<span class="bookmark">」</span></div>
+                <div class="title"><span class="quote">「</span>西方现代思想讲义<span class="quote">」</span></div>
                 <div class="author">刘擎</div>
                 <div class="publisher">新星出版社</div>
                 <div class="download-wrap">
@@ -244,7 +278,7 @@
             <!-- 2. 人类的群星闪耀时 -->
             <div class="card">
                 <span class="badge">#02</span>
-                <div class="title"><span class="bookmark">「</span>人类的群星闪耀时<span class="bookmark">」</span></div>
+                <div class="title"><span class="quote">「</span>人类的群星闪耀时<span class="quote">」</span></div>
                 <div class="author">【奥】茨威格</div>
                 <div class="publisher">生活·读书·新知三联书店</div>
                 <div class="download-wrap">
@@ -258,7 +292,7 @@
             <!-- 3. 宽容 -->
             <div class="card">
                 <span class="badge">#03</span>
-                <div class="title"><span class="bookmark">「</span>宽容<span class="bookmark">」</span></div>
+                <div class="title"><span class="quote">「</span>宽容<span class="quote">」</span></div>
                 <div class="author">【美】房龙</div>
                 <div class="publisher">生活·读书·新知三联书店 · 胡允桓译</div>
                 <div class="download-wrap">
@@ -272,7 +306,7 @@
             <!-- 4. 极简世界史 -->
             <div class="card">
                 <span class="badge">#04</span>
-                <div class="title"><span class="bookmark">「</span>极简世界史<span class="bookmark">」</span></div>
+                <div class="title"><span class="quote">「</span>极简世界史<span class="quote">」</span></div>
                 <div class="author">【英】乔治·威尔斯</div>
                 <div class="publisher">现代出版社 · 罗建华译</div>
                 <div class="download-wrap">
@@ -286,7 +320,7 @@
             <!-- 5. 希腊神话和传说 -->
             <div class="card">
                 <span class="badge">#05</span>
-                <div class="title"><span class="bookmark">「</span>希腊神话和传说<span class="bookmark">」</span></div>
+                <div class="title"><span class="quote">「</span>希腊神话和传说<span class="quote">」</span></div>
                 <div class="author">【德】斯瓦布 · 楚图南译</div>
                 <div class="publisher">人民文学出版社</div>
                 <div class="download-wrap">
@@ -300,7 +334,7 @@
             <!-- 6. 动物农场 -->
             <div class="card">
                 <span class="badge">#06</span>
-                <div class="title"><span class="bookmark">「</span>动物农场<span class="bookmark">」</span></div>
+                <div class="title"><span class="quote">「</span>动物农场<span class="quote">」</span></div>
                 <div class="author">【英】乔治·奥威尔 · 傅惟慈译</div>
                 <div class="publisher">北京十月文艺出版社</div>
                 <div class="download-wrap">
@@ -314,7 +348,7 @@
             <!-- 7. 巨流河 -->
             <div class="card">
                 <span class="badge">#07</span>
-                <div class="title"><span class="bookmark">「</span>巨流河<span class="bookmark">」</span></div>
+                <div class="title"><span class="quote">「</span>巨流河<span class="quote">」</span></div>
                 <div class="author">齐邦媛</div>
                 <div class="publisher">生活·读书·新知三联书店</div>
                 <div class="download-wrap">
@@ -328,7 +362,7 @@
             <!-- 8. 谈美书简 -->
             <div class="card">
                 <span class="badge">#08</span>
-                <div class="title"><span class="bookmark">「</span>谈美书简<span class="bookmark">」</span></div>
+                <div class="title"><span class="quote">「</span>谈美书简<span class="quote">」</span></div>
                 <div class="author">朱光潜</div>
                 <div class="publisher">人民文学出版社</div>
                 <div class="download-wrap">
@@ -342,7 +376,7 @@
             <!-- 9. 美的历程 -->
             <div class="card">
                 <span class="badge">#09</span>
-                <div class="title"><span class="bookmark">「</span>美的历程<span class="bookmark">」</span></div>
+                <div class="title"><span class="quote">「</span>美的历程<span class="quote">」</span></div>
                 <div class="author">李泽厚</div>
                 <div class="publisher">生活·读书·新知三联书店</div>
                 <div class="download-wrap">
@@ -356,7 +390,7 @@
             <!-- 10. 先生 -->
             <div class="card">
                 <span class="badge">#10</span>
-                <div class="title"><span class="bookmark">「</span>先生<span class="bookmark">」</span></div>
+                <div class="title"><span class="quote">「</span>先生<span class="quote">」</span></div>
                 <div class="author">《先生》编写组</div>
                 <div class="publisher">中信出版社</div>
                 <div class="download-wrap">
@@ -370,7 +404,7 @@
             <!-- 11. 寂寞圣哲 -->
             <div class="card">
                 <span class="badge">#11</span>
-                <div class="title"><span class="bookmark">「</span>寂寞圣哲<span class="bookmark">」</span></div>
+                <div class="title"><span class="quote">「</span>寂寞圣哲<span class="quote">」</span></div>
                 <div class="author">鲍鹏山</div>
                 <div class="publisher">东方出版中心</div>
                 <div class="download-wrap">
@@ -384,7 +418,7 @@
             <!-- 12. 古文观止（中学生版，含译文） -->
             <div class="card">
                 <span class="badge">#12</span>
-                <div class="title"><span class="bookmark">「</span>古文观止（中学生版，含译文）<span class="bookmark">」</span></div>
+                <div class="title"><span class="quote">「</span>古文观止（中学生版，含译文）<span class="quote">」</span></div>
                 <div class="author">吴楚材，吴调侯 编选</div>
                 <div class="publisher">中华书局</div>
                 <div class="download-wrap">
@@ -398,7 +432,7 @@
             <!-- 13. 世说新语 -->
             <div class="card">
                 <span class="badge">#13</span>
-                <div class="title"><span class="bookmark">「</span>世说新语<span class="bookmark">」</span></div>
+                <div class="title"><span class="quote">「</span>世说新语<span class="quote">」</span></div>
                 <div class="author">【南朝宋】刘义庆</div>
                 <div class="publisher">中华书局</div>
                 <div class="download-wrap">
@@ -412,7 +446,7 @@
             <!-- 14. 唐宋词十七讲 -->
             <div class="card">
                 <span class="badge">#14</span>
-                <div class="title"><span class="bookmark">「</span>唐宋词十七讲<span class="bookmark">」</span></div>
+                <div class="title"><span class="quote">「</span>唐宋词十七讲<span class="quote">」</span></div>
                 <div class="author">叶嘉莹</div>
                 <div class="publisher">北京大学出版社</div>
                 <div class="download-wrap">
@@ -423,6 +457,9 @@
                 </div>
             </div>
         </div>
+
+        <!-- 底部点缀 -->
+        <div class="footer-note">— 点击卡片即可下载 —</div>
     </div>
 </body>
 </html>
