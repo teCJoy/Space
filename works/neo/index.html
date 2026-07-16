@@ -7,23 +7,28 @@
 <body>
 <h1>🎬 neo</h1>
 <p><em>🔍 a multi-res mov Hunter</em></p>
-<p>👤 幕后黑手：<a href="/">teCJoy</a>，悄悄写码，惊艳大家 👨‍💻</p>
+<p>👤 created by <a href="/">teCJoy</a> × <a href="https://www.deepseek.com/">DeepSeek</a>，人机合写，法力无边 🤝</p>
 <hr>
 <marquee behavior="scroll" direction="left">
 🏴‍☠️ 九站同搜似闪电，B站打头阵不慢 ⚡ 磁力电驴加迅雷，全被 neo 一锅端 🍲 去重快过快递站，智能精准不瞎转 🎯 一行命令敲下去，片源滚滚像财源 💰 多线程，狂飙不堵车，省时省力还省电 🔋 从今找片不失眠，neo在手就是仙 🧘
 </marquee>
 <hr>
-<h3>⬇️ 拔刀，下载</h3>
-<p><a href="neo.py" download>📥 点此掳走 neo.py</a></p>
-<p>💻 祭出终极口令：<br><code id="cmd">python3 neo.py</code></p>
-<p>⌨️ 输入片名即搜，或扔个链接它也收；敲 <code>r</code> 重来，敲 <code>q</code> 开溜。<br>
-🔑 若想 B 站有肉吃，<code>bilibili_cookies.txt</code> 同目录里丢 🍪</p>
+<h3>⬇️ 下载</h3>
+<p><a href="neo.py" download>📥 neo.py</a></p>
 <hr>
 <table border="0" cellspacing="0" cellpadding="10">
 <tr>
 <td width="50%" valign="top">
 <h3>❓ 你问我答，句句实话</h3>
 <dl>
+<dt>🚀 怎么唤醒 neo？</dt>
+<dd>💻 终端里敲 <code id="cmd-start">python3 neo.py</code>，神兽立马睁眼 👀</dd>
+<dt>🔍 搜片姿势有哪些？</dt>
+<dd>⌨️ 直接输入电影名，九站同搜；也可以把网页链接丢给它，自动帮你扒磁力 🕵️</dd>
+<dt>🔄 搜完还想再来一遍？</dt>
+<dd>🔁 按 <code>r</code> 用上次的关键词重新搜。有些站点初次容易抽风，大胆按 <code>r</code> 再冲一次，第二次往往能多搂一堆宝贝，亲测有效 🔄</dd>
+<dt>🏃 想溜怎么办？</dt>
+<dd>🚪 按 <code>q</code> 直接跑路，不留一片云彩 ☁️</dd>
 <dt>🍪 为什么要给 neo 喂小饼干（cookie）？</dt>
 <dd>🍪 B站接口认饼不认脸，没饼干它就板着脸；塞一把 Netscape 小甜饼，搜索结果唰唰现，不然白瞪眼 😤</dd>
 <dt>🛠️ 小饼干怎么烤？</dt>
@@ -47,25 +52,22 @@
 </dl>
 </td>
 <td width="50%" valign="top">
-<h3>📋 江湖日记（更新日志）</h3>
+<h3>📋 更新日志</h3>
 <ul>
-<li>🆕 <strong>v1.0</strong> (2026-07-15) — neo 初降江湖，九派聚合，多线并发，饼干加持，验证识别，一勺烩了 🍜</li>
+<li>🆕 <strong>v1.0</strong> (2026-07-15) — 初始版本，支持9个站点多线程搜索，B站cookie登录，MP4吧人机验证处理 🚀</li>
 </ul>
 <p style="margin-top:20px"><em>📌 更多版本即将到来，敬请期待…</em></p>
-<p style="margin-top:20px; color:#666; font-size:14px;">📜 最后唠叨一句：这宝贝只供研究爬虫把戏、学习技术之用，切莫拿去搞商业买卖。出了事俺可不背锅，一切解释权归本幕后黑手所有 🙏</p>
+<p style="margin-top:20px; color:#666; font-size:14px;">📜 最后唠叨一句：这宝贝只供研究爬虫把戏、学习技术之用，切莫拿去搞商业买卖。出了事俺可不背锅，一切解释权归 teCJoy 及 DeepSeek 所有 🙏</p>
 </td>
 </tr>
 </table>
 
 <script>
 (function() {
-  var cmd = document.getElementById('cmd');
   var plat = navigator.platform || '';
-  if (plat.toLowerCase().indexOf('win') >= 0) {
-    cmd.textContent = 'python neo.py';
-  } else {
-    cmd.textContent = 'python3 neo.py';
-  }
+  var isWin = plat.toLowerCase().indexOf('win') >= 0;
+  var pyCmd = isWin ? 'python' : 'python3';
+  document.getElementById('cmd-start').textContent = pyCmd + ' neo.py';
 })();
 </script>
 </body>
