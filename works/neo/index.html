@@ -11,65 +11,143 @@
 <meta property="og:description" content="一行命令，九站尽搜，去重闪电，B站首发，找片不用愁。这，就是 neo。">
 <meta property="og:type" content="website">
 <meta property="og:url" content="/">
-<meta property="og:image" content="">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="🎬 neo - a multi-res mov Hunter">
 <meta name="twitter:description" content="一行命令，九站尽搜，去重闪电，B站首发，找片不用愁。这，就是 neo。">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Noto+Sans+SC:wght@400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+
+<style>
+  body {
+    font-family: 'Poppins', 'Noto Sans SC', sans-serif;
+    line-height: 1.6;
+    padding: 20px;
+    max-width: 900px;
+    margin: auto;
+    background-color: #fffdf7;
+    color: #333;
+  }
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    background: #f0f0f0;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 0.95em;
+  }
+  marquee {
+    font-size: 1.1em;
+    letter-spacing: 0.5px;
+  }
+  dt {
+    font-weight: 600;
+    margin-top: 0.8em;
+  }
+  dd {
+    margin-bottom: 0.8em;
+  }
+  h1, h3 {
+    font-weight: 700;
+  }
+  a {
+    color: #2c7be5;
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+  hr {
+    border: none;
+    border-top: 1px dashed #ddd;
+    margin: 25px 0;
+  }
+  table {
+    width: 100%;
+  }
+  td {
+    vertical-align: top;
+  }
+  .small-note {
+    color: #888;
+    font-size: 14px;
+  }
+</style>
 </head>
 <body>
+
 <h1>🎬 neo</h1>
 <p><em>🔍 a multi-res mov Hunter</em></p>
 <p>👤 created by <a href="/">teCJoy</a> × <a href="https://www.deepseek.com/">DeepSeek</a>，人机合写，法力无边 🤝</p>
+
 <hr>
+
 <marquee behavior="scroll" direction="left">
 🏴‍☠️ 九站同搜似闪电，B站打头阵不慢 ⚡ 磁力电驴加迅雷，全被 neo 一锅端 🍲 去重快过快递站，智能精准不瞎转 🎯 一行命令敲下去，片源滚滚像财源 💰 多线程，狂飙不堵车，省时省力还省电 🔋 从今找片不失眠，neo在手就是仙 🧘
 </marquee>
+
 <hr>
+
 <h3>⬇️ 下载</h3>
 <p><a href="neo.py" download>📥 neo.py</a></p>
+
 <hr>
+
 <table border="0" cellspacing="0" cellpadding="10">
 <tr>
-<td width="50%" valign="top">
+<td width="50%">
 <h3>❓ 你问我答，句句实话</h3>
 <dl>
 <dt>🚀 怎么唤醒 neo？</dt>
 <dd>💻 终端里敲 <code id="cmd-start">python3 neo.py</code>，神兽立马睁眼 👀</dd>
+
 <dt>🔍 搜片姿势有哪些？</dt>
 <dd>⌨️ 直接输入电影名，九站同搜；也可以把网页链接丢给它，自动帮你扒磁力 🕵️</dd>
+
 <dt>🔄 搜完还想再来一遍？</dt>
 <dd>🔁 按 <code>r</code> 用上次的关键词重新搜。有些站点初次容易抽风，大胆按 <code>r</code> 再冲一次，第二次往往能多搂一堆宝贝，亲测有效 🔄</dd>
+
 <dt>🏃 想溜怎么办？</dt>
 <dd>🚪 按 <code>q</code> 直接跑路，不留一片云彩 ☁️</dd>
+
 <dt>🍪 为什么要给 neo 喂小饼干（cookie）？</dt>
 <dd>🍪 B站接口认饼不认脸，没饼干它就板着脸；塞一把 Netscape 小甜饼，搜索结果唰唰现，不然白瞪眼 😤</dd>
+
 <dt>🛠️ 小饼干怎么烤？</dt>
 <dd>🍪 装个插件“Get Cookie Locally”，轻轻一点全导出，Netscape格式别搞错，放到 neo 旁就稳妥，仪式感满满真不错 ✨</dd>
+
 <dt>📦 能捞出什么好东西？</dt>
 <dd>🧲 磁力、电驴、迅雷链，种子文件加 B 站片，五种格式全囊括，一个不少随便捡 👀</dd>
+
 <dt>⏱️ 找片速度有多狂？</dt>
 <dd>💨 九个线程同时跑，比一个一个快不少，眨个眼睛结果到，慢？不存在的，快得呱呱叫 ⚡</dd>
+
 <dt>🌍 都搜哪些藏宝阁？</dt>
 <dd>🏴‍☠️ 电影港、6v、磁力狗，Sobt、磁力猫也走一走，高清族、MP4吧、SeedHub 全都有，B站视频排前头，九大门派一网收 🤺</dd>
+
 <dt>🧩 要装一堆依赖吗？</dt>
 <dd>🐍 纯 Python 标准库，不用 pip 瞎忙乎，下载即用不糊涂，轻得像片羽毛舞 🪶</dd>
+
 <dt>🤖 碰上人机验证咋整？</dt>
 <dd>🧠 MP4吧 偶尔耍脾气，加减法题考考你，neo 自动算答案，管它一题还是两题，轻松搞定不稀奇 ✏️</dd>
+
 <dt>🛠️ 能自己加新站点吗？</dt>
 <dd>🔧 代码结构很清晰，仿照格式往里递，会点正则和请求，四海站点皆归你 🧙</dd>
+
 <dt>🔄 结果太多怎么找？</dt>
 <dd>🎯 智能去重先筛一遍，B站视频置顶见，磁力电驴分类列，一目了然不迷眼 📋</dd>
+
 <dt>💻 什么系统能驾驭？</dt>
 <dd>🪟🐧🍎 Windows、Linux、macOS 全拿下，有 Python 的地方就是家，哪里需要哪里撒 🏠</dd>
 </dl>
 </td>
-<td width="50%" valign="top">
+<td width="50%">
 <h3>📋 更新日志</h3>
 <ul>
 <li>🆕 <strong>v1.0</strong> (2026-07-15) — 初始版本，支持9个站点多线程搜索，B站cookie登录，MP4吧人机验证处理 🚀</li>
 </ul>
 <p style="margin-top:20px"><em>📌 更多版本即将到来，敬请期待…</em></p>
-<p style="margin-top:20px; color:#666; font-size:14px;">📜 最后唠叨一句：这宝贝只供研究爬虫把戏、学习技术之用，切莫拿去搞商业买卖。出了事俺可不背锅，一切解释权归 teCJoy 及 DeepSeek 所有 🙏</p>
+<p class="small-note" style="margin-top:20px;">📜 最后唠叨一句：这宝贝只供研究爬虫把戏、学习技术之用，资料来源于网络，切莫拿去搞商业买卖，更不要用于违法用途。出了事俺可不背锅，一切解释权归 teCJoy 及 DeepSeek 所有 🙏</p>
 </td>
 </tr>
 </table>
