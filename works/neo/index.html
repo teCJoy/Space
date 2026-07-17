@@ -2,6 +2,7 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🎬 neo - 多源电影资源猎手 | 聚合磁力搜索工具</title>
 <meta name="description" content="neo 是一款优雅的多源电影资源搜索工具，一键搜索B站、电影港、6v电影、磁力狗、Sobt、磁力猫、高清族、MP4吧、SeedHub等9个站点，返回磁力链接、ed2k、迅雷链接、种子文件、B站视频，自动去重，B站优先。">
 <meta name="keywords" content="neo,电影搜索,磁力搜索,磁力链接,ed2k,迅雷下载,种子搜索,B站搜索,电影资源,聚合搜索,爬虫工具">
@@ -35,6 +36,7 @@
     padding: 2px 5px;
     border-radius: 3px;
     font-size: 0.95em;
+    word-break: break-all;
   }
   marquee {
     font-size: 1.1em;
@@ -71,6 +73,29 @@
   .small-note {
     color: #888;
     font-size: 14px;
+  }
+
+  @media (max-width: 768px) {
+    body {
+      padding: 12px;
+      font-size: 15px;
+    }
+    table, tbody, tr, td {
+      display: block;
+      width: 100%;
+    }
+    td {
+      margin-bottom: 20px;
+    }
+    marquee {
+      font-size: 0.9em;
+    }
+    code {
+      font-size: 0.85em;
+    }
+    h1 {
+      font-size: 1.8em;
+    }
   }
 </style>
 </head>
@@ -147,7 +172,13 @@
 <li>🆕 <strong>v1.0</strong> (2026-07-15) — 初始版本，支持9个站点多线程搜索，B站cookie登录，MP4吧人机验证处理 🚀</li>
 </ul>
 <p style="margin-top:20px"><em>📌 更多版本即将到来，敬请期待…</em></p>
-<p class="small-note" style="margin-top:20px;">📜 最后唠叨一句：这宝贝只供研究爬虫把戏、学习技术之用，资料来源于网络，切莫拿去搞商业买卖，更不要用于违法用途。出了事俺可不背锅，一切解释权归 teCJoy 及 DeepSeek 所有 🙏</p>
+<p class="small-note" style="margin-top:20px;">
+📜 最后唠叨几句，务必听完：<br>
+🔬 本工具仅供研究爬虫原理、Python 编程及网络请求技术，纯学习交流，别动歪心思。<br>
+🚫 严禁用于任何商业用途，也别拿去搞盗版、侵权、非法传播，否则后果自负。<br>
+⚖️ 你若拿它干了违法勾当，锅得自己背，teCJoy 和 DeepSeek 一概不负责。<br>
+📖 一切最终解释权归 teCJoy 及 DeepSeek 所有，乖乖遵守游戏规则，大家相安无事 🙏
+</p>
 </td>
 </tr>
 </table>
