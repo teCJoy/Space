@@ -173,17 +173,27 @@
 </ul>
 <p style="margin-top:20px"><em>📌 更多版本即将到来，敬请期待…</em></p>
 <p class="small-note" style="margin-top:20px;">
-📜 最后唠叨几句，务必听完：<br>
-🔬 本工具仅供研究爬虫原理、Python 编程及网络请求技术，纯学习交流，别动歪心思。<br>
-🚫 严禁用于任何商业用途，也别拿去搞盗版、侵权、非法传播，否则后果自负。<br>
-⚖️ 你若拿它干了违法勾当，锅得自己背，teCJoy 和 DeepSeek 一概不负责。<br>
-📖 一切最终解释权归 teCJoy 及 DeepSeek 所有，乖乖遵守游戏规则，大家相安无事 🙏
+📜 使用前请先阅读弹窗提示。<br>
+📄 本软件源码采用 <strong>MIT 许可证</strong>，使用、修改、分发请保留版权声明。
 </p>
 </td>
 </tr>
 </table>
 
 <script>
+// 原生弹窗免责声明
+window.addEventListener('DOMContentLoaded', function() {
+  alert(
+    '⚠️ 免责声明\n\n' +
+    '🔬 本工具仅供研究爬虫原理、Python编程及网络请求技术，纯学习交流。\n' +
+    '🚫 严禁用于任何商业用途，禁止盗版、侵权、非法传播。\n' +
+    '⚖️ 若用于违法用途，后果自负，作者 teCJoy 与 DeepSeek 不承担任何责任。\n' +
+    '📄 源码采用 MIT 许可证，使用即表示你已阅读并同意以上条款。\n\n' +
+    '点击确定继续，拒绝请关闭页面。'
+  );
+});
+
+// 智能识别 python/python3
 (function() {
   var plat = navigator.platform || '';
   var isWin = plat.toLowerCase().indexOf('win') >= 0;
