@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌍 实时航班追踪</title>
+<style>
+*{box-sizing:border-box;font-family:system-ui,sans-serif}body{background:#0b1a2f;color:#e8edf5;margin:0;padding:20px;min-height:100vh}.container{max-width:1400px;margin:0 auto}header{background:#13273f;padding:12px 25px;border-radius:16px 16px 0 0;box-shadow:0 4px 12px rgba(0,0,0,0.4);margin-bottom:2px}h1{margin:0;font-weight:500;font-size:1.8rem}h1 span{color:#6dc8f2}.toolbar{background:#13273f;padding:12px 20px;border-radius:0 0 16px 16px;box-shadow:0 8px 24px rgba(0,0,0,0.5);margin-bottom:20px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px}.stats{display:flex;flex-wrap:wrap;gap:20px;font-size:.9rem;background:#0f2137;padding:6px 16px;border-radius:40px;align-items:center}.stats span{opacity:.8}.stats strong{color:#6dc8f2}.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.controls input,.controls select,.controls button{padding:8px 14px;border:none;border-radius:40px;background:#1e3a5a;color:#fff;font-size:.95rem;outline:none}.controls input:focus,.controls select:focus{background:#264b70;box-shadow:0 0 0 2px #6dc8f2}.controls button{background:#2a6f97;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px}.controls button:hover{background:#3b8fc7;transform:scale(1.02)}#errorMsg{background:#c94a4a;color:#fff;padding:12px 20px;border-radius:12px;margin-bottom:15px;display:none;font-weight:500}.table-wrapper{background:#102433;border-radius:16px;overflow-x:auto;box-shadow:0 8px 24px rgba(0,0,0,0.6);padding:0 4px 4px 4px}table{width:100%;border-collapse:collapse;font-size:.9rem;min-width:800px}thead{background:#1a3550;position:sticky;top:0;z-index:2}th{padding:14px 10px;text-align:left;font-weight:600;color:#b6d4f0;border-bottom:2px solid #2e5070;cursor:pointer;user-select:none}th:hover{color:#fff}td{padding:10px 10px;border-bottom:1px solid #1f3a55;white-space:nowrap}tr:hover{background:#1b3450}.badge{display:inline-block;padding:2px 10px;border-radius:30px;font-size:.75rem;font-weight:600;background:#2a5f7a;color:#fff}.badge.ground{background:#6c7a89}.badge.air{background:#2a9d8f}.footer{margin-top:20px;font-size:.8rem;text-align:center;opacity:.6}.footer a{color:#6dc8f2;text-decoration:none}.loading{display:flex;justify-content:center;padding:60px 0;font-size:1.3rem;opacity:.8}@media(max-width:600px){.toolbar{flex-direction:column;align-items:stretch;gap:12px}.stats{justify-content:center}.controls{justify-content:center}th,td{padding:8px 6px;font-size:.8rem}}
+</style>
+</head>
+<body>
+<div class="container">
+<header><h1>✈️ <span>Sky</span>Tracker</h1></header>
+<div class="toolbar">
+<div class="stats">
+<span>🛩️ 航班 <strong id="totalCount">0</strong></span>
+<span>🔄 筛选 <strong id="filteredCount">0</strong></span>
+<span>⏱️ <span id="lastUpdate">--</span></span>
+</div>
+<div class="controls">
+<input type="text" id="searchInput" placeholder="🔍 呼号 / 国家 / ICAO">
+<select id="filterGround">
+<option value="all">全部状态</option>
+<option value="air">仅空中</option>
+<option value="ground">仅地面</option>
+</select>
+<button id="refreshBtn">↻ 刷新</button>
+</div>
+</div>
+<div id="errorMsg"></div>
+<div class="table-wrapper">
+<table>
+<thead><tr>
+<th data-sort="callsign">呼号 ↕</th>
+<th data-sort="country">国家</th>
+<th data-sort="latitude">纬度</th>
+<th data-sort="longitude">经度</th>
+<th data-sort="altitude">高度 (m)</th>
+<th data-sort="velocity">速度 (km/h)</th>
+<th data-sort="heading">航向</th>
+<th data-sort="on_ground">状态</th>
+<th data-sort="last_contact">最后信号</th>
+</tr></thead>
+<tbody id="flightTableBody"><tr><td colspan="9" class="loading">⏳ 加载航班数据中...</td></tr></tbody>
+</table>
+</div>
+<div class="footer">数据来源 <a href="https://opensky-network.org" target="_blank">OpenSky Network</a></div>
+</div>
+<script>
+const API_URL='https://opensky-network.org/api/states/all';
+let allFlights=[],sortKey=null,sortAsc=!0;
+const $=id=>document.getElementById(id),tbody=$('flightTableBody'),total=$('totalCount'),filtered=$('filteredCount'),last=$('lastUpdate'),search=$('searchInput'),ground=$('filterGround'),refresh=$('refreshBtn'),err=$('errorMsg');
+function fmtTime(t){return t?new Date(t*1e3).toLocaleTimeString('zh-CN',{hour12:!1}):'--'}
+function fmtSpeed(s){return void 0!==s&&null!==s?(s*3.6).toFixed(0):'--'}
+function fmtAlt(a){return void 0!==a&&null!==a?a.toFixed(0):'--'}
+function parseStates(states){return states.map(s=>({icao24:s[0]||'',callsign:(s[1]||'').trim(),country:s[2]||'未知',time_position:s[3],last_contact:s[4],longitude:s[5],latitude:s[6],altitude:s[7],on_ground:!!s[8],velocity:s[9],heading:s[10],vertical_rate:s[11]}))}
+async function fetchData(){err.style.display='none';tbody.innerHTML='<tr><td colspan="9" class="loading">⏳ 加载中...</td></tr>';try{const r=await fetch(API_URL);if(!r.ok)throw new Error('HTTP '+r.status);const d=await r.json();if(!d||!d.states||!Array.isArray(d.states))throw new Error('格式错误');allFlights=parseStates(d.states);applyFilters();last.textContent=new Date().toLocaleTimeString('zh-CN')}catch(e){err.style.display='block';err.textContent='⚠️ 加载失败: '+e.message;tbody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:40px;">⚠️ 无法加载数据，请稍后重试</td></tr>'}}
+function applyFilters(){const q=search.value.trim().toLowerCase(),g=ground.value;let f=allFlights.filter(f=>{if(q){const a=(f.callsign||'').toLowerCase(),b=(f.country||'').toLowerCase(),c=(f.icao24||'').toLowerCase();if(!a.includes(q)&&!b.includes(q)&&!c.includes(q))return!1}if(g==='air'&&f.on_ground)return!1;if(g==='ground'&&!f.on_ground)return!1;return!0});if(sortKey){f.sort((a,b)=>{let x=a[sortKey]??'',y=b[sortKey]??'';if(typeof x==='string')x=x.toLowerCase();if(typeof y==='string')y=y.toLowerCase();return x<y?(sortAsc?-1:1):x>y?(sortAsc?1:-1):0})}render(f);total.textContent=allFlights.length;filtered.textContent=f.length}
+function render(flights){if(!flights||!flights.length){tbody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:40px;">🛫 没有匹配的航班</td></tr>';return}const list=flights.slice(0,500);let html='';for(const f of list){const st=f.on_ground?'地面':'空中',cls=f.on_ground?'ground':'air';html+=`<tr><td><strong>${f.callsign||'--'}</strong></td><td>${f.country}</td><td>${null!==f.latitude?f.latitude.toFixed(4):'--'}</td><td>${null!==f.longitude?f.longitude.toFixed(4):'--'}</td><td>${fmtAlt(f.altitude)}</td><td>${fmtSpeed(f.velocity)}</td><td>${null!==f.heading?f.heading.toFixed(0):'--'}</td><td><span class="badge ${cls}">${st}</span></td><td>${fmtTime(f.last_contact)}</td></tr>`}if(flights.length>500)html+=`<tr><td colspan="9" style="text-align:center;opacity:.6;">... 仅显示前500条 (共${flights.length}条) ...</td></tr>`;tbody.innerHTML=html}
+document.querySelectorAll('th[data-sort]').forEach(th=>{th.addEventListener('click',()=>{const key=th.dataset.sort;if(sortKey===key)sortAsc=!sortAsc;else{sortKey=key;sortAsc=!0}applyFilters()})});
+search.addEventListener('input',applyFilters);ground.addEventListener('change',applyFilters);refresh.addEventListener('click',fetchData);
+fetchData();
+</script>
+</body>
+</html>
