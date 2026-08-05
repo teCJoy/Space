@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的日志</title>
+</head>
+<body>
+    <h1>📚 文章列表</h1>
+    <div id="list"></div>
+
+    <script>
+        // 动态读取 json 列表
+        fetch('./posts.json')
+            .then(res => res.json())
+            .then(data => {
+                const list = document.getElementById('list');
+                // 按日期倒序排列
+                data.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                data.forEach(item => {
+                    const p = document.createElement('p');
+                    // 直接渲染标题和日期，不套多余的UI
+                    p.innerHTML = `<a href="${item.filename}">${item.title}</a> <span style="color:#666;font-size:0.9em">${item.date}</span>`;
+                    list.appendChild(p);
+                });
+            })
+            .catch(err => {
+                document.getElementById('list').innerHTML = '<p style="color:red;">无法读取文章索引。</p>';
+                console.error(err);
+            });
+    </script>
+</body>
+</html>
