@@ -1,78 +1,122 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh">
 <head>
-    <!-- Meta 标签务必放在 Title 之前，优先声明编码 -->
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>英语日志 | 音形双修 | 自我监督</title>
-    <style>
-        /* 简单写一点 CSS 让它看起来更像是“监督网站”的样子 */
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            max-width: 720px;
-            margin: 40px auto;
-            padding: 0 20px;
-            line-height: 1.8;
-            color: #1f1f1f;
-            background-color: #fcfcfc;
-        }
-        h1 { 
-            font-size: 28px; 
-            margin-bottom: 10px; 
-            border-left: 5px solid #0071e3;
-            padding-left: 15px;
-        }
-        .subtitle {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 30px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 15px;
-        }
-        h2 {
-            font-size: 20px;
-            margin-top: 30px;
-            color: #333;
-        }
-        p, li {
-            color: #444;
-        }
-        .highlight {
-            background-color: #f0f7ff;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: 500;
-            color: #0071e3;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>音形双修 · 英语自救日志</title>
+  <style>
+    /* ===== 全局样式（无自定义字体） ===== */
+    body {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 20px;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+
+      /* 使用系统默认字体（中文和英文均自动适应） */
+      font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      font-size: 18px;
+      line-height: 1.7;
+      color: #222;
+      background: #f9f9f9;
+    }
+
+    h1 {
+      font-size: 2rem;
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 10px;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      color: #666;
+      margin-top: -10px;
+      margin-bottom: 30px;
+    }
+
+    h2 {
+      font-size: 1.4rem;
+      margin-top: 30px;
+      border-left: 5px solid #888;
+      padding-left: 15px;
+    }
+
+    blockquote {
+      background: #eee;
+      padding: 10px 20px;
+      border-left: 5px solid #888;
+      margin: 15px 0;
+      font-style: normal;
+    }
+
+    .highlight {
+      font-weight: bold;
+      color: #c0392b;
+    }
+
+    code {
+      font-family: 'Courier New', monospace;
+      background: #eee;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px dashed #bbb;
+      margin: 30px 0;
+    }
+
+    /* 底部标语块（包含跳转链接） */
+    .cta-box {
+      margin-top: 40px;
+      padding: 20px;
+      background: #f5f5f5;
+      border-radius: 8px;
+      font-weight: bold;
+      text-align: center;
+    }
+    .cta-box a {
+      color: #333;
+      text-decoration: none;
+      display: block;
+    }
+
+    /* ===== 手机适配 ===== */
+    @media (max-width: 480px) {
+      h1 { font-size: 1.6rem; }
+      body { padding: 15px; }
+    }
+  </style>
 </head>
 <body>
 
-    <h1>我的“音形双修，语义荒芜”英语自救记录</h1>
-    <div class="subtitle">Welcome. 这里是关于我如何与单词“和解”的公开日志。</div>
+  <h1>我的“音形双修，语义荒芜”英语自救记录</h1>
+  <div class="subtitle">Welcome. 这里是关于我如何与单词“和解”的公开日志。</div>
 
-    <h2>🎯 我的痛点（问题所在）</h2>
-    <p>作为一个对英语发音和拼写极其敏感的人，我能在扫过一眼单词后就准确拼出它，也能用接近 <strong>Jony Ive</strong> 那种沉稳从容的英音把它读出来。</p>
-    <p>但在很长一段时间里，我的脑海里卡着一根死结：<strong>我会读、我会拼，但我死活想不起它的中文意思。</strong></p>
-    <p>我越来越发现，这其实是“语言输入”和“语言理解”的严重脱节。如果我必须依赖中文释义来生存，那我的英语始终是瘸腿的。为了打破这种“哑巴懂形”的僵局，我决定以我自己的方式，重新校准单词记忆。</p>
+  <h2>🎯 我的痛点（问题所在）</h2>
+  <p>作为一个对英语发音和拼写极其敏感的人，我能在扫过一眼单词后就准确拼出它，也能用接近 <strong>Jony Ive</strong> 那种沉稳从容的英音把它读出来。</p>
+  <p>但在很长一段时间里，我的脑海里卡着一根死结：<strong>我会读、我会拼，但我死活想不起它的中文意思。</strong></p>
+  <p>我越来越发现，这其实是“语言输入”和“语言理解”的严重脱节。如果我必须依赖中文释义来生存，那我的英语始终是瘸腿的。为了打破这种“哑巴懂形”的僵局，我决定以我自己的方式，重新校准单词记忆。</p>
 
-    <h2>🛠️ 我的对策（学习方法）</h2>
-    <p>为了死磕这个问题，我抛弃了传统的死记硬背，建立了一套属于“硬核极客”的背词系统：</p>
-    <ul>
-        <li><strong>1. 语境决定生死，而不是释义：</strong> 我放弃了把单词跟生硬的中文词绑死，而是把单词强行塞进我最爱的科技数码场景里。在我的笔记里，没有空洞的例句，只有 <code>M3芯片</code>、<code>水冷散热</code>、<code>MacBook主板排线</code>。通过把发音和数码世界里的实际体验绑在一起，我的大脑终于学会了“音→意”的直接条件反射。</li>
-        <li><strong>2. 英英释义 + 脑内画面：</strong> 我强制自己阅读英文释义，并同时在脑海里生成一个具象画面。例如想到 <span class="highlight">delicate</span>，我脑子里浮现的不是“微妙的”，而是“<strong>一根精密排线，稍微用力过度就会报废</strong>”的高危画面。图像比汉字顽固得多。</li>
-        <li><strong>3. 连接实战写作场景：</strong> 既然要应试（读后续写/应用文），我就直接把单词塞进考试的答题逻辑里。用这些单词去刻画人物的纠结、推荐信里的专业认可，让单词成为我输出的工具，而不仅仅是输入的符号。</li>
-        <li><strong>4. “听音唤起”训练法：</strong> 利用我对英音的热爱，在复习时遮住所有文字，只放标准的英式发音。强迫大脑听到声音立刻反应出那个科技画面，把“单词”真正听成一种带有设计感的声音艺术（就像在听 Jony Ive 做产品发布）。</li>
-    </ul>
+  <h2>🛠️ 我的对策（学习方法）</h2>
+  <p>为了死磕这个问题，我抛弃了传统的死记硬背，建立了一套属于“硬核极客”的背词系统：</p>
+  <ul>
+    <li><strong>1. 语境决定生死，而不是释义：</strong> 我放弃了把单词跟生硬的中文词绑死，而是把单词强行塞进我最爱的科技数码场景里。在我的笔记里，没有空洞的例句，只有 <code>M3芯片</code>、<code>水冷散热</code>、<code>MacBook主板排线</code>。通过把发音和数码世界里的实际体验绑在一起，我的大脑终于学会了“音→意”的直接条件反射。</li>
+    <li><strong>2. 英英释义 + 脑内画面：</strong> 我强制自己阅读英文释义，并同时在脑海里生成一个具象画面。例如想到 <span class="highlight">delicate</span>，我脑子里浮现的不是“微妙的”，而是“<strong>一根精密排线，稍微用力过度就会报废</strong>”的高危画面。图像比汉字顽固得多。</li>
+    <li><strong>3. 连接实战写作场景：</strong> 既然要应试（读后续写/应用文），我就直接把单词塞进考试的答题逻辑里。用这些单词去刻画人物的纠结、推荐信里的专业认可，让单词成为我输出的工具，而不仅仅是输入的符号。</li>
+    <li><strong>4. “听音唤起”训练法：</strong> 利用我对英音的热爱，在复习时遮住所有文字，只放标准的英式发音。强迫大脑听到声音立刻反应出那个科技画面，把“单词”真正听成一种带有设计感的声音艺术（就像在听 Jony Ive 做产品发布）。</li>
+  </ul>
 
-    <h2>📌 为什么把它放在这里？</h2>
-    <p><strong>为了监督自己，也为了记录成长。</strong></p>
-    <p>大脑很狡猾，它总是倾向于用“我会拼读了”来欺骗自己“我学会了”。把这些笔记和对策公开放在我的个人网站上，就是截断退路，强迫自己直面“记不住意思”的短板，并接受实际的检验。</p>
-    <p>如果你恰好也是个重读音、重拼写，却总是卡在中文释义上的同路人，欢迎你来看我的笔记，或者跟我一起用“场景对抗翻译”。</p>
-    
-    <div style="margin-top: 40px; padding: 20px; background: #f5f5f5; border-radius: 8px; font-weight: bold; text-align: center; color: #333;">
-        ⚡️ 开始吧，今日单词，绝不模棱两可。
-    </div>
+  <h2>📌 为什么把它放在这里？</h2>
+  <p><strong>为了监督自己，也为了记录成长。</strong></p>
+  <p>大脑很狡猾，它总是倾向于用“我会拼读了”来欺骗自己“我学会了”。把这些笔记和对策公开放在我的个人网站上，就是截断退路，强迫自己直面“记不住意思”的短板，并接受实际的检验。</p>
+  <p>如果你恰好也是个重读音、重拼写，却总是卡在中文释义上的同路人，欢迎你来看我的笔记，或者跟我一起用“场景对抗翻译”。</p>
+
+  <!-- 底部跳转框（点击跳转到 /posts） -->
+  <div class="cta-box">
+    <a href="/posts">⚡️ 开始吧，今日单词，绝不模棱两可。</a>
+  </div>
 
 </body>
 </html>
