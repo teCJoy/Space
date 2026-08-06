@@ -1,0 +1,64 @@
+/* ===== 加载本地衡水体字体 ===== */
+@font-face {
+  font-family: 'ShuYaoHengshui';
+  src: url('舒窈英文衡水体.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* ===== 全局样式 ===== */
+body {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 20px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+
+  /* 英文用衡水体（加粗），中文回退系统字体 */
+  font-family: 'ShuYaoHengshui', -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 18px;
+  line-height: 1.7;
+  color: #222;
+  background: #f9f9f9;
+
+  /* 衡水体加粗（符合你的要求） */
+  font-weight: bold;
+}
+
+/* ===== 标题 ===== */
+h1 {
+  font-size: 2rem;
+  border-bottom: 2px solid #ccc;
+  padding-bottom: 10px;
+}
+
+/* ===== 引用块：不倾斜 ===== */
+blockquote {
+  background: #eee;
+  padding: 10px 20px;
+  border-left: 5px solid #888;
+  margin: 15px 0;
+  font-style: normal;   /* 这里去掉了倾斜 */
+}
+
+/* ===== 分割线 ===== */
+hr {
+  border: none;
+  border-top: 1px dashed #bbb;
+  margin: 30px 0;
+}
+
+/* ===== 代码块保持等宽 ===== */
+code, pre {
+  font-family: monospace;
+}
+
+/* ===== 手机屏幕适配 ===== */
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.6rem;
+  }
+  body {
+    padding: 15px;
+  }
+}
