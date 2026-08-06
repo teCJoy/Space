@@ -3,32 +3,235 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的日志</title>
+    <title>📚 文章列表</title>
+
+    <style>
+        /* ===== 衡水体 ===== */
+        @font-face {
+            font-family: 'Hengshui';
+            src: url('舒窈英文衡水体.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        /* ===== 全局 ===== */
+        body {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px;
+            font-family: 'Hengshui', -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            font-size: 18px;
+            line-height: 1.7;
+            color: #222;
+            background: #f9f9f9;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        h1 {
+            font-size: 2rem;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 10px;
+            text-align: center;
+        }
+
+        /* ===== 励志统计区 ===== */
+        .stats {
+            background: linear-gradient(145deg, #fff7e6, #ffe8c8);
+            padding: 30px 20px;
+            border-radius: 20px;
+            margin: 20px 0 30px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            border: 1px solid #f0d5b0;
+        }
+
+        .stats .big-day {
+            font-size: 5rem;
+            font-weight: 900;
+            color: #d45a1a;
+            line-height: 1.2;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 0 rgba(212, 90, 26, 0.15);
+            display: inline-block;
+            background: rgba(255,255,255,0.5);
+            padding: 0 20px;
+            border-radius: 60px;
+            backdrop-filter: blur(2px);
+        }
+
+        .stats .label {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #7a4a2a;
+            margin-top: 6px;
+        }
+
+        .stats .sub-info {
+            margin-top: 12px;
+            font-size: 1.1rem;
+            color: #7a5a3a;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stats .sub-info span {
+            background: rgba(255,255,255,0.7);
+            padding: 4px 16px;
+            border-radius: 40px;
+        }
+
+        .stats .slogan {
+            margin-top: 14px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #b45a2a;
+            letter-spacing: 1px;
+            background: linear-gradient(to right, #d45a1a, #f09a4a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ===== 列表 ===== */
+        #list p {
+            margin: 6px 0;
+        }
+
+        .post-date {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        a {
+            color: #222;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* ===== 底部 ===== */
+        .footer-links {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px dashed #ccc;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            font-size: 0.95rem;
+            justify-content: center;
+        }
+        .footer-links a {
+            color: #555;
+            text-decoration: none;
+            border-bottom: 1px dotted #ccc;
+        }
+        .footer-links a:hover {
+            color: #000;
+            border-bottom-color: #000;
+        }
+
+        .error-msg {
+            color: #c0392b;
+        }
+
+        /* ===== 手机 ===== */
+        @media (max-width: 480px) {
+            h1 { font-size: 1.6rem; }
+            body { padding: 15px; }
+            .stats .big-day { font-size: 3.6rem; }
+            .stats .label { font-size: 1.3rem; }
+            .stats .sub-info { font-size: 1rem; gap: 12px; }
+            .stats .slogan { font-size: 1.1rem; }
+        }
+    </style>
 </head>
 <body>
+
     <h1>📚 文章列表</h1>
+
+    <!-- ===== 励志统计区 ===== -->
+    <div class="stats" id="stats">
+        <!-- JS 动态填充 -->
+    </div>
+
+    <!-- ===== 文章列表 ===== -->
     <div id="list"></div>
 
+    <!-- ===== 底部 ===== -->
+    <div class="footer-links">
+        <a href="./">← 返回首页</a>
+        <a href="舒窈英文衡水体.ttf" download>⬇️ 下载衡水体字体</a>
+        <a href="https://wwbud.lanzoum.com/ivBJ240vsydg" target="_blank">📄 四级词汇表（乱序版）</a>
+    </div>
+
     <script>
-        // 动态读取 json 列表
-        fetch('./posts.json')
-            .then(res => res.json())
+        // ===== 1. 获取励志语录 =====
+        let sloganText = '✨ 每一天都是新的开始'; // 默认备用
+
+        fetch('https://uapis.cn/api/v1/saying')
+            .then(res => {
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return res.json();
+            })
             .then(data => {
-                const list = document.getElementById('list');
-                // 按日期倒序排列
-                data.sort((a, b) => new Date(b.date) - new Date(a.date));
-                
-                data.forEach(item => {
-                    const p = document.createElement('p');
-                    // 直接渲染标题和日期，不套多余的UI
-                    p.innerHTML = `<a href="${item.filename}">${item.title}</a> <span style="color:#666;font-size:0.9em">${item.date}</span>`;
-                    list.appendChild(p);
-                });
+                if (data && data.text) {
+                    sloganText = data.text;
+                }
             })
             .catch(err => {
-                document.getElementById('list').innerHTML = '<p style="color:red;">无法读取文章索引。</p>';
-                console.error(err);
+                console.warn('获取语录失败，使用备用:', err);
+                // 保持默认，不干扰主流程
+            });
+
+        // ===== 2. 加载文章列表 =====
+        fetch('./posts.json')
+            .then(res => {
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return res.json();
+            })
+            .then(data => {
+                // 按日期倒序
+                data.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                // 渲染列表
+                const list = document.getElementById('list');
+                list.innerHTML = '';
+                data.forEach(item => {
+                    const p = document.createElement('p');
+                    p.innerHTML = `<a href="${item.filename}">${item.title}</a> <span class="post-date">${item.date}</span>`;
+                    list.appendChild(p);
+                });
+
+                // ===== 计算坚持天数 =====
+                const earliest = data.reduce((a, b) => new Date(a.date) < new Date(b.date) ? a : b);
+                const start = new Date(earliest.date);
+                const today = new Date();
+                start.setHours(0,0,0,0);
+                today.setHours(0,0,0,0);
+                const days = Math.floor((today - start) / (1000*60*60*24)) + 1;
+
+                // ===== 渲染统计区 =====
+                const stats = document.getElementById('stats');
+                stats.innerHTML = `
+                    <div class="big-day">${days}</div>
+                    <div class="label">天 · 坚持</div>
+                    <div class="sub-info">
+                        <span>📝 ${data.length} 篇文章</span>
+                        <span>🏁 始于 ${earliest.date}</span>
+                    </div>
+                    <div class="slogan">${sloganText}</div>
+                `;
+            })
+            .catch(err => {
+                document.getElementById('list').innerHTML = '<p class="error-msg">⚠️ 无法加载文章索引，请刷新重试。</p>';
+                document.getElementById('stats').innerHTML = '⚠️ 加载失败';
+                console.error('加载失败:', err);
             });
     </script>
+
 </body>
 </html>
