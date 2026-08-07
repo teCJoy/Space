@@ -113,6 +113,46 @@
             text-decoration: underline;
         }
 
+        /* ===== 分页控件 ===== */
+        .pagination {
+            margin: 30px 0 10px;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .pagination button {
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-family: inherit;
+            color: #333;
+            transition: all 0.2s;
+        }
+        .pagination button:hover:not(:disabled) {
+            background: #f0f0f0;
+            border-color: #bbb;
+        }
+        .pagination button.active {
+            background: #d45a1a;
+            color: #fff;
+            border-color: #d45a1a;
+            font-weight: bold;
+        }
+        .pagination button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .pagination .page-info {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
         /* ===== 底部 ===== */
         .footer-links {
             margin-top: 30px;
@@ -146,6 +186,7 @@
             .stats .label { font-size: 1.3rem; }
             .stats .sub-info { font-size: 1rem; gap: 12px; }
             .stats .slogan { font-size: 1.1rem; }
+            .pagination button { padding: 4px 10px; font-size: 0.85rem; }
         }
     </style>
 </head>
@@ -161,9 +202,12 @@
     <!-- ===== 文章列表 ===== -->
     <div id="list"></div>
 
+    <!-- ===== 分页控件 ===== -->
+    <div class="pagination" id="pagination"></div>
+
     <!-- ===== 底部 ===== -->
     <div class="footer-links">
-        <a href="./">← 返回首页</a>
+        <a href="/L">← 返回首页</a>
         <a href="舒窈英文衡水体.ttf" download>⬇️ 下载衡水体字体</a>
         <a href="https://wwbud.lanzoum.com/ivBJ240vsydg" target="_blank">📄 四级词汇表（乱序版）</a>
     </div>
@@ -184,10 +228,13 @@
             })
             .catch(err => {
                 console.warn('获取语录失败，使用备用:', err);
-                // 保持默认，不干扰主流程
             });
 
         // ===== 2. 加载文章列表 =====
+        let allPosts = [];      // 保存全部数据
+        const pageSize = 10;    // 每页10条
+        let currentPage = 1;
+
         fetch('./posts.json')
             .then(res => {
                 if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -196,17 +243,9 @@
             .then(data => {
                 // 按日期倒序
                 data.sort((a, b) => new Date(b.date) - new Date(a.date));
+                allPosts = data;
 
-                // 渲染列表
-                const list = document.getElementById('list');
-                list.innerHTML = '';
-                data.forEach(item => {
-                    const p = document.createElement('p');
-                    p.innerHTML = `<a href="${item.filename}">${item.title}</a> <span class="post-date">${item.date}</span>`;
-                    list.appendChild(p);
-                });
-
-                // ===== 计算坚持天数 =====
+                // 计算坚持天数（基于所有文章）
                 const earliest = data.reduce((a, b) => new Date(a.date) < new Date(b.date) ? a : b);
                 const start = new Date(earliest.date);
                 const today = new Date();
@@ -214,7 +253,7 @@
                 today.setHours(0,0,0,0);
                 const days = Math.floor((today - start) / (1000*60*60*24)) + 1;
 
-                // ===== 渲染统计区 =====
+                // 渲染统计区
                 const stats = document.getElementById('stats');
                 stats.innerHTML = `
                     <div class="big-day">${days}</div>
@@ -225,12 +264,85 @@
                     </div>
                     <div class="slogan">${sloganText}</div>
                 `;
+
+                // 初始渲染第一页
+                renderPage(1);
             })
             .catch(err => {
                 document.getElementById('list').innerHTML = '<p class="error-msg">⚠️ 无法加载文章索引，请刷新重试。</p>';
                 document.getElementById('stats').innerHTML = '⚠️ 加载失败';
                 console.error('加载失败:', err);
             });
+
+        // ===== 3. 分页渲染函数 =====
+        function renderPage(page) {
+            const list = document.getElementById('list');
+            const pagination = document.getElementById('pagination');
+
+            const total = allPosts.length;
+            const totalPages = Math.ceil(total / pageSize);
+            if (page < 1) page = 1;
+            if (page > totalPages) page = totalPages;
+            currentPage = page;
+
+            // 计算当前页的数据 slice
+            const start = (page - 1) * pageSize;
+            const end = Math.min(start + pageSize, total);
+            const pageData = allPosts.slice(start, end);
+
+            // 清空列表
+            list.innerHTML = '';
+            if (pageData.length === 0) {
+                list.innerHTML = '<p style="color:#666;">暂无文章</p>';
+            } else {
+                pageData.forEach(item => {
+                    const p = document.createElement('p');
+                    p.innerHTML = `<a href="${item.filename}">${item.title}</a> <span class="post-date">${item.date}</span>`;
+                    list.appendChild(p);
+                });
+            }
+
+            // 生成分页按钮
+            let html = '';
+            // 上一页
+            html += `<button onclick="renderPage(${page - 1})" ${page <= 1 ? 'disabled' : ''}>‹ 上一页</button>`;
+
+            // 页码（最多显示7个数字，带省略号）
+            const maxVisible = 7;
+            let startPage = 1, endPage = totalPages;
+            if (totalPages > maxVisible) {
+                const half = Math.floor(maxVisible / 2);
+                if (page - half <= 1) {
+                    startPage = 1;
+                    endPage = maxVisible;
+                } else if (page + half >= totalPages) {
+                    startPage = totalPages - maxVisible + 1;
+                    endPage = totalPages;
+                } else {
+                    startPage = page - half;
+                    endPage = page + half;
+                }
+            }
+            if (startPage > 1) {
+                html += `<button onclick="renderPage(1)">1</button>`;
+                if (startPage > 2) html += `<span style="color:#999;">…</span>`;
+            }
+            for (let i = startPage; i <= endPage; i++) {
+                html += `<button onclick="renderPage(${i})" class="${i === page ? 'active' : ''}">${i}</button>`;
+            }
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) html += `<span style="color:#999;">…</span>`;
+                html += `<button onclick="renderPage(${totalPages})">${totalPages}</button>`;
+            }
+
+            // 下一页
+            html += `<button onclick="renderPage(${page + 1})" ${page >= totalPages ? 'disabled' : ''}>下一页 ›</button>`;
+
+            // 显示总数信息
+            html += `<span class="page-info">共 ${total} 条，第 ${page}/${totalPages} 页</span>`;
+
+            pagination.innerHTML = html;
+        }
     </script>
 
 </body>
