@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>md2html</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+
+    <h1>md2html</h1>
+    <p>Paste markdown here.</p>
+
+    <div style="margin-bottom:10px;">
+        <label>Title:<input type="text" id="articleTitle" value="#" style="width:200px;"></label>
+        <label style="margin-left:20px;">Filename:<input type="text" id="articleFilename" value="# .html" style="width:150px;"></label>
+        <label style="margin-left:20px;">Date:<input type="date" id="articleDate" style="width:150px;"></label>
+    </div>
+
+    <textarea id="input" rows="12" cols="80" style="width:100%; box-sizing:border-box; font-family:monospace;"></textarea>
+    <br>
+    <button id="convertBtn">Convert</button>
+
+    <hr>
+
+    <h2>HTML Code</h2>
+    <textarea id="output" rows="12" cols="80" style="width:100%; box-sizing:border-box; font-family:monospace; background:#f5f5f5;" readonly></textarea>
+    <br>
+    <button id="copyBtn">Copy</button>
+    <span id="copyMsg" style="margin-left:12px;"></span>
+
+    <hr>
+
+    <h2>Index JSON</h2>
+    <textarea id="jsonOutput" rows="4" cols="80" style="width:100%; box-sizing:border-box; font-family:monospace; background:#f5f5f5;" readonly></textarea>
+    <br>
+    <button id="copyJsonBtn">Copy</button>
+    <span id="copyJsonMsg" style="margin-left:12px;"></span>
+    <br><br>
+    <a href="https://github.com">Show in your repo</a>
+    &nbsp;|&nbsp;
+    <a href="./posts">Go to posts</a>
+
+    <hr>
+
+    <h2>Preview</h2>
+    <div id="preview" style="border:1px solid #ccc; padding:15px; min-height:60px;"></div>
+
+    <script>
+        document.getElementById('articleDate').value = new Date().toISOString().slice(0,10);
+
+        function buildArticle(contentHtml, title) {
+            return `<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title}</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+${contentHtml}
+
+</body>
+</html>`;
+        }
+
+        document.getElementById('convertBtn').addEventListener('click', function() {
+            const md = document.getElementById('input').value;
+            if (!md.trim()) {
+                alert('❌Input markdown!');
+                return;
+            }
+
+            const title = document.getElementById('articleTitle').value.trim() || '无标题';
+            const filename = document.getElementById('articleFilename').value.trim() || 'article.html';
+            const date = document.getElementById('articleDate').value || new Date().toISOString().slice(0,10);
+
+            const htmlContent = marked.parse(md);
+            const fullHtml = buildArticle(htmlContent, title);
+            document.getElementById('preview').innerHTML = htmlContent;
+            document.getElementById('output').value = fullHtml;
+            document.getElementById('copyMsg').textContent = '';
+            const jsonData = [
+                { filename: filename, title: title, date: date }
+            ];
+            document.getElementById('jsonOutput').value = JSON.stringify(jsonData, null, 2);
+            document.getElementById('copyJsonMsg').textContent = '';
+        });
+
+        // 复制 HTML 代码
+        document.getElementById('copyBtn').addEventListener('click', function() {
+            const output = document.getElementById('output');
+            if (!output.value) {
+                alert('❌Please convert first!');
+                return;
+            }
+            navigator.clipboard.writeText(output.value).then(() => {
+                document.getElementById('copyMsg').textContent = '✅';
+                setTimeout(() => document.getElementById('copyMsg').textContent = '', 2000);
+            }).catch(() => {
+                output.select();
+                document.execCommand('copy');
+                document.getElementById('copyMsg').textContent = '✅';
+                setTimeout(() => document.getElementById('copyMsg').textContent = '', 2000);
+            });
+        });
+
+        // 新增：复制 JSON
+        document.getElementById('copyJsonBtn').addEventListener('click', function() {
+            const jsonOutput = document.getElementById('jsonOutput');
+            if (!jsonOutput.value) {
+                alert('❌Please convert first!');
+                return;
+            }
+            navigator.clipboard.writeText(jsonOutput.value).then(() => {
+                document.getElementById('copyJsonMsg').textContent = '✅';
+                setTimeout(() => document.getElementById('copyJsonMsg').textContent = '', 2000);
+            }).catch(() => {
+                jsonOutput.select();
+                document.execCommand('copy');
+                document.getElementById('copyJsonMsg').textContent = '✅';
+                setTimeout(() => document.getElementById('copyJsonMsg').textContent = '', 2000);
+            });
+        });
+    </script>
+
+</body>
+</html>
