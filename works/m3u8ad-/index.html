@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M3U8 Ad-</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</head>
+<body>
+<div class="app">
+
+    <div class="step-indicator">
+        <div class="step active" id="stepLabel1"><span class="num">1</span> Paste Link</div>
+        <div class="line"></div>
+        <div class="step" id="stepLabel2"><span class="num">2</span> Preview & Download</div>
+    </div>
+
+    <div id="step1">
+        <h1>M3U8 Ad<sub>-</sub></h1>
+        <p>Paste your M3U8 URL (supports master playlist auto-follow). Click "Start Analysis" to generate an ad-free playlist.</p>
+        <div>
+            <label>M3U8 URL:<br>
+                <input type="text" id="m3u8Url" value="" placeholder="https://example.com/playlist.m3u8">
+            </label>
+        </div>
+        <br>
+        <button class="btn btn-primary" id="analyzeBtn">Start Analysis</button>
+        <span class="status-msg" id="statusMsg"></span>
+    </div>
+
+    <div id="step2" style="display:none;">
+        <h2>Analysis Results</h2>
+        
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card"><div class="label">Original Duration</div><div class="value" id="origDur">-</div></div>
+            <div class="stat-card"><div class="label">Ad-free Duration</div><div class="value" id="cleanDur">-</div></div>
+            <div class="stat-card"><div class="label">Ads Removed</div><div class="value" id="adCount">-</div></div>
+        </div>
+
+        <div id="blockTableContainer"></div>
+        <hr>
+
+        <h3>Ad-free M3U8 Content</h3>
+        <textarea id="cleanM3u8Output" rows="6" readonly></textarea>
+        <div class="flex-row">
+            <button class="btn btn-secondary" id="copyBtn">Copy M3U8</button>
+            <button class="btn btn-success" id="downloadBtn">Download M3U8</button>
+            <span id="copyMsg" class="toast" style="opacity:0; transition:opacity 0.2s;">Copied!</span>
+        </div>
+
+        <h3>Video Preview (hls.js)</h3>
+        <video id="videoPreview" controls playsinline></video>
+
+        <div style="margin-top: 20px;">
+            <button class="btn btn-secondary" id="backBtn">← Back to Step 1</button>
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
