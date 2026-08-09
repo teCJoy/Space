@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>M3U8 Ad-</title>
+    <title>M3U8 Analyzer</title>
+    <link rel="icon" type="image/png" href="https://images.icon-icons.com/2596/PNG/512/ad_icon_155859.png" referrerpolicy="no-referrer">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
@@ -13,11 +14,14 @@
     <div class="step-indicator">
         <div class="step active" id="stepLabel1"><span class="num">1</span> Paste Link</div>
         <div class="line"></div>
-        <div class="step" id="stepLabel2"><span class="num">2</span> Preview & Download</div>
+        <div class="step" id="stepLabel2"><span class="num">2</span> Preview &amp; Download</div>
     </div>
 
     <div id="step1">
-        <h1>M3U8 Ad<sub>-</sub></h1>
+        <h1>
+            <img src="https://images.icon-icons.com/2596/PNG/512/ad_icon_155859.png" alt="Ad icon" style="height: 1.4em; vertical-align: middle; margin-right: 10px;" referrerpolicy="no-referrer">
+            M3U8 Ad<sup>-</sup>
+        </h1>
         <p>Paste your M3U8 URL (supports master playlist auto-follow). Click "Start Analysis" to generate an ad-free playlist.</p>
         <div>
             <label>M3U8 URL:<br>
@@ -51,6 +55,32 @@
 
         <h3>Video Preview (hls.js)</h3>
         <video id="videoPreview" controls playsinline></video>
+
+        <!-- What to do next -->
+        <div class="next-steps">
+            <h3>What to do next</h3>
+            <p>You have downloaded an ad-free M3U8 playlist. Here are some ways to use it:</p>
+            <ul>
+                <li>
+                    <strong>Download as MP4 using FFmpeg</strong><br>
+                    <code>ffmpeg -allowed_extensions ALL -protocol_whitelist "file,http,https,tcp,tls,crypto" -i "clean_playlist.m3u8" -c copy -bsf:a aac_adtstoasc output.mp4</code>
+                    <br><small>Replace <code>clean_playlist.m3u8</code> with the actual file path or URL. If the M3U8 uses relative paths, add <code>-base_url "https://example.com/path/"</code> before the <code>-i</code>.</small>
+                    <br><strong>Download FFmpeg:</strong> <a href="https://ffmpeg.org/download.html" target="_blank">https://ffmpeg.org/download.html</a>
+                </li>
+                <li>
+                    <strong>Convert to MP4 online</strong> – try these free tools:
+                    <ul>
+                        <li><a href="https://www.online-convert.com/" target="_blank">Online-Convert</a></li>
+                        <li><a href="https://convertio.co/m3u8-mp4/" target="_blank">Convertio</a></li>
+                        <li><a href="https://www.freeconvert.com/m3u8-to-mp4" target="_blank">FreeConvert</a></li>
+                        <li><a href="https://cloudconvert.com/m3u8-to-mp4" target="_blank">CloudConvert</a></li>
+                        <li><a href="https://www.aconvert.com/video/m3u8-to-mp4/" target="_blank">Aconvert</a></li>
+                        <li><a href="https://www.hlsloader.com/" target="_blank">HLSLoader</a> (download as MP4)</li>
+                    </ul>
+                </li>
+                <li><strong>Play locally</strong> – use any modern media player that supports HLS (e.g., VLC, IINA).</li>
+            </ul>
+        </div>
 
         <div style="margin-top: 20px;">
             <button class="btn btn-secondary" id="backBtn">← Back to Step 1</button>
