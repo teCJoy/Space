@@ -20,8 +20,6 @@ textarea { width: 100%; padding: 14px; border: 2px solid #e2e8f0; border-radius:
 .btn-secondary:hover { background: #e2e8f0; }
 .btn-success { background: #22c55e; color: white; }
 .btn-success:hover { background: #16a34a; }
-.btn-danger { background: #ef4444; color: white; }
-.btn-danger:hover { background: #dc2626; }
 .flex-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 16px 0; }
 .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin: 20px 0; }
 .stat-card { background: #f1f5f9; padding: 16px; border-radius: 12px; text-align: center; }
@@ -39,3 +37,23 @@ video { width: 100%; max-width: 100%; border-radius: 16px; background: #0f172a; 
 #step2 { animation: fadeIn 0.3s ease; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .toast { background: #0f172a; color: white; padding: 8px 18px; border-radius: 40px; font-size: 14px; }
+
+/* New styles for "What to do next" */
+.next-steps {
+    background: #f8fafc;
+    padding: 20px;
+    border-radius: 16px;
+    margin: 24px 0 16px 0;
+    border-left: 4px solid #2563eb;
+}
+.next-steps h3 { margin-top: 0; }
+.next-steps ul { padding-left: 20px; }
+.next-steps code {
+    background: #e2e8f0;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+.next-steps a { color: #2563eb; text-decoration: none; }
+.next-steps a:hover { text-decoration: underline; }
