@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>M3U8 Ad-</title>
+    <title>M3U8 Analyzer</title>
     <link rel="icon" type="image/png" href="https://images.icon-icons.com/2596/PNG/512/ad_icon_155859.png" referrerpolicy="no-referrer">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
 <div class="app">
@@ -17,9 +16,12 @@
     <div class="step-indicator">
         <div class="step active" id="stepLabel1"><span class="num">1</span> Paste Link</div>
         <div class="line"></div>
-        <div class="step" id="stepLabel2"><span class="num">2</span> Preview &amp; Download</div>
+        <div class="step" id="stepLabel2"><span class="num">2</span> Analyze &amp; Edit</div>
+        <div class="line"></div>
+        <div class="step" id="stepLabel3"><span class="num">3</span> Download</div>
     </div>
 
+    <!-- Step 1 -->
     <div id="step1">
         <h1>
             <img src="https://images.icon-icons.com/2596/PNG/512/ad_icon_155859.png" alt="Ad icon" style="height: 1.4em; vertical-align: middle; margin-right: 10px;" referrerpolicy="no-referrer">
@@ -27,15 +29,36 @@
         </h1>
         <p>Paste your M3U8 URL (supports master playlist auto-follow). Click "Start Analysis" to generate an ad-free playlist.</p>
         <div>
-            <label>M3U8 URL:<br>
+            <label>M3U8 URL:<br><p></p></ br>
                 <input type="text" id="m3u8Url" value="" placeholder="https://example.com/playlist.m3u8">
             </label>
         </div>
         <br>
-        <button class="btn btn-primary" id="analyzeBtn">Start Analysis</button>
-        <span class="status-msg" id="statusMsg"></span>
+
+        <details id="advancedToggle">
+            <summary>Advanced Options</summary>
+            <div style="margin-top: 12px;">
+                <div class="threshold-controls">
+                    <label>Min ad duration (s): <input type="number" id="minAdDur" value="5" step="0.1" min="0"></label>
+                    <label>Max ad duration (s): <input type="number" id="maxAdDur" value="45" step="0.1" min="0"></label>
+                </div>
+                <div style="margin-top: 12px;">
+                    <label>Referer URL (for anti-leech):<br>
+                        <input type="text" id="refererUrl" placeholder="https://example.com/video-page" style="width:100%;">
+                    </label>
+                </div>
+            </div>
+        </details>
+
+        <br>
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <button class="btn btn-primary" id="analyzeBtn">Start Analysis</button>
+            <img id="loadingGif" src="https://assets-v2.lottiefiles.com/a/d5392796-1169-11ee-908e-b33ed8d96ca4/kW0SJwvz27.gif" alt="Loading" style="height: 32px; display: none;">
+            <span class="status-msg" id="statusMsg"></span>
+        </div>
     </div>
 
+    <!-- Step 2 -->
     <div id="step2" style="display:none;">
         <h2>Analysis Results</h2>
         
@@ -45,50 +68,52 @@
             <div class="stat-card"><div class="label">Ads Removed</div><div class="value" id="adCount">-</div></div>
         </div>
 
-        <div id="blockTableContainer"></div>
+        <hr>
+
+        <h3>Segment Editor</h3>
+        <div style="margin-bottom: 12px;">
+            <button class="btn btn-secondary" id="refreshEditorBtn">Refresh</button>
+            <span style="margin-left: 12px; font-size: 14px; color: #64748b;">(Re-apply threshold from Step 1 and reset manual changes)</span>
+        </div>
+        <div id="editorContainer"></div>
+
         <hr>
 
         <h3>Ad-free M3U8 Content</h3>
         <textarea id="cleanM3u8Output" rows="6" readonly></textarea>
-        <div class="flex-row">
-            <button class="btn btn-secondary" id="copyBtn">Copy M3U8</button>
-            <button class="btn btn-success" id="downloadBtn">Download M3U8</button>
-            <span id="copyMsg" class="toast" style="opacity:0; transition:opacity 0.2s;">Copied!</span>
-        </div>
 
         <h3>Video Preview (hls.js)</h3>
         <video id="videoPreview" controls playsinline></video>
 
-        <!-- What to do next -->
-        <div class="next-steps">
-            <h3>What to do next</h3>
-            <p>You have downloaded an ad-free M3U8 playlist. Here are some ways to use it:</p>
-            <ul>
-                <li>
-                    <strong>Download as MP4 using FFmpeg</strong><br>
-                    <code>ffmpeg -allowed_extensions ALL -protocol_whitelist "file,http,https,tcp,tls,crypto" -i "clean_playlist.m3u8" -c copy -bsf:a aac_adtstoasc output.mp4</code>
-                    <br><small>Replace <code>clean_playlist.m3u8</code> with the actual file path or URL. If the M3U8 uses relative paths, add <code>-base_url "https://example.com/path/"</code> before the <code>-i</code>.</small>
-                    <br><strong>Download FFmpeg:</strong> <a href="https://ffmpeg.org/download.html" target="_blank">https://ffmpeg.org/download.html</a>
-                </li>
-                <li>
-                    <strong>Convert to MP4 online</strong> – try these free tools:
-                    <ul>
-                        <li><a href="https://www.online-convert.com/" target="_blank">Online-Convert</a></li>
-                        <li><a href="https://convertio.co/m3u8-mp4/" target="_blank">Convertio</a></li>
-                        <li><a href="https://www.freeconvert.com/m3u8-to-mp4" target="_blank">FreeConvert</a></li>
-                        <li><a href="https://cloudconvert.com/m3u8-to-mp4" target="_blank">CloudConvert</a></li>
-                        <li><a href="https://www.aconvert.com/video/m3u8-to-mp4/" target="_blank">Aconvert</a></li>
-                        <li><a href="https://www.hlsloader.com/" target="_blank">HLSLoader</a> (download as MP4)</li>
-                    </ul>
-                </li>
-                <li><strong>Play locally</strong> – use any modern media player that supports HLS (e.g., VLC, IINA).</li>
-            </ul>
+        <div style="margin-top: 20px;">
+            <button class="btn btn-primary" id="goToStep3Btn">Next: Download →</button>
+        </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div id="step3" style="display:none;">
+        <h2>Download Options</h2>
+        <p>Choose how you want to obtain your ad-free video.</p>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 20px; margin: 24px 0;">
+            <button class="btn btn-secondary" id="downloadPlaylistBtn" style="flex:1; min-width:200px; justify-content:center; padding:20px;">
+                <span style="font-size:1.2em;">📄</span> Download Playlist (.m3u8)
+            </button>
+            <button class="btn btn-success" id="mergeMp4Btn" style="flex:1; min-width:200px; justify-content:center; padding:20px;">
+                <span style="font-size:1.2em;">🎬</span> Merge &amp; Download as MP4
+            </button>
+        </div>
+
+        <div id="mergeStatus" style="margin: 16px 0; display: flex; align-items: center; gap: 12px;">
+            <img id="mergeLoadingGif" src="https://assets-v2.lottiefiles.com/a/d5392796-1169-11ee-908e-b33ed8d96ca4/kW0SJwvz27.gif" alt="Loading" style="height: 32px; display: none;">
+            <span id="mergeProgressText" style="font-weight: 500;"></span>
         </div>
 
         <div style="margin-top: 20px;">
-            <button class="btn btn-secondary" id="backBtn">← Back to Step 1</button>
+            <button class="btn btn-secondary" id="backToStep2Btn">← Back to Step 2</button>
         </div>
     </div>
+
 </div>
 
 <script src="script.js"></script>
