@@ -1,4 +1,4 @@
-* { box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+* { box-sizing: border-box; font-family: 'Exo 2', sans-serif; }
 body { background: #f8fafc; margin: 0; padding: 20px; display: flex; justify-content: center; }
 .app { max-width: 1000px; width: 100%; background: #ffffff; padding: 30px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); }
 h1, h2, h3 { color: #0f172a; font-weight: 600; margin-top: 0; }
