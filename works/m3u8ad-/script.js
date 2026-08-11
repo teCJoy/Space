@@ -27,7 +27,6 @@
         return base + '/' + relative;
     }
 
-    // fetch with optional Referer header
     async function fetchContent(url, referer) {
         var headers = {};
         if (referer) {
@@ -137,8 +136,9 @@
         };
     }
 
-    // ---- dynamic script loading ----
-    function loadScript(src) {
+    // ---- dynamic script loading (only for hls.js) ----
+    function loadScript(src, timeout) {
+        timeout = timeout || 10000;
         return new Promise(function(resolve, reject) {
             var existing = document.querySelector('script[src="' + src + '"]');
             if (existing) {
@@ -147,9 +147,14 @@
             }
             var script = document.createElement('script');
             script.src = src;
-            script.onload = resolve;
+            script.onload = function() {
+                setTimeout(resolve, 200);
+            };
             script.onerror = function() { reject(new Error('Failed to load script: ' + src)); };
             document.head.appendChild(script);
+            setTimeout(function() {
+                reject(new Error('Script load timeout: ' + src));
+            }, timeout);
         });
     }
 
@@ -176,12 +181,39 @@
     var mergeMp4Btn = document.getElementById('mergeMp4Btn');
     var mergeLoadingGif = document.getElementById('mergeLoadingGif');
     var mergeProgressText = document.getElementById('mergeProgressText');
+    var speedInfo = document.getElementById('speedInfo');
+    var mergeProgressBar = document.getElementById('mergeProgressBar');
+    var etaText = document.getElementById('etaText');
+    var actionButtons = document.getElementById('actionButtons');
+    var mergeStatus = document.getElementById('mergeStatus');
 
     var origDurEl = document.getElementById('origDur');
     var cleanDurEl = document.getElementById('cleanDur');
     var adCountEl = document.getElementById('adCount');
     var editorContainer = document.getElementById('editorContainer');
     var refreshEditorBtn = document.getElementById('refreshEditorBtn');
+
+    // Step3 速度控制元素
+    var speedModeSelect = document.getElementById('speedModeStep3');
+    var manualConcurrencyInput = document.getElementById('manualConcurrencyStep3');
+    var manualConcurrencyContainer = document.getElementById('manualConcurrencyContainerStep3');
+
+    // ---- 监听手动并发显示 ----
+    if (speedModeSelect) {
+        speedModeSelect.addEventListener('change', function() {
+            if (this.value === 'manual') {
+                manualConcurrencyContainer.style.display = 'block';
+            } else {
+                manualConcurrencyContainer.style.display = 'none';
+            }
+        });
+        // 初始状态
+        if (speedModeSelect.value === 'manual') {
+            manualConcurrencyContainer.style.display = 'block';
+        } else {
+            manualConcurrencyContainer.style.display = 'none';
+        }
+    }
 
     // ---- state ----
     var currentBlocks = [];
@@ -190,11 +222,13 @@
     var currentTotalDuration = 0;
     var currentReferer = '';
     var currentCleanM3u8 = '';
-
     var hls = null;
     var currentBlobUrl = null;
 
-    // ---- HLS functions with Referer ----
+    // 全局用于恢复 fetch
+    var originalFetch = window.fetch;
+
+    // ---- HLS functions ----
     function destroyHls() {
         if (hls) {
             hls.destroy();
@@ -226,7 +260,7 @@
             };
         }
 
-        if (Hls.isSupported()) {
+        if (typeof Hls !== 'undefined' && Hls.isSupported()) {
             hls = new Hls(config);
             hls.loadSource(blobUrl);
             hls.attachMedia(videoElem);
@@ -388,85 +422,122 @@
         URL.revokeObjectURL(url);
     }
 
-    // ---- Step 3: Merge to MP4 using m3u8-downloader-js (dynamically loaded) ----
+    // ---- Step 3: Merge to MP4 using M3U8 class ----
     async function mergeToMp4() {
         if (!currentCleanM3u8) {
             alert('No playlist content. Please analyze first.');
             return;
         }
 
-        // Load m3u8-downloader-js if not already loaded
-        if (typeof M3U8 === 'undefined') {
-            mergeProgressText.textContent = 'Loading merger library...';
-            mergeLoadingGif.style.display = 'inline-block';
-            mergeMp4Btn.disabled = true;
-            try {
-                await loadScript('https://cdn.jsdelivr.net/gh/SuperZombi/m3u8-downloader-js/m3u8.js');
-            } catch (err) {
-                mergeProgressText.textContent = 'Error loading merger: ' + err.message;
-                mergeLoadingGif.style.display = 'none';
-                mergeMp4Btn.disabled = false;
-                return;
-            }
-            // Verify it's loaded
-            if (typeof M3U8 === 'undefined') {
-                mergeProgressText.textContent = 'Error: M3U8 library not loaded properly.';
-                mergeLoadingGif.style.display = 'none';
-                mergeMp4Btn.disabled = false;
-                return;
-            }
-        }
+        // 隐藏按钮，显示进度区域
+        actionButtons.style.display = 'none';
+        mergeStatus.style.display = 'block';
 
-        // Disable button and show loading
-        mergeMp4Btn.disabled = true;
+        // 重置进度
         mergeLoadingGif.style.display = 'inline-block';
-        mergeProgressText.textContent = 'Initializing...';
+        mergeProgressText.textContent = 'Preparing download...';
+        speedInfo.textContent = '';
+        mergeProgressBar.value = 0;
+        etaText.textContent = 'ETA: --';
+        mergeMp4Btn.disabled = true;
 
-        // Create a Blob URL for the clean M3U8 content
         var blob = new Blob([currentCleanM3u8], { type: 'application/vnd.apple.mpegurl' });
         var blobUrl = URL.createObjectURL(blob);
 
-        // Prepare options for downloader
-        var options = {
-            output: 'merged_video.mp4',
-            concurrency: 5, // 5 concurrent downloads
-            headers: currentReferer ? { 'Referer': currentReferer } : {}
-        };
-
-        try {
-            var m3u8 = new M3U8();
-            var download = m3u8.start(blobUrl, options);
-
-            download.on('progress', function(progress) {
-                var percent = Math.round(progress * 100);
-                mergeProgressText.textContent = 'Downloading & merging... ' + percent + '%';
-            });
-
-            download.on('finished', function() {
-                // The library automatically downloads the file? Actually it triggers download automatically.
-                // But we need to handle, it might have already triggered download.
-                // We'll clean up and update status.
-                mergeLoadingGif.style.display = 'none';
-                mergeProgressText.textContent = 'Merge complete! File downloaded.';
-                mergeMp4Btn.disabled = false;
-                URL.revokeObjectURL(blobUrl);
-            });
-
-            download.on('error', function(message) {
-                mergeProgressText.textContent = 'Error: ' + message;
-                mergeLoadingGif.style.display = 'none';
-                mergeMp4Btn.disabled = false;
-                URL.revokeObjectURL(blobUrl);
-                console.error('Download error:', message);
-            });
-
-        } catch (err) {
-            mergeProgressText.textContent = 'Error: ' + err.message;
-            mergeLoadingGif.style.display = 'none';
-            mergeMp4Btn.disabled = false;
-            URL.revokeObjectURL(blobUrl);
-            console.error(err);
+        // 固定并发
+        var maxConcurrency = 20;
+        var mode = speedModeSelect.value;
+        var concurrency;
+        if (mode === 'manual') {
+            concurrency = parseInt(manualConcurrencyInput.value) || 5;
+            if (concurrency < 1) concurrency = 1;
+        } else {
+            var factor = 1.0;
+            if (mode === 'balance') factor = 0.6;
+            else if (mode === 'eco') factor = 0.3;
+            else if (mode === 'fast') factor = 1.0;
+            concurrency = Math.round(maxConcurrency * factor);
+            if (concurrency < 1) concurrency = 1;
         }
+        speedInfo.textContent = 'Concurrency: ' + concurrency;
+
+        mergeProgressText.textContent = 'Starting download and merge...';
+
+        var M3U8Class = M3U8.M3U8 || M3U8;
+        var m3u8 = new M3U8Class();
+
+        // 拦截 fetch 添加 Referer
+        var referer = currentReferer;
+        if (referer) {
+            window.fetch = function(input, init) {
+                var url = typeof input === 'string' ? input : input.url;
+                if (url && (url.endsWith('.ts') || url.includes('.ts?'))) {
+                    var newInit = init || {};
+                    newInit.headers = newInit.headers || {};
+                    if (typeof newInit.headers === 'object' && !(newInit.headers instanceof Headers)) {
+                        newInit.headers['Referer'] = referer;
+                    } else if (newInit.headers instanceof Headers) {
+                        newInit.headers.set('Referer', referer);
+                    }
+                    return originalFetch.call(window, input, newInit);
+                }
+                return originalFetch.call(window, input, init);
+            };
+        }
+
+        // 进度与 ETA
+        var startTime = null;
+
+        m3u8.on('progress', function(data) {
+            var pct = data.percentage || 0;
+            mergeProgressText.textContent = 'Downloading... ' + Math.round(pct) + '%';
+            mergeProgressBar.value = pct;
+
+            if (startTime === null && pct > 0) {
+                startTime = Date.now();
+            }
+            if (startTime !== null && pct > 0) {
+                var elapsed = (Date.now() - startTime) / 1000;
+                var totalEstimated = elapsed / (pct / 100);
+                var remaining = totalEstimated - elapsed;
+                if (remaining > 0 && isFinite(remaining)) {
+                    var minutes = Math.floor(remaining / 60);
+                    var seconds = Math.floor(remaining % 60);
+                    etaText.textContent = 'ETA: ' + String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+                } else {
+                    etaText.textContent = 'ETA: --';
+                }
+            }
+        })
+        .on('finished', function(data) {
+            mergeProgressText.textContent = '✅ Merge complete! File downloaded.';
+            mergeLoadingGif.style.display = 'none';
+            mergeProgressBar.value = 100;
+            etaText.textContent = 'ETA: Done';
+            URL.revokeObjectURL(blobUrl);
+            if (referer) window.fetch = originalFetch;
+            // 恢复按钮
+            actionButtons.style.display = 'flex';
+            mergeMp4Btn.disabled = false;
+        })
+        .on('error', function(err) {
+            mergeProgressText.textContent = '❌ Error: ' + err;
+            mergeLoadingGif.style.display = 'none';
+            mergeProgressBar.value = 0;
+            etaText.textContent = 'ETA: Failed';
+            URL.revokeObjectURL(blobUrl);
+            if (referer) window.fetch = originalFetch;
+            // 恢复按钮
+            actionButtons.style.display = 'flex';
+            mergeMp4Btn.disabled = false;
+            console.error(err);
+        });
+
+        // 开始下载
+        m3u8.start(blobUrl, {
+            filename: 'merged_video',
+            autoDownload: true
+        });
     }
 
     // ---- event listeners ----
@@ -477,11 +548,19 @@
             return;
         }
 
-        // Load hls.js if not already loaded
         if (typeof Hls === 'undefined') {
             setStatus('Loading player library...', 'loading');
             try {
                 await loadScript('https://cdn.jsdelivr.net/npm/hls.js@latest');
+                var maxAttempts = 20;
+                var attempts = 0;
+                while (typeof Hls === 'undefined' && attempts < maxAttempts) {
+                    await new Promise(r => setTimeout(r, 200));
+                    attempts++;
+                }
+                if (typeof Hls === 'undefined') {
+                    throw new Error('Hls not defined after loading');
+                }
             } catch (err) {
                 setStatus('Error loading player: ' + err.message, 'error');
                 return;
@@ -530,14 +609,20 @@
             alert('Please analyze first.');
             return;
         }
+        destroyHls();
         step2.style.display = 'none';
         step3.style.display = 'block';
         stepLabel2.classList.remove('active');
         stepLabel3.classList.add('active');
-        // Reset merge status
+        // 重置 Step3 界面：显示按钮，隐藏进度
+        actionButtons.style.display = 'flex';
+        mergeStatus.style.display = 'none';
         mergeProgressText.textContent = '';
         mergeLoadingGif.style.display = 'none';
         mergeMp4Btn.disabled = false;
+        speedInfo.textContent = '';
+        mergeProgressBar.value = 0;
+        etaText.textContent = 'ETA: --';
     });
 
     backToStep2Btn.addEventListener('click', function() {
@@ -545,13 +630,19 @@
         step2.style.display = 'block';
         stepLabel3.classList.remove('active');
         stepLabel2.classList.add('active');
+        if (currentCleanM3u8) {
+            initHls(currentCleanM3u8, currentReferer);
+        }
     });
 
     downloadPlaylistBtn.addEventListener('click', downloadPlaylist);
     mergeMp4Btn.addEventListener('click', mergeToMp4);
 
-    // ---- clean up on page unload ----
     window.addEventListener('beforeunload', function() {
         destroyHls();
+        // 恢复原始 fetch（如果被覆盖）
+        if (window.fetch !== originalFetch) {
+            window.fetch = originalFetch;
+        }
     });
 })();
