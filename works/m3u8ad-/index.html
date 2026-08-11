@@ -29,7 +29,7 @@
         </h1>
         <p>Paste your M3U8 URL (supports master playlist auto-follow). Click "Start Analysis" to generate an ad-free playlist.</p>
         <div>
-            <label>M3U8 URL:<br><p></p></ br>
+            <label>M3U8 URL:<br>
                 <input type="text" id="m3u8Url" value="" placeholder="https://example.com/playlist.m3u8">
             </label>
         </div>
@@ -47,6 +47,7 @@
                         <input type="text" id="refererUrl" placeholder="https://example.com/video-page" style="width:100%;">
                     </label>
                 </div>
+                <!-- 速度模式已移除，移至 Step3 -->
             </div>
         </details>
 
@@ -95,7 +96,26 @@
         <h2>Download Options</h2>
         <p>Choose how you want to obtain your ad-free video.</p>
 
-        <div style="display: flex; flex-wrap: wrap; gap: 20px; margin: 24px 0;">
+        <!-- 高级选项（速度控制）移到 Step3 -->
+        <details id="advancedToggleStep3" style="margin-bottom: 16px;">
+            <summary>Advanced Options (Download)</summary>
+            <div style="margin-top:12px;">
+                <label>Speed Mode:<br>
+                    <select id="speedModeStep3" style="width:100%; padding:8px; border-radius:8px; border:2px solid #e2e8f0;">
+                        <option value="balance">Balance (12 concurrent)</option>
+                        <option value="fast">Fast (20 concurrent)</option>
+                        <option value="eco">Eco (6 concurrent)</option>
+                        <option value="manual">Manual (set below)</option>
+                    </select>
+                </label>
+                <div id="manualConcurrencyContainerStep3" style="margin-top:8px; display:none;">
+                    <label>Concurrency (1 - ∞): <input type="number" id="manualConcurrencyStep3" value="5" min="1" style="width:80px;"></label>
+                </div>
+            </div>
+        </details>
+
+        <!-- 按钮容器（用于隐藏/显示） -->
+        <div id="actionButtons" style="display: flex; flex-wrap: wrap; gap: 20px; margin: 24px 0;">
             <button class="btn btn-secondary" id="downloadPlaylistBtn" style="flex:1; min-width:200px; justify-content:center; padding:20px;">
                 <span style="font-size:1.2em;">📄</span> Download Playlist (.m3u8)
             </button>
@@ -104,9 +124,17 @@
             </button>
         </div>
 
-        <div id="mergeStatus" style="margin: 16px 0; display: flex; align-items: center; gap: 12px;">
-            <img id="mergeLoadingGif" src="https://assets-v2.lottiefiles.com/a/d5392796-1169-11ee-908e-b33ed8d96ca4/kW0SJwvz27.gif" alt="Loading" style="height: 32px; display: none;">
-            <span id="mergeProgressText" style="font-weight: 500;"></span>
+        <!-- 进度显示区域（初始隐藏） -->
+        <div id="mergeStatus" style="margin: 16px 0; display: none;">
+            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                <img id="mergeLoadingGif" src="https://assets-v2.lottiefiles.com/a/d5392796-1169-11ee-908e-b33ed8d96ca4/kW0SJwvz27.gif" alt="Loading" style="height: 32px;">
+                <span id="mergeProgressText" style="font-weight: 500;"></span>
+                <span id="speedInfo" style="font-size:14px; color:#64748b;"></span>
+            </div>
+            <div style="margin-top:8px; display: flex; align-items: center; gap: 10px;">
+                <progress id="mergeProgressBar" value="0" max="100" style="flex:1; height:20px;"></progress>
+                <span id="etaText" style="font-size:14px; color:#64748b; min-width:80px;">ETA: --</span>
+            </div>
         </div>
 
         <div style="margin-top: 20px;">
@@ -115,6 +143,11 @@
     </div>
 
 </div>
+
+<!-- 嵌入 m3u8 下载合并库（保持不变） -->
+<script>
+var M3U8=function(t){"use strict";const e=[".m3u8",".mp4",".ts",".mp4a",".cmfv",".aac",".cmfa"],s="application/octet-stream",r={".m3u8":"application/vnd.apple.mpegurl",".mp4":"video/mp4",".ts":"video/mp2t",".mp4a":"audio/mp4",".cmfv":"video/iso.segment",".aac":"audio/aac",".cmfa":"audio/iso.segment"},i=t=>{const e=[{divider:1e18,suffix:"EB"},{divider:1e15,suffix:"PB"},{divider:1e12,suffix:"TB"},{divider:1e9,suffix:"GB"},{divider:1e6,suffix:"MB"},{divider:1e3,suffix:"kB"}];for(const{divider:s,suffix:r}of e)if(t>=s)return`${Math.floor(t/s)}${r}`;return`${t}`},a=(t,e)=>new URL(e,t).href,o=t=>/^(https?:\/\/)?([\w.-]+)?\/?[\w./-]+\??([^#\s]*)?$/i.test(t.trim()),n=t=>{const e=(t=t.trim()).startsWith("http")?t:"http://fake.local/"+t;try{const t=new URL(e);let s=t.pathname;return t.pathname.startsWith("/")&&(s=t.pathname.slice(1)),s}catch{return t.split("?")[0]}},l=/(\r\n|\r|\n)/gi,h=t=>{const e={},s=/([A-Z0-9-]+)="?(.*?)(?:"|,|$)/gi;let r;for(;r=s.exec(t);)e[r[1]]=r[2];return e},c=async(t,e,r,i)=>{const a=await crypto.subtle.importKey("raw",e,{name:"AES-CBC"},!1,["decrypt"]),o=(t=>{const e=t.startsWith("0x")?t.slice(2):t;if(e.length%2!=0)throw new Error("Invalid hex string length: must be even.");const s=e.length/2,r=new Uint8Array(s);for(let t=0;t<s;t++){const s=e.substring(2*t,2*t+2);r[t]=parseInt(s,16)}return r})(r),n=await t.arrayBuffer();return((t,e=s)=>new Blob([t],{type:e}))(await crypto.subtle.decrypt({name:"AES-CBC",iv:o},a,n),i)},d=(t,e)=>`${t.endsWith("/")?t.slice(0,-1):t}/${encodeURIComponent(e)}`;class p{abortedFlag=!1;onprogress;onerror;onabort;arr;cb;i;data;constructor(t,e,s,r=0,i=[]){this.arr=t,this.cb=s,this.i=r,this.data=i,this.download(e)}abort(){this.abortedFlag=!0}download(t="media"){const e=this.arr[this.i],s=this.arr[this.i+1];Promise.all([fetch(e),s?fetch(s):Promise.resolve(null)]).then(t=>Promise.all(t.filter(t=>null!==t&&"blob"in t).map(t=>t.blob()))).then(t=>Promise.all(t.map(t=>this.readAsArrayBuffer(t)))).then(e=>{e.forEach(t=>this.data.push(t));const s=this.arr[this.i+2]?2:1,r=this.i;if(this.abortedFlag)return this.data=[],void this.onabort?.();if(this.arr[r+s]?(this.i+=s,setTimeout(()=>this.download(t),0)):this.cb(this.data),this.onprogress){const e=((t,e,s)=>{let r=s;return t.forEach((t,s)=>{r=e(r,t,s)}),r})(this.data,(t,e)=>t+e.byteLength,0);this.onprogress({segment:r+1,label:t,total:this.arr.length,percentage:+((r+1)/this.arr.length*100).toFixed(2),downloaded:i(e),status:"Downloading..."})}}).catch(t=>{this.onerror?.(t.message||"Unknown error")})}readAsArrayBuffer(t){return new Promise(e=>{const s=new FileReader;s.readAsArrayBuffer(t),s.onloadend=()=>e(s.result)})}}return t.M3U8=class{callbacks={};blobs={};key=null;iv=null;encryptionMethod=null;constructor(t,e={}){this.start(t,e)}on(t,e){return this.callbacks[t]=e,this}start(t,s={}){fetch(t).then(t=>t.text()).then(async r=>{const i=r.includes("#EXT-X-STREAM-INF");if(console.log(i?"Master playlist detected":"Media playlist detected"),i){const{bestVideoUrl:i,audioUrl:c}=await function(t,s){const r=t.split(l).filter(t=>""!==t.trim()&&!t.startsWith("\n")).map(t=>t.replaceAll(/\\\\+"/g,'"')),i=[];let c={};for(const t of r){const r=o(t)?n(t):t,l=e.some(t=>r.endsWith(t)),d=h(t);if(String(t).startsWith("#EXT-X-STREAM-INF:")){const t=d.RESOLUTION.split("x");c.audioGroup=d.AUDIO,c.width=parseInt(t[0]),c.height=parseInt(t[1]),console.log(`Parsing master playlist... ${c.width}x${c.height}`)}else l&&!r.startsWith("#")&&(c.videoUri=a(s,t),c.width&&c.height&&c?.audioGroup&&c.videoUri&&i.push(c),c={})}const d=i.sort((t,e)=>e.width*e.height-t.width*t.height)[0],p=`GROUP-ID="${d.audioGroup}"`,u=r.find(t=>t.startsWith("#EXT-X-MEDIA:TYPE=AUDIO")&&t.includes(p));if(!u)throw new Error("No matching audio group found");const f=h(u),m=a(s,f.URI);return console.log(`Best video stream: ${d.width}x${d.height}`),{bestVideoUrl:d.videoUri,audioUrl:m}}(r,t);return i&&c?(await this.downloadStream(i,{...s,extension:"mp4"},"video"),void await this.downloadStream(c,{...s,extension:"m4a"},"audio")):void this.callbacks.error?.("Failed to parse master playlist")}await this.downloadStream(t,s)}).catch(t=>{this.callbacks.error?.(`Failed to download m3u8: ${t}`)})}async downloadStream(t,i,a="media"){const o=await fetch(t),u=await o.text(),f=new URL(t),m=((t,e)=>{const s=[];for(let r=0;r<t.length;r++)e(t[r],r)&&s.push(t[r]);return s})(u.split(l),t=>e.some(e=>n(t).endsWith(e)&&!t.startsWith("#"))),w=u.split(l).find(t=>t.startsWith("#EXT-X-KEY:"));if(w&&i.jwtToken){const t=h(w);if(t.URI){const e=i.proxyApiBaseUrl?d(i.proxyApiBaseUrl,t.URI):t.URI,s=await fetch(e,{headers:{Authorization:`Token ${i.jwtToken}`}}),r=await s.arrayBuffer();this.key=r,this.iv=t.IV,this.encryptionMethod=t.METHOD}}const g=((t,e)=>{const s=new Array(t.length);for(let r=0;r<t.length;r++)s[r]=e(t[r],r);return s})(m,t=>{if(/^https?:\/\//.test(t))return i.proxyApiBaseUrl?d(i.proxyApiBaseUrl,t):t;const e=new URL(t,f).toString();return i.proxyApiBaseUrl?d(i.proxyApiBaseUrl,e):e}).filter(Boolean),b=Array.from(new Set(g.map(t=>n(t).split(".").pop()?.toLowerCase()))),y="video"===a,v=y?"mp4":"m4a",U=b.length>0&&b.length<2,x=i.extension??(U?b[0]:v),A=`${i.filename||a}.${x}`;if(y&&console.log(`Filename(${a}):`,A),console.log(`Chosen ${a} extension:`,x),!g.length)return this.callbacks.error?.("Invalid m3u8 playlist"),null;const k=new p(g,a,async t=>{let e;const o=(n=x)?r[n.startsWith(".")?n:`.${n}`]??s:s;var n;i.jwtToken&&this.key&&this.iv?(e=await c(new Blob(t,{type:o}),this.key,this.iv,o),this.blobs[a]=e):(e=new Blob(t,{type:o}),this.blobs[a]=e),this.callbacks.progress?.({segment:0,label:a,total:g.length,percentage:100,downloaded:"--",status:`Processing ${a} stream...`}),i.autoDownload&&(this.callbacks.progress?.({segment:0,label:a,total:g.length,percentage:100,downloaded:"--",status:`Sending ${a} stream to browser...`}),((t,e)=>{const s=URL.createObjectURL(t),r=document.createElement("a");r.href=s,r.download=e,document.body.appendChild(r),r.click(),r.remove(),URL.revokeObjectURL(s)})(e,A)),this.callbacks.finished?.({status:`Successfully downloaded ${a} stream`,data:this.blobs})});return k.onprogress=this.callbacks.progress,k.onerror=t=>this.callbacks.error?.(t),k.onabort=()=>this.callbacks.aborted?.("Download aborted"),k}},t}({});
+</script>
 
 <script src="script.js"></script>
 </body>
